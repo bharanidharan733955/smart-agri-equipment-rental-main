@@ -1,0 +1,62 @@
+[
+  {
+    "_id": "USR-3200",
+    "name": "Siva Farmer",
+    "email": "farmer@agrirent.gov",
+    "password": "$2b$10$YovKqsoGCHC4nJwBL21MPOf/eIKhQWNylD0Vr2zkIpUGSv80nJHke",
+    "role": "Farmer",
+    "mobile": "9876543210",
+    "district": "Ludhiana",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "isApproved": true,
+    "createdAt": "2026-08-06T10:46:58.039Z"
+  },
+  {
+    "_id": "USR-3800",
+    "name": "Vikram Operator",
+    "email": "operator@agrirent.gov",
+    "password": "$2b$10$EK7Wq.PCaMTqWYSqIBGi1uflgRtaHMjbalnC72U.W5Y1H5J4Pqcia",
+    "role": "Equipment Operator",
+    "mobile": "9876543212",
+    "district": "Ludhiana",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "isApproved": true,
+    "createdAt": "2026-08-06T10:46:58.103Z"
+  },
+  {
+    "_id": "USR-4000",
+    "name": "Maintenance Tech",
+    "email": "maint@agrirent.gov",
+    "password": "$2b$10$EK7Wq.PCaMTqWYSqIBGi1uflgRtaHMjbalnC72U.W5Y1H5J4Pqcia",
+    "role": "Equipmaintance",
+    "mobile": "9876543213",
+    "district": "Ludhiana",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "isApproved": true,
+    "createdAt": "2026-08-06T10:46:58.103Z"
+  },
+  {
+    "_id": "USR-8333",
+    "name": "Staff Controller",
+    "email": "staff@agrirent.gov",
+    "password": "$2b$10$en1rb4RNwycURKhjRHNgWuvRaQwF.JKUilJ7tw5/cURdyGRhDtlE6",
+    "role": "Staff",
+    "mobile": "9876543214",
+    "district": "Ludhiana",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "isApproved": true,
+    "createdAt": "2026-08-06T10:46:58.166Z"
+  },
+  {
+    "_id": "USR-6499",
+    "name": "State Government Auditor",
+    "email": "officer@agrirent.gov",
+    "password": "$2b$10$olKJBhAsnw1eK8ic1MWXAuxou3G20EMv2cqEeWewD00lgZblbCofy",
+    "role": "Officer",
+    "mobile": "9876543215",
+    "district": "Ludhiana",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "isApproved": true,
+    "createdAt": "2026-08-13T05:52:00.963Z"
+  }
+]
