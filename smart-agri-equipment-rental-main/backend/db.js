@@ -13,7 +13,7 @@ let isConnected = false;
 import bcrypt from 'bcryptjs';
 
 function getMockEquipment() {
-  return [
+  const baseEq = [
     {
       _id: '65d1b716f9f30b2cd8133501',
       id: 'eq-1',
@@ -26,6 +26,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 12,
+      totalUnits: 15,
       rentalRate: 1500,
       imageUrl: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-AT-8821',
@@ -43,6 +44,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 5,
+      totalUnits: 15,
       rentalRate: 2200,
       imageUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-RT-5510',
@@ -60,6 +62,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 800,
       imageUrl: 'https://images.unsplash.com/photo-1534073828943-f801091bb28c?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-CL-4411',
@@ -77,6 +80,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 1100,
       imageUrl: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-TH-2212',
@@ -94,6 +98,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 900,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-SD-7711',
@@ -111,6 +116,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 700,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-CV-3311',
@@ -128,6 +134,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 500,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-SP-9911',
@@ -145,6 +152,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 600,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-PT-4411',
@@ -162,6 +170,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 1300,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-LL-1122',
@@ -179,6 +188,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 950,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-HS-3344',
@@ -196,6 +206,7 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 1200,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-SB-5566',
@@ -213,18 +224,62 @@ function getMockEquipment() {
       assignedOperator: null,
       status: 'Available',
       totalUsageHours: 0,
+      totalUnits: 15,
       rentalRate: 750,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-CR-7788',
       cooperativeHub: 'Ludhiana Central Hub #1'
     }
   ];
+
+  return baseEq.map(eq => {
+    const seed = parseInt(eq.id.split('-')[1]) || 1;
+    const units = Array.from({ length: 15 }, (_, idx) => {
+      const unitNum = idx + 1;
+      // Deterministic work hours ranging up to 370 hours
+      const hours = Math.round((((seed * 37 + unitNum * 17) % 38) * 9.8) * 10) / 10;
+      
+      let status = 'Available';
+      if (hours >= 350) {
+        status = 'Under Maintenance';
+      } else {
+        const rand = (seed * 11 + unitNum * 7) % 10;
+        if (rand === 3 || rand === 7) status = 'Rented';
+        else if (rand === 5) status = 'Reserved';
+      }
+
+      return {
+        unitNum,
+        serial: `${eq.regNumber}-${String(unitNum).padStart(2, '0')}`,
+        hours,
+        status
+      };
+    });
+
+    const totalUsageHours = Math.round(units.reduce((sum, u) => sum + u.hours, 0) / 15 * 10) / 10;
+
+    return {
+      ...eq,
+      units,
+      totalUsageHours
+    };
+  });
 }
 
 async function seedDemoData() {
   const demoUsers = [
     { name: 'Siva Farmer', email: 'farmer@agrirent.gov', password: 'farmer123', role: 'Farmer', mobile: '9876543210', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', farmerId: '123456789012', isApproved: true },
     { name: 'Vikram Operator', email: 'operator@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543212', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Rajesh Operator', email: 'rajesh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543220', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Ramesh Operator', email: 'ramesh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543221', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Suresh Operator', email: 'suresh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543222', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Ganesh Operator', email: 'ganesh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543223', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Karthik Operator', email: 'karthik@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543224', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Murugan Operator', email: 'murugan@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543225', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Siva Operator', email: 'siva@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543226', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Hari Operator', email: 'hari@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543227', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Arjun Operator', email: 'arjun@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543228', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Vijay Operator', email: 'vijay@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543229', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
     { name: 'Maintenance Tech', email: 'maint@agrirent.gov', password: 'maint123', role: 'Equipmaintance', mobile: '9876543213', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
     { name: 'Staff Controller', email: 'staff@agrirent.gov', password: 'staff123', role: 'Staff', mobile: '9876543214', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
     { name: 'State Government Auditor', email: 'officer@agrirent.gov', password: 'officer123', role: 'Officer', mobile: '9876543215', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true }
@@ -241,10 +296,11 @@ async function seedDemoData() {
         }
       }
 
-      // Seed equipment to MongoDB if count < 12
+      // Seed equipment to MongoDB if count < 12 or units array is missing
       const eqCount = await Equipment.countDocuments();
-      if (eqCount < 12) {
-        console.log("🌱 Seeding MongoDB equipment database...");
+      const eqWithUnits = await Equipment.countDocuments({ units: { $exists: true, $not: { $size: 0 } } });
+      if (eqCount < 12 || eqWithUnits < eqCount) {
+        console.log("🌱 Seeding MongoDB equipment database (with units fleet)...");
         await Equipment.deleteMany({}); // clear existing
         const mockEq = getMockEquipment();
         const opUser = await User.findOne({ role: 'Equipment Operator' });
@@ -253,7 +309,7 @@ async function seedDemoData() {
           mockEq[1].assignedOperator = opUser._id;
         }
         await Equipment.insertMany(mockEq);
-        console.log("✅ MongoDB Equipment Seeding completed.");
+        console.log("✅ MongoDB Equipment Seeding completed with units fleet.");
       }
     } catch (err) {
       console.error('Error seeding DB users:', err);
@@ -284,10 +340,10 @@ async function seedDemoData() {
       console.log('✅ Local JSON Seeding completed.');
     }
 
-    // Seed equipment locally if count < 12
+    // Seed equipment locally if count < 12 or units are missing
     const fileEq = localDb.read('equipment');
-    if (fileEq.length < 12) {
-      console.log("🌱 Seeding local JSON equipment database...");
+    if (fileEq.length < 12 || !fileEq[0] || !fileEq[0].units || fileEq[0].units.length === 0) {
+      console.log("🌱 Seeding local JSON equipment database (with units fleet)...");
       const mockEq = getMockEquipment();
       const users = localDb.read('users');
       const op = users.find(u => u.role === 'Equipment Operator');
@@ -296,7 +352,7 @@ async function seedDemoData() {
         mockEq[1].assignedOperator = op._id;
       }
       localDb.write('equipment', mockEq);
-      console.log('✅ Local JSON Seeding of equipment completed.');
+      console.log('✅ Local JSON Seeding of equipment completed with units fleet.');
     }
   }
 }
@@ -336,6 +392,14 @@ const userSchema = new mongoose.Schema({
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
 
+// Unit Sub-schema for individual equipment tracking
+const unitSchema = new mongoose.Schema({
+  unitNum: { type: Number, required: true },
+  serial: { type: String, required: true },
+  hours: { type: Number, default: 0 },
+  status: { type: String, enum: ['Available', 'Reserved', 'In Use', 'Rented', 'Under Maintenance'], default: 'Available' }
+});
+
 // Equipment Schema
 const equipmentSchema = new mongoose.Schema({
   regNumber: { type: String, required: true, unique: true },
@@ -347,6 +411,8 @@ const equipmentSchema = new mongoose.Schema({
   assignedOperator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: { type: String, enum: ['Available', 'Reserved', 'In Use', 'Under Inspection', 'Under Maintenance'], default: 'Available' },
   totalUsageHours: { type: Number, default: 0 },
+  totalUnits: { type: Number, default: 15 },
+  units: [unitSchema],
   rentalRate: { type: Number, required: true },
   lastMaintenanceDate: Date,
   nextMaintenanceDate: Date,
@@ -362,6 +428,7 @@ export const Equipment = mongoose.models.Equipment || mongoose.model('Equipment'
 const bookingSchema = new mongoose.Schema({
   farmer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   equipment: { type: mongoose.Schema.Types.ObjectId, ref: 'Equipment', required: true },
+  unitNum: { type: Number },
   startDate: { type: Date, required: true },
   durationDays: { type: Number, required: true },
   endDate: { type: Date, required: true },
@@ -379,6 +446,7 @@ const jobSchema = new mongoose.Schema({
   booking: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
   farmer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   equipment: { type: mongoose.Schema.Types.ObjectId, ref: 'Equipment', required: true },
+  unitNum: { type: Number },
   operator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   startTime: Date,
   endTime: Date,
@@ -401,7 +469,7 @@ const invoiceSchema = new mongoose.Schema({
   tax: { type: Number, default: 0 },
   penalty: { type: Number, default: 0 },
   totalAmount: { type: Number, required: true },
-  paymentStatus: { type: String, enum: ['Pending', 'Paid'], default: 'Pending' },
+  paymentStatus: { type: String, enum: ['Paid'], default: 'Paid' },
   createdAt: { type: Date, default: Date.now }
 });
 

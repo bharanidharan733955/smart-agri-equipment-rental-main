@@ -179,3 +179,126 @@ h1, h2, h3, h4, h5, h6 {
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out forwards;
 }
+
+/* =============================================
+   RESPONSIVE LAYOUT — Landing Page
+   ============================================= */
+
+/* --- Hero Section --- */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 540px;
+  gap: 3.5rem;
+  align-items: center;
+}
+
+.hero-image-wrap {
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  height: 520px;
+}
+
+.hero-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+/* --- Header Nav --- */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2.2rem;
+}
+
+.header-mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  color: #fff;
+}
+
+/* ---- Tablet (≤ 1024px) ---- */
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr 420px;
+    gap: 2.5rem;
+  }
+  .hero-image-wrap {
+    height: 420px;
+  }
+}
+
+/* ---- Small Tablet (≤ 900px) ---- */
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .hero-image-wrap {
+    height: 360px;
+  }
+  .hero-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* hide desktop nav links, show toggle */
+  .header-nav {
+    display: none;
+  }
+  .header-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-nav.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(11, 19, 36, 0.98);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 1.2rem 2rem;
+    gap: 1.2rem;
+    align-items: flex-start;
+    z-index: 200;
+  }
+}
+
+/* ---- Mobile (≤ 640px) ---- */
+@media (max-width: 640px) {
+  .hero-section-pad {
+    padding: 2.5rem 1.25rem 3rem !important;
+  }
+  .hero-headline {
+    font-size: 2.2rem !important;
+  }
+  .hero-image-wrap {
+    height: 260px;
+  }
+  .hero-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .header-inner {
+    padding: 0.75rem 1.25rem !important;
+  }
+}
+
+/* ---- Very small (≤ 380px) ---- */
+@media (max-width: 380px) {
+  .hero-headline {
+    font-size: 1.85rem !important;
+  }
+  .hero-metrics-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+

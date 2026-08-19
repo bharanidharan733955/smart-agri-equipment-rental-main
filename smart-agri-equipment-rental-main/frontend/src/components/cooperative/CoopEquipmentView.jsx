@@ -64,33 +64,48 @@ export default function CoopEquipmentView({
       </div>
 
       {/* Overview Stat Cards Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2.5rem' }}>
-        <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
-          <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>TOTAL HUB EQUIPMENT</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', marginTop: '0.2rem' }}>{stats?.totalEquipment || equipmentList.length}</div>
-        </div>
+      {(() => {
+        const totalUnitsSum = equipmentList.reduce((sum, e) => sum + (e.totalUnits || 0), 0);
+        const totalTypes = equipmentList.length;
+        const availableCount = equipmentList.filter(e => e.status === 'Available').length;
+        const maintCount = equipmentList.filter(e => e.status === 'Under Maintenance').length;
+        const rentedCount = equipmentList.filter(e => e.status === 'In Use' || e.status === 'Rented' || e.status === 'Reserved').length;
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2.5rem' }}>
+            {/* Card 1: Types */}
+            <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>Equipment Types</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', marginTop: '0.2rem' }}>{totalTypes}</div>
+              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>Unique categories</div>
+            </div>
 
-        <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
-          <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>AVAILABLE FOR RENT</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginTop: '0.2rem' }}>
-            {stats?.availableEquipment || equipmentList.filter(e => e.status === 'Available').length}
-          </div>
-        </div>
+            {/* Card 2: Total Units */}
+            <div style={{ backgroundColor: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '16px', padding: '1.4rem' }}>
+              <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600, textTransform: 'uppercase' }}>Total Units</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginTop: '0.2rem' }}>{totalUnitsSum}</div>
+              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>15 units × {totalTypes} types</div>
+            </div>
 
-        <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
-          <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600 }}>UNDER MAINTENANCE</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f59e0b', marginTop: '0.2rem' }}>
-            {stats?.underMaintenance || equipmentList.filter(e => e.status === 'Under Maintenance').length}
-          </div>
-        </div>
+            {/* Card 3: Under Maintenance */}
+            <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
+              <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600, textTransform: 'uppercase' }}>Under Maintenance</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f59e0b', marginTop: '0.2rem' }}>
+                {stats?.underMaintenance ?? maintCount}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>Equipment types</div>
+            </div>
 
-        <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
-          <div style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: 600 }}>ACTIVE RENTALS</div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8', marginTop: '0.2rem' }}>
-            {stats?.activeRentals || equipmentList.filter(e => e.status === 'Rented').length}
+            {/* Card 4: Active Rentals */}
+            <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
+              <div style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: 600, textTransform: 'uppercase' }}>Active Rentals</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8', marginTop: '0.2rem' }}>
+                {stats?.activeRentals ?? rentedCount}
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>Currently in use</div>
+            </div>
           </div>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* Filter & Search Bar */}
       <div
@@ -163,7 +178,7 @@ export default function CoopEquipmentView({
 
           return (
             <div
-              key={item.id}
+              key={item._id || item.id}
               style={{
                 backgroundColor: '#131d35',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -178,15 +193,17 @@ export default function CoopEquipmentView({
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)')}
             >
-              {/* Image Preview */}
+              {/* Image Preview (Clickable to view details) */}
               <div
+                onClick={() => onViewDetails(item)}
                 style={{
                   width: '120px',
                   height: '85px',
                   borderRadius: '12px',
                   overflow: 'hidden',
                   position: 'relative',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  cursor: 'pointer'
                 }}
               >
                 <img
@@ -215,16 +232,39 @@ export default function CoopEquipmentView({
                 </button>
               </div>
 
-              {/* Title & Hub info */}
+              {/* Title & Hub info (Clickable to view details) */}
               <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '4px' }}>
+                <h3 
+                  onClick={() => onViewDetails(item)}
+                  style={{ 
+                    fontSize: '1.15rem', 
+                    fontWeight: 800, 
+                    color: '#ffffff', 
+                    marginBottom: '4px',
+                    cursor: 'pointer',
+                    transition: 'color 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#10b981')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#ffffff')}
+                >
                   {item.name}
                 </h3>
                 <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
                   Category: <span style={{ color: '#ffffff', fontWeight: 600 }}>{item.category}</span>
                 </div>
-                <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>
-                  Hub: {item.location}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '5px' }}>
+                  <span style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: 'var(--radius-pill)',
+                    backgroundColor: 'rgba(16,185,129,0.12)',
+                    border: '1px solid rgba(16,185,129,0.25)',
+                    color: '#10b981'
+                  }}>
+                    {item.totalUnits || 15} units
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{item.cooperativeHub || item.location}</span>
                 </div>
               </div>
 
@@ -238,7 +278,7 @@ export default function CoopEquipmentView({
                 </div>
               </div>
 
-              {/* Status & Condition Selectors */}
+              {/* Status Badge + Usage Hours Progress */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {/* Status Badge */}
                 <div>
@@ -257,29 +297,30 @@ export default function CoopEquipmentView({
                   </span>
                 </div>
 
-                {/* Condition Selector Dropdown */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>Cond:</span>
-                  <select
-                    value={item.condition || 'good'}
-                    onChange={(e) => onUpdateCondition(item.id, e.target.value)}
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: '#cbd5e1',
-                      borderRadius: '6px',
-                      padding: '2px 6px',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                      outline: 'none'
-                    }}
-                  >
-                    <option value="excellent" style={{ backgroundColor: '#131d35' }}>Excellent</option>
-                    <option value="good" style={{ backgroundColor: '#131d35' }}>Good</option>
-                    <option value="fair" style={{ backgroundColor: '#131d35' }}>Fair</option>
-                    <option value="needs_service" style={{ backgroundColor: '#131d35' }}>Needs Service</option>
-                  </select>
-                </div>
+                {/* Usage Hours Progress toward 350hr threshold */}
+                {(() => {
+                  const THRESHOLD = 350;
+                  const hours = item.totalUsageHours || 0;
+                  const pct = Math.min((hours / THRESHOLD) * 100, 100);
+                  const nearLimit = pct >= 80;
+                  const barColor = pct >= 100 ? '#ef4444' : nearLimit ? '#f59e0b' : '#10b981';
+                  return (
+                    <div style={{ minWidth: '130px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                        <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Usage hrs</span>
+                        <span style={{ fontSize: '0.68rem', color: barColor, fontWeight: 700 }}>{hours} / {THRESHOLD}h</span>
+                      </div>
+                      <div style={{ height: '5px', borderRadius: '99px', backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${pct}%`, backgroundColor: barColor, borderRadius: '99px', transition: 'width 0.4s ease' }} />
+                      </div>
+                      {nearLimit && (
+                        <div style={{ fontSize: '0.65rem', color: '#f59e0b', marginTop: '3px', fontWeight: 600 }}>
+                          ⚠ {pct >= 100 ? 'Sent to Maintenance' : `${THRESHOLD - hours}h to maintenance`}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Action Buttons Toolbar (View, Edit, Image, Mark Available, Mark Maintenance, Delete) */}
@@ -333,7 +374,7 @@ export default function CoopEquipmentView({
                 {item.status !== 'Available' && (
                   <button
                     title="Mark Available"
-                    onClick={() => onUpdateStatus(item.id, 'Available')}
+                    onClick={() => onUpdateStatus(item._id || item.id, 'Available')}
                     style={{
                       backgroundColor: 'rgba(16, 185, 129, 0.15)',
                       border: '1px solid rgba(16, 185, 129, 0.3)',
@@ -356,7 +397,7 @@ export default function CoopEquipmentView({
                 {item.status !== 'Under Maintenance' && (
                   <button
                     title="Mark Under Maintenance"
-                    onClick={() => onScheduleMaint ? onScheduleMaint(item) : onUpdateStatus(item.id, 'Under Maintenance')}
+                    onClick={() => onScheduleMaint ? onScheduleMaint(item) : onUpdateStatus(item._id || item.id, 'Under Maintenance')}
                     style={{
                       backgroundColor: 'rgba(245, 158, 11, 0.15)',
                       border: '1px solid rgba(245, 158, 11, 0.3)',
@@ -379,7 +420,7 @@ export default function CoopEquipmentView({
                 {item.status === 'Under Maintenance' && (
                   <button
                     title="Complete Maintenance"
-                    onClick={() => onCompleteMaint ? onCompleteMaint(item._id || item.id) : onUpdateStatus(item.id, 'Available')}
+                    onClick={() => onCompleteMaint ? onCompleteMaint(item._id || item.id) : onUpdateStatus(item._id || item.id, 'Available')}
                     style={{
                       backgroundColor: 'rgba(16, 185, 129, 0.15)',
                       border: '1px solid rgba(16, 185, 129, 0.3)',
@@ -402,7 +443,7 @@ export default function CoopEquipmentView({
                 {/* 🗑️ Delete Equipment */}
                 <button
                   title="Delete Equipment"
-                  onClick={() => onDeleteEquipment(item.id, item.name)}
+                  onClick={() => onDeleteEquipment(item._id || item.id, item.name)}
                   style={{
                     backgroundColor: 'rgba(239, 68, 68, 0.12)',
                     border: '1px solid rgba(239, 68, 68, 0.3)',

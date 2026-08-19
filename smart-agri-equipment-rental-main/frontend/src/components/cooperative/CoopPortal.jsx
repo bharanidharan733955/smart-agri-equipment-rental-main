@@ -56,16 +56,18 @@ export default function CoopPortal({ onLogout }) {
   }, [activeTab]);
 
   const loadCoopData = async () => {
-    const list = await fetchCoopEquipment();
+    // Always fetch equipment + stats in parallel
+    const [list, st] = await Promise.all([
+      fetchCoopEquipment(),
+      fetchCoopStats(),
+    ]);
     setEquipmentList(list || []);
-
-    const st = await fetchCoopStats();
     if (st) setStats(st);
 
+    // Tab-specific parallel fetches
     if (activeTab === 'requests') {
-      const bks = await fetchFarmerBookings();
+      const [bks, ops] = await Promise.all([fetchFarmerBookings(), fetchCoopOperators()]);
       setBookings(bks || []);
-      const ops = await fetchCoopOperators();
       setOperators(ops || []);
     } else if (activeTab === 'farmers') {
       const frms = await fetchCoopFarmers();
@@ -349,10 +351,8 @@ export default function CoopPortal({ onLogout }) {
                   <th style={{ padding: '0.75rem 1rem' }}>Invoice Number</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Farmer</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Tax (18% GST)</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Late Penalty</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Total Amount</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Status</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -364,29 +364,16 @@ export default function CoopPortal({ onLogout }) {
                       <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{inv.booking?.equipment?.name}</span>
                     </td>
                     <td style={{ padding: '0.75rem 1rem' }}>₹{inv.tax}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#ef4444' }}>₹{inv.penalty}</td>
                     <td style={{ padding: '0.75rem 1rem', color: '#10b981', fontWeight: 800 }}>₹{inv.totalAmount}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
+                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                       <span style={{
                         fontSize: '0.72rem',
-                        padding: '0.2rem 0.5rem',
+                        padding: '0.2rem 0.6rem',
                         borderRadius: '6px',
-                        backgroundColor: inv.paymentStatus === 'Paid' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
-                        color: inv.paymentStatus === 'Paid' ? '#10b981' : '#f59e0b',
+                        backgroundColor: 'rgba(16,185,129,0.1)',
+                        color: '#10b981',
                         fontWeight: 700
-                      }}>
-                        {inv.paymentStatus}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                      {inv.paymentStatus === 'Pending' && (
-                        <button
-                          onClick={() => handlePayInvoice(inv._id || inv.id)}
-                          style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
-                        >
-                          Collect Payment
-                        </button>
-                      )}
+                      }}>✓ Paid at Booking</span>
                     </td>
                   </tr>
                 ))}

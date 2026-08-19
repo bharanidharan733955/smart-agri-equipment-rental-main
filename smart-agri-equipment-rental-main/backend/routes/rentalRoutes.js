@@ -69,10 +69,10 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       return res.status(400).json({ success: false, message: 'Equipment is currently unavailable due to maintenance.' });
     }
 
-    // Check count of active overlapping bookings for this equipment model/ID (limit of 15)
-    let activeOverlapsCount = 0;
+    // Find overlapping bookings to allocate the next free unit out of 15
+    let overlaps = [];
     if (isDbConnected()) {
-      activeOverlapsCount = await Booking.countDocuments({
+      overlaps = await Booking.find({
         equipment: equipmentId,
         status: { $in: ['Approved', 'Issued', 'Reserved', 'Pending'] },
         $or: [
@@ -81,15 +81,23 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       });
     } else {
       const bookings = localDb.read('bookings');
-      const activeOverlaps = bookings.filter(b =>
-        b.equipment === equipmentId &&
+      overlaps = bookings.filter(b =>
+        (b.equipment === equipmentId || b.equipmentId === equipmentId) &&
         ['Approved', 'Issued', 'Reserved', 'Pending'].includes(b.status) &&
         (new Date(b.startDate) <= end && new Date(b.endDate) >= start)
       );
-      activeOverlapsCount = activeOverlaps.length;
     }
 
-    if (activeOverlapsCount >= 15) {
+    const bookedUnitNums = overlaps.map(o => o.unitNum).filter(Boolean);
+    let selectedUnitNum = 1;
+    for (let i = 1; i <= 15; i++) {
+      if (!bookedUnitNums.includes(i)) {
+        selectedUnitNum = i;
+        break;
+      }
+    }
+
+    if (overlaps.length >= 15) {
       return res.status(400).json({ success: false, message: 'This equipment is not available for the selected dates (all 15 units are currently booked).' });
     }
 
@@ -121,6 +129,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       newBooking = await Booking.create({
         farmer: req.user.id,
         equipment: equipmentId,
+        unitNum: selectedUnitNum,
         startDate: start,
         durationDays: duration,
         endDate: end,
@@ -134,6 +143,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         booking: newBooking._id,
         farmer: req.user.id,
         equipment: equipmentId,
+        unitNum: selectedUnitNum,
         operator: operatorId || null,
         status: 'Assigned'
       });
@@ -174,6 +184,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         farmerId: req.user.id,
         equipment: equipmentId,
         equipmentId,
+        unitNum: selectedUnitNum,
         startDate: start.toISOString(),
         durationDays: duration,
         endDate: end.toISOString(),
@@ -193,6 +204,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         booking: newBooking._id,
         farmer: req.user.id,
         equipment: equipmentId,
+        unitNum: selectedUnitNum,
         operator: operatorId || null,
         status: 'Assigned',
         createdAt: new Date().toISOString()
@@ -307,7 +319,7 @@ router.post('/:id/approve', authenticateToken, authorizeRoles('Admin'), async (r
         tax,
         penalty: 0,
         totalAmount: invoiceTotal,
-        paymentStatus: 'Pending'
+        paymentStatus: 'Paid'
       });
 
       // Send Notification to Operator
@@ -359,7 +371,7 @@ router.post('/:id/approve', authenticateToken, authorizeRoles('Admin'), async (r
         tax,
         penalty: 0,
         totalAmount: invoiceTotal,
-        paymentStatus: 'Pending',
+        paymentStatus: 'Paid',
         createdAt: new Date().toISOString()
       });
       localDb.write('invoices', invoices);

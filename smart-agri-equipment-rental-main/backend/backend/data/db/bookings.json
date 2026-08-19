@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "BK-1787042748945",
+    "id": "BK-1787042748945",
+    "farmer": "USR-1787042727959",
+    "farmerId": "USR-1787042727959",
+    "equipment": "eq-1",
+    "equipmentId": "eq-1",
+    "startDate": "2026-08-19T00:00:00.000Z",
+    "durationDays": 2,
+    "endDate": "2026-08-21T00:00:00.000Z",
+    "rentalRate": 1500,
+    "totalAmount": 3000,
+    "status": "Approved",
+    "penalty": 0,
+    "createdAt": "2026-08-18T08:45:48.946Z"
+  }
+]

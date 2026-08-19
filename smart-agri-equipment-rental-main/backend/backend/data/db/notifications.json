@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "NT-1787042748957",
+    "user": "USR-3800",
+    "title": "New Job Assigned",
+    "message": "You have been assigned to work order for Mahindra Tractor 6670.",
+    "read": false,
+    "createdAt": "2026-08-18T08:45:48.957Z"
+  },
+  {
+    "_id": "NT-F-1787042748957",
+    "user": "USR-1787042727959",
+    "title": "Booking Approved",
+    "message": "Your booking request for Mahindra Tractor 6670 has been automatically approved.",
+    "read": false,
+    "createdAt": "2026-08-18T08:45:48.957Z"
+  }
+]

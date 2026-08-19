@@ -37,7 +37,7 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
   const userInitials = farmerUser?.initials || 'SI';
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0b1324', color: '#ffffff' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: '#0b1324', color: '#ffffff' }}>
       
       {/* Sidebar */}
       <aside
@@ -47,7 +47,8 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
           borderRight: '1px solid rgba(255, 255, 255, 0.08)',
           display: 'flex',
           flexDirection: 'column',
-          flexShrink: 0
+          flexShrink: 0,
+          height: '100%'
         }}
       >
         {/* Sidebar Header Brand */}

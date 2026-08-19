@@ -83,24 +83,35 @@ export function setupCronJobs() {
     }
   });
 
-  // 2. Automated Maintenance threshold check (Cross-reference hours to put equipment under maintenance if threshold >= 100 hrs)
+  // 2. Automated Maintenance threshold check — auto-send individual units to maintenance at >= 350 usage hours
   cron.schedule('*/45 * * * * *', async () => {
-    // console.log('⚙️ Scanning equipment usage hours for preventative maintenance...');
+    // console.log('⚙️ Scanning individual fleet units for preventative maintenance...');
     
     if (isDbConnected()) {
       try {
-        const equipments = await Equipment.find({
-          status: { $in: ['Available', 'Reserved'] },
-          totalUsageHours: { $gte: 100 } // Maintenance threshold
-        });
+        const equipments = await Equipment.find({});
 
         for (const eq of equipments) {
+          let updated = false;
           const oldStatus = eq.status;
-          eq.status = 'Under Maintenance';
-          await eq.save();
 
-          console.log(`🔧 Equipment ${eq.name} status updated to Under Maintenance (Crossed 100 usage hours threshold)`);
-          await logAudit(null, null, 'Maintenance Status Update', oldStatus, 'Under Maintenance', `${eq.name} reached 100 usage hours`);
+          if (eq.units && eq.units.length > 0) {
+            eq.units.forEach(unit => {
+              if (unit.hours >= 350 && unit.status !== 'Under Maintenance') {
+                unit.status = 'Under Maintenance';
+                updated = true;
+                console.log(`🔧 Unit #${unit.unitNum} of ${eq.name} auto-sent to Under Maintenance (reached ${unit.hours} hours)`);
+              }
+            });
+          }
+
+          if (updated) {
+            // Check if there is still at least one available unit
+            const hasAvailable = eq.units.some(u => u.status === 'Available' || u.status === 'Rented' || u.status === 'Reserved');
+            eq.status = hasAvailable ? 'Available' : 'Under Maintenance';
+            await eq.save();
+            await logAudit(null, null, 'Unit Auto Maintenance', oldStatus, eq.status, `${eq.name} units processed for preventative maintenance`);
+          }
         }
       } catch (err) {
         console.error('Error running maintenance cron:', err);
@@ -110,13 +121,24 @@ export function setupCronJobs() {
       let changed = false;
 
       equipment.forEach(eq => {
-        if (['Available', 'Reserved'].includes(eq.status) && (eq.totalUsageHours || 0) >= 100) {
-          const oldStatus = eq.status;
-          eq.status = 'Under Maintenance';
-          changed = true;
+        let updated = false;
+        const oldStatus = eq.status;
 
-          console.log(`🔧 Memory-fallback: Equipment ${eq.name} status updated to Under Maintenance (Crossed 100 usage hours threshold)`);
-          logAudit(null, null, 'Maintenance Status Update', oldStatus, 'Under Maintenance', `${eq.name} reached 100 usage hours`);
+        if (eq.units && eq.units.length > 0) {
+          eq.units.forEach(unit => {
+            if (unit.hours >= 350 && unit.status !== 'Under Maintenance') {
+              unit.status = 'Under Maintenance';
+              updated = true;
+              console.log(`🔧 Memory-fallback: Unit #${unit.unitNum} of ${eq.name} auto-sent to Under Maintenance (reached ${unit.hours} hours)`);
+            }
+          });
+        }
+
+        if (updated) {
+          const hasAvailable = eq.units.some(u => u.status === 'Available' || u.status === 'Rented' || u.status === 'Reserved');
+          eq.status = hasAvailable ? 'Available' : 'Under Maintenance';
+          changed = true;
+          logAudit(null, null, 'Unit Auto Maintenance', oldStatus, eq.status, `${eq.name} units processed for preventative maintenance`);
         }
       });
 

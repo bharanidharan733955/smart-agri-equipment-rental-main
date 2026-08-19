@@ -9,7 +9,6 @@ import {
   User, 
   Phone, 
   Building2, 
-  FileText,
   Tractor,
   Wrench,
   Landmark,
@@ -17,6 +16,7 @@ import {
   CheckCircle2,
   Mail
 } from 'lucide-react';
+
 import { loginRoleApi, registerApi } from '../api';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -112,6 +112,7 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    // All roles (including Farmer) authenticate with email + password
     const res = await loginRoleApi(formData.email, formData.password);
     setLoading(false);
     if (res.success) {
@@ -168,9 +169,7 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
     setFormData(prev => ({
       ...prev,
       email: demoEmail,
-      password: demoPassword,
-      mobile: role.id === 'farmer' ? '9876543210' : '',
-      farmerId: role.id === 'farmer' ? '123456789012' : ''
+      password: demoPassword
     }));
   };
 
@@ -348,10 +347,10 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
                   </div>
                 )}
 
-                {/* Email and Password inputs (required for both login and registration across all roles) */}
+                {/* All roles (including Farmer) use Email + Password */}
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 600 }}>
-                    Official Email
+                    Email Address
                   </label>
                   <div style={{ position: 'relative' }}>
                     <Mail size={18} color="#64748b" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />

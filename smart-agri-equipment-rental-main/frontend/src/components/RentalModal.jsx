@@ -4,8 +4,6 @@ import { X, CheckCircle, ShieldCheck } from 'lucide-react';
 import { submitRentalApi } from '../api';
 
 export default function RentalModal({ equipment, isOpen, onClose }) {
-  if (!isOpen) return null;
-
   const [startDate, setStartDate] = useState('');
   const [durationDays, setDurationDays] = useState(2);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -18,6 +16,9 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
 
   const dailyPrice = equipment?.rentalRate || equipment?.price || equipment?.pricePerDay || 800;
   const grandTotal = dailyPrice * durationDays;
+
+  // Guard must come AFTER all hooks (Rules of Hooks)
+  if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -252,7 +253,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
             </div>
 
             <p style={{ fontSize: '0.88rem', color: '#94a3b8', maxWidth: '420px', margin: '0 auto 1.8rem', lineHeight: 1.5 }}>
-              Cooperative Hub officer in <strong>{district || 'your district'}</strong> will dispatch the machine for <strong>{startDate}</strong>.
+              Cooperative Hub officer in <strong>{sessionUser?.district || 'your district'}</strong> will dispatch the machine for <strong>{startDate}</strong>.
             </p>
 
             <button onClick={handleReset} className="btn-green" style={{ padding: '0.75rem 2rem' }}>

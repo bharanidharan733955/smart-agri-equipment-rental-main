@@ -4,18 +4,12 @@ import { Sprout, ArrowRight, Users, Tractor, MapPin, TrendingUp, ShieldCheck } f
 
 export default function Hero({ onSelectRole }) {
   return (
-    <section style={{ padding: '3.5rem 2.5rem 4rem 2.5rem', position: 'relative' }}>
+    <section className="hero-section-pad" style={{ padding: '3.5rem 2.5rem 4rem 2.5rem', position: 'relative' }}>
       <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
-        
+
         {/* Main Grid: Left Text Content & Right Image Card */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 540px',
-            gap: '3.5rem',
-            alignItems: 'center'
-          }}
-        >
+        <div className="hero-grid">
+
           {/* Left Column */}
           <div>
             {/* Top Pill Tag */}
@@ -47,6 +41,7 @@ export default function Hero({ onSelectRole }) {
 
             {/* Headline */}
             <h1
+              className="hero-headline"
               style={{
                 fontSize: '3.5rem',
                 fontWeight: 800,
@@ -76,7 +71,7 @@ export default function Hero({ onSelectRole }) {
             </p>
 
             {/* CTA Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3.5rem', flexWrap: 'wrap' }}>
               <button
                 onClick={onSelectRole}
                 className="btn-green"
@@ -95,13 +90,7 @@ export default function Hero({ onSelectRole }) {
             </div>
 
             {/* Metrics Row (4 Cards) */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: '1rem'
-              }}
-            >
+            <div className="hero-metrics-grid">
               {/* Metric 1 */}
               <div
                 style={{
@@ -187,19 +176,13 @@ export default function Hero({ onSelectRole }) {
 
           {/* Right Column: Large Image Container */}
           <div style={{ position: 'relative' }}>
-            <div
-              style={{
-                borderRadius: '24px',
-                overflow: 'hidden',
-                position: 'relative',
-                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                height: '520px'
-              }}
-            >
+            <div className="hero-image-wrap">
               <img
                 src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1200&q=80"
                 alt="Cooperative Farm Machinery"
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -245,7 +228,7 @@ export default function Hero({ onSelectRole }) {
                     Automated Usage Auditing
                   </h4>
                   <p style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.3 }}>
-                    Immutable log of every rental & maintenance action.
+                    Immutable log of every rental &amp; maintenance action.
                   </p>
                 </div>
               </div>

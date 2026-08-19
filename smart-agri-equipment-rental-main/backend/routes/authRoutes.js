@@ -99,37 +99,27 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password, mobile, farmerId } = req.body;
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required.' });
+    }
 
     let user;
-    if (mobile && farmerId) {
-      if (isDbConnected()) {
-        user = await User.findOne({ mobile, farmerId });
-      } else {
-        const users = localDb.read('users');
-        user = users.find(u => u.mobile === mobile && u.farmerId === farmerId);
-      }
-      if (!user) {
-        return res.status(401).json({ success: false, message: 'Invalid Mobile Number or Farmer ID.' });
-      }
+    if (isDbConnected()) {
+      user = await User.findOne({ email });
     } else {
-      if (!email || !password) {
-        return res.status(400).json({ success: false, message: 'Email and password are required.' });
-      }
-      if (isDbConnected()) {
-        user = await User.findOne({ email });
-      } else {
-        const users = localDb.read('users');
-        user = users.find(u => u.email === email);
-      }
-      if (!user) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
-      }
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
-      }
+      const users = localDb.read('users');
+      user = users.find(u => u.email === email);
     }
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+    }
+
 
     // Generate JWT
     const token = jwt.sign(

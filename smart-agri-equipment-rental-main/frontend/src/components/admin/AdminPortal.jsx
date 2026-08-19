@@ -475,10 +475,10 @@ export default function AdminPortal({ user, onLogout }) {
   });
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-dark)', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--bg-dark)', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" />
       {/* Top Brand Header */}
-      <header style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem 2rem' }}>
+      <header style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem 2rem', flexShrink: 0 }}>
         <div style={{ maxWidth: '1500px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
             <ShieldCheck size={28} color="#10b981" />
@@ -492,37 +492,16 @@ export default function AdminPortal({ user, onLogout }) {
               <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700 }}>{user?.name}</span>
               <span style={{ display: 'block', fontSize: '0.75rem', color: '#10b981' }}>Super Administrator</span>
             </div>
-            <button
-              onClick={() => {
-                logoutUser();
-                onLogout();
-              }}
-              style={{
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
-                color: '#ef4444',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                fontWeight: 600
-              }}
-            >
-              <LogOut size={16} />
-              <span>Sign Out</span>
-            </button>
           </div>
         </div>
       </header>
 
       {/* Main Layout Body */}
-      <div style={{ display: 'flex', flexGrow: 1, maxWidth: '1500px', width: '100%', margin: '0 auto' }}>
+      <div style={{ display: 'flex', flexGrow: 1, width: '100%', overflow: 'hidden', margin: '0 auto' }}>
         
         {/* Sidebar Nav */}
-        <aside style={{ width: '280px', backgroundColor: '#0f172a', padding: '2rem 1.5rem', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+        <aside style={{ width: '280px', backgroundColor: '#0f172a', padding: '2rem 1.5rem', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flexGrow: 1, overflowY: 'auto' }}>
             <button
               onClick={() => setActiveTab('inventory')}
               style={{
@@ -625,6 +604,32 @@ export default function AdminPortal({ user, onLogout }) {
             >
               <ClipboardList size={18} />
               <span>Auto Auditing Logs</span>
+            </button>
+          </div>
+          {/* Sign Out Button */}
+          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '1.5rem', marginTop: '1.5rem' }}>
+            <button
+              onClick={() => {
+                logoutUser();
+                onLogout();
+              }}
+              style={{
+                width: '100%',
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                color: '#ef4444',
+                padding: '0.75rem 1.25rem',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.8rem',
+                fontWeight: 600,
+                fontSize: '0.9rem'
+              }}
+            >
+              <LogOut size={16} />
+              <span>Sign Out</span>
             </button>
           </div>
         </aside>
@@ -809,7 +814,7 @@ export default function AdminPortal({ user, onLogout }) {
                                     fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
                                     backgroundColor: 'rgba(16,185,129,0.1)',
                                     color: '#10b981', fontWeight: 700
-                                  }}>{inv.paymentStatus}</span>
+                                  }}>Paid</span>
                                 </td>
                               </tr>
                             ))}
@@ -852,55 +857,131 @@ export default function AdminPortal({ user, onLogout }) {
                   {/* Maintenance Metrics cards */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
                     <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Total Service Events</span>
-                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: '#38bdf8' }}>{maintenanceLogs.length} Events</span>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#10b981', marginBottom: '0.4rem', fontWeight: 600 }}>AVAILABLE VEHICLES</span>
+                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#10b981' }}>
+                        {equipmentList.filter(e => e.status === 'Available').length} Vehicles
+                      </span>
                     </div>
                     <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Total Maintenance Cost Spent</span>
-                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: '#10b981' }}>₹{maintenanceLogs.reduce((sum, m) => sum + (m.cost || 0), 0)}</span>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#ef4444', marginBottom: '0.4rem', fontWeight: 600 }}>IN MAINTENANCE</span>
+                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ef4444' }}>
+                        {equipmentList.filter(e => e.status === 'Under Maintenance').length} Vehicles
+                      </span>
                     </div>
                     <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Currently Under Service</span>
-                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: '#ef4444' }}>{equipmentList.filter(e => e.status === 'Under Maintenance').length} Machines</span>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#38bdf8', marginBottom: '0.4rem', fontWeight: 600 }}>GOOD CONDITION</span>
+                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8' }}>
+                        {equipmentList.filter(e => !e.condition || e.condition.toLowerCase() === 'good' || e.condition.toLowerCase() === 'excellent').length} Vehicles
+                      </span>
                     </div>
                   </div>
 
-                  {/* Maintenance Logs Ledger Table */}
+                  {/* Maintenance Assignment Table */}
                   <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', color: '#ffffff' }}>
+                      Machinery Maintenance & Assigned Operators
+                    </h3>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                       <thead>
                         <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
-                          <th style={{ padding: '0.75rem 1rem' }}>Equipment</th>
-                          <th style={{ padding: '0.75rem 1rem' }}>Service Date</th>
-                          <th style={{ padding: '0.75rem 1rem' }}>Description / Details</th>
-                          <th style={{ padding: '0.75rem 1rem' }}>Cost Spent</th>
-                          <th style={{ padding: '0.75rem 1rem' }}>Next Service Due</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Vehicle / Machinery</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Registration No.</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Status</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Condition</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Operated / Assigned To</th>
                           <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {maintenanceLogs.map((m, idx) => (
-                          <tr key={m._id || m.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                            <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{ fontWeight: 700, display: 'block' }}>{m.equipment?.name || 'Unknown Machinery'}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{m.equipment?.regNumber}</span>
-                            </td>
-                            <td style={{ padding: '0.75rem 1rem' }}>{new Date(m.serviceDate || m.createdAt).toLocaleDateString()}</td>
-                            <td style={{ padding: '0.75rem 1rem' }}>{m.description}</td>
-                            <td style={{ padding: '0.75rem 1rem', color: '#ef4444', fontWeight: 700 }}>₹{m.cost}</td>
-                            <td style={{ padding: '0.75rem 1rem' }}>{m.nextServiceDate ? new Date(m.nextServiceDate).toLocaleDateString() : 'N/A'}</td>
-                            <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                              {m.equipment?.status === 'Under Maintenance' && (
-                                <button
-                                  onClick={() => handleCompleteMaint(m.equipment._id || m.equipment.id)}
-                                  style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
-                                >
-                                  Complete Service
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
+                        {equipmentList.map((item) => {
+                          const isAvailable = item.status === 'Available';
+                          const isMaintenance = item.status === 'Under Maintenance';
+                          
+                          // Resolve operator name
+                          let operatorName = 'No Operator Assigned';
+                          let operatorMobile = '';
+                          if (item.assignedOperator) {
+                            if (typeof item.assignedOperator === 'object') {
+                              operatorName = item.assignedOperator.name || 'Unknown Operator';
+                              operatorMobile = item.assignedOperator.mobile || '';
+                            } else {
+                              const foundOp = usersList.find(u => u._id === item.assignedOperator || u.id === item.assignedOperator);
+                              if (foundOp) {
+                                operatorName = foundOp.name;
+                                operatorMobile = foundOp.mobile || '';
+                              }
+                            }
+                          }
+
+                          return (
+                            <tr key={item._id || item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{ fontWeight: 700, display: 'block', color: '#ffffff' }}>{item.name}</span>
+                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{item.category}</span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{item.regNumber}</td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  padding: '0.2rem 0.5rem',
+                                  borderRadius: '6px',
+                                  backgroundColor: isAvailable ? 'rgba(16, 185, 129, 0.1)' : isMaintenance ? 'rgba(239, 68, 68, 0.1)' : 'rgba(56, 189, 248, 0.1)',
+                                  color: isAvailable ? '#10b981' : isMaintenance ? '#ef4444' : '#38bdf8',
+                                  fontWeight: 700
+                                }}>
+                                  {item.status}
+                                </span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{
+                                  fontSize: '0.72rem',
+                                  padding: '0.2rem 0.5rem',
+                                  borderRadius: '6px',
+                                  backgroundColor: (!item.condition || item.condition.toLowerCase() === 'good' || item.condition.toLowerCase() === 'excellent') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                  color: (!item.condition || item.condition.toLowerCase() === 'good' || item.condition.toLowerCase() === 'excellent') ? '#10b981' : '#f59e0b',
+                                  fontWeight: 700,
+                                  textTransform: 'capitalize'
+                                }}>
+                                  {item.condition || 'good'}
+                                </span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{ display: 'block', fontWeight: 600, color: '#ffffff' }}>{operatorName}</span>
+                                {operatorMobile && <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>📞 {operatorMobile}</span>}
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                                {isMaintenance ? (
+                                  <button
+                                    onClick={() => handleCompleteMaint(item._id || item.id)}
+                                    style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                                  >
+                                    Complete Service
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => {
+                                      setMaintItem(item);
+                                      setMaintDesc('Scheduled Service');
+                                      setMaintCost('0');
+                                    }}
+                                    disabled={!isAvailable}
+                                    style={{
+                                      backgroundColor: isAvailable ? '#ef4444' : 'rgba(255, 255, 255, 0.08)',
+                                      color: isAvailable ? '#fff' : '#64748b',
+                                      border: 'none',
+                                      padding: '0.4rem 0.8rem',
+                                      borderRadius: '6px',
+                                      cursor: isAvailable ? 'pointer' : 'not-allowed',
+                                      fontWeight: 700
+                                    }}
+                                  >
+                                    Send to Maintenance
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

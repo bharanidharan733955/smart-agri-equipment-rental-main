@@ -188,17 +188,20 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
 
     let bookingId = job.booking;
 
-    // Check preventative maintenance threshold
-    let newEquipmentHours = (eq ? (eq.totalUsageHours || 0) : 0) + hours;
-    let nextStatus = 'Available';
-
-    if (newEquipmentHours >= 100) {
-      nextStatus = 'Under Maintenance';
-    }
-
-    if (eq) {
-      eq.status = nextStatus;
-      eq.totalUsageHours = newEquipmentHours;
+    // Update sub-unit work hours and preventative maintenance status
+    if (eq && job.unitNum) {
+      const unit = eq.units.find(u => u.unitNum === job.unitNum);
+      if (unit) {
+        unit.hours = Math.round((unit.hours + hours) * 10) / 10;
+        if (unit.hours >= 350) {
+          unit.status = 'Under Maintenance';
+        } else {
+          unit.status = 'Available';
+        }
+      }
+      eq.totalUsageHours = Math.round(eq.units.reduce((sum, u) => sum + u.hours, 0) / 15 * 10) / 10;
+      const hasAvailable = eq.units.some(u => u.status === 'Available' || u.status === 'Rented' || u.status === 'Reserved');
+      eq.status = hasAvailable ? 'Available' : 'Under Maintenance';
     }
 
     if (isDbConnected()) {
@@ -228,9 +231,31 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       if (eq) {
         const equipment = localDb.read('equipment');
         const eqIdx = equipment.findIndex(e => e._id === eq._id || e.id === eq.id);
-        equipment[eqIdx].status = nextStatus;
-        equipment[eqIdx].totalUsageHours = newEquipmentHours;
-        localDb.write('equipment', equipment);
+        if (eqIdx !== -1) {
+          const localEq = equipment[eqIdx];
+          if (!localEq.units) {
+            localEq.units = Array.from({ length: 15 }, (_, idx) => ({
+              unitNum: idx + 1,
+              serial: `${localEq.regNumber}-${String(idx + 1).padStart(2, '0')}`,
+              hours: 0,
+              status: 'Available'
+            }));
+          }
+          const unit = localEq.units.find(u => u.unitNum === job.unitNum);
+          if (unit) {
+            unit.hours = Math.round((unit.hours + hours) * 10) / 10;
+            if (unit.hours >= 350) {
+              unit.status = 'Under Maintenance';
+            } else {
+              unit.status = 'Available';
+            }
+          }
+          localEq.totalUsageHours = Math.round(localEq.units.reduce((sum, u) => sum + u.hours, 0) / 15 * 10) / 10;
+          const hasAvailable = localEq.units.some(u => u.status === 'Available' || u.status === 'Rented' || u.status === 'Reserved');
+          localEq.status = hasAvailable ? 'Available' : 'Under Maintenance';
+          
+          localDb.write('equipment', equipment);
+        }
       }
 
       const bookings = localDb.read('bookings');

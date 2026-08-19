@@ -5,6 +5,57 @@ import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.
 
 const router = express.Router();
 
+// GET /api/cooperative/operators-with-equipment (Retrieve operators with their assigned vehicles)
+router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manager', 'Admin', 'Equipment Operator'), async (req, res) => {
+  try {
+    let operators = [];
+    let equipmentList = [];
+
+    if (isDbConnected()) {
+      operators = await User.find({ role: 'Equipment Operator' }).select('-password');
+      equipmentList = await Equipment.find();
+    } else {
+      operators = localDb.read('users').filter(u => u.role === 'Equipment Operator');
+      equipmentList = localDb.read('equipment');
+    }
+
+    // Map each operator with their assigned equipment
+    const result = operators.map(op => {
+      const opId = op._id?.toString() || op.id;
+      const assigned = equipmentList.filter(eq => {
+        const eqOpId = eq.assignedOperator?._id?.toString() || eq.assignedOperator?.toString() || eq.assignedOperator;
+        return eqOpId === opId;
+      });
+      return {
+        _id: opId,
+        name: op.name,
+        email: op.email,
+        mobile: op.mobile,
+        district: op.district,
+        cooperativeHub: op.cooperativeHub,
+        isApproved: op.isApproved,
+        assignedVehicles: assigned.map(eq => ({
+          _id: eq._id || eq.id,
+          name: eq.name,
+          regNumber: eq.regNumber,
+          category: eq.category,
+          brand: eq.brand,
+          model: eq.model,
+          status: eq.status,
+          rentalRate: eq.rentalRate,
+          totalUsageHours: eq.totalUsageHours || 0,
+          imageUrl: eq.imageUrl
+        }))
+      };
+    });
+
+    return res.json({ success: true, count: result.length, data: result });
+  } catch (err) {
+    console.error('Fetch operators with equipment error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
 // GET /api/cooperative/operators (Retrieve list of operators for assigning to equipment)
 router.get('/operators', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
   try {

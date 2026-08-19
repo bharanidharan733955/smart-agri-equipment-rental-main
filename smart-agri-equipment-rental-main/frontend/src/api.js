@@ -1,7 +1,9 @@
 // frontend/src/api.js
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+// Use a relative base so requests go through the Vite proxy (no CORS preflight in dev)
+// In production, point this to your deployed backend URL via an env variable.
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 // Create Axios Instance
 const api = axios.create({
@@ -339,6 +341,16 @@ export async function uploadCoopEquipmentImage(id, imageUrl) {
 }
 
 // --- Operator API ---
+export async function fetchOperatorsWithEquipment() {
+  try {
+    const res = await api.get('/cooperative/operators-with-equipment');
+    return res.data.success ? res.data.data : [];
+  } catch (err) {
+    console.error('Fetch operators with equipment error:', err);
+    return [];
+  }
+}
+
 export async function fetchOperatorJobs() {
   try {
     const res = await api.get('/jobs');

@@ -1,5 +1,6 @@
 // backend/routes/farmerRoutes.js
 import express from 'express';
+import mongoose from 'mongoose';
 import { User, Booking, Notification, Feedback, Equipment, isDbConnected, localDb, logAudit } from '../db.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
@@ -16,14 +17,24 @@ router.get('/overview', authenticateToken, async (req, res) => {
     let unreadNotifications = 0;
 
     if (isDbConnected()) {
-      totalBookings = await Booking.countDocuments({ farmer: userId });
-      activeRentals = await Booking.countDocuments({ farmer: userId, status: { $in: ['Approved', 'Issued'] } });
-      completed = await Booking.countDocuments({ farmer: userId, status: 'Returned' });
-      
-      const bookings = await Booking.find({ farmer: userId });
-      totalSpent = bookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
+      // Run all 5 queries in parallel instead of sequentially
+      const [totalBk, activeBk, completedBk, spentAgg, unreadNotif] = await Promise.all([
+        Booking.countDocuments({ farmer: userId }),
+        Booking.countDocuments({ farmer: userId, status: { $in: ['Approved', 'Issued'] } }),
+        Booking.countDocuments({ farmer: userId, status: 'Returned' }),
+        // Use aggregate to sum totalAmount — avoids fetching all booking documents
+        Booking.aggregate([
+          { $match: { farmer: new mongoose.Types.ObjectId(userId) } },
+          { $group: { _id: null, total: { $sum: '$totalAmount' } } }
+        ]),
+        Notification.countDocuments({ user: userId, read: false }),
+      ]);
 
-      unreadNotifications = await Notification.countDocuments({ user: userId, read: false });
+      totalBookings = totalBk;
+      activeRentals = activeBk;
+      completed = completedBk;
+      totalSpent = spentAgg[0]?.total || 0;
+      unreadNotifications = unreadNotif;
     } else {
       const bookings = localDb.read('bookings').filter(b => b.farmer === userId || b.farmerId === userId);
       const notifications = localDb.read('notifications').filter(n => n.user === userId);

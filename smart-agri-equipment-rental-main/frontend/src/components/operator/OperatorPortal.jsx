@@ -1,16 +1,19 @@
 // src/components/operator/OperatorPortal.jsx
 import React, { useState, useEffect } from 'react';
-import { fetchOperatorJobs, startJobApi, completeJobApi, logoutUser } from '../../api';
+import { fetchOperatorJobs, startJobApi, completeJobApi, logoutUser, fetchOperatorsWithEquipment } from '../../api';
 import { 
-  Tractor, LogOut, CheckCircle2, AlertTriangle, Play, Calendar, User, Phone, MapPin, Fuel, Clock, Upload, Loader2 
+  Tractor, LogOut, CheckCircle2, AlertTriangle, Play, Calendar, User, Phone, MapPin, Fuel, Clock, Upload, Loader2, Users, Cpu, Star, Activity
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 export default function OperatorPortal({ user, onLogout }) {
+  const [activeTab, setActiveTab] = useState('jobs');
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [activeJob, setActiveJob] = useState(null);
+  const [operatorsTeam, setOperatorsTeam] = useState([]);
+  const [teamLoading, setTeamLoading] = useState(false);
   
   // Job execution state
   const [beforeImage, setBeforeImage] = useState('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80');
@@ -26,9 +29,22 @@ export default function OperatorPortal({ user, onLogout }) {
     setLoading(false);
   };
 
+  const loadTeam = async () => {
+    setTeamLoading(true);
+    const data = await fetchOperatorsWithEquipment();
+    setOperatorsTeam(data);
+    setTeamLoading(false);
+  };
+
   useEffect(() => {
     loadJobs();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'team') {
+      loadTeam();
+    }
+  }, [activeTab]);
 
   const handleStartJob = async (jobId) => {
     setActionLoading(true);
@@ -138,7 +154,35 @@ export default function OperatorPortal({ user, onLogout }) {
           </div>
         </div>
 
-        {activeJob ? (
+        {/* Tab Navigation */}
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', backgroundColor: '#0f172a', padding: '0.4rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.07)', width: 'fit-content' }}>
+          <button
+            onClick={() => setActiveTab('jobs')}
+            style={{
+              padding: '0.6rem 1.4rem', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem',
+              backgroundColor: activeTab === 'jobs' ? '#10b981' : 'transparent',
+              color: activeTab === 'jobs' ? '#fff' : '#94a3b8',
+              display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s'
+            }}
+          >
+            <Activity size={16} />
+            <span>My Work Orders</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('team')}
+            style={{
+              padding: '0.6rem 1.4rem', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem',
+              backgroundColor: activeTab === 'team' ? '#10b981' : 'transparent',
+              color: activeTab === 'team' ? '#fff' : '#94a3b8',
+              display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s'
+            }}
+          >
+            <Users size={16} />
+            <span>Team &amp; Vehicles</span>
+          </button>
+        </div>
+
+        {activeTab === 'jobs' && activeJob ? (
           /* Active job complete report form */
           <div style={{ backgroundColor: '#131d35', borderRadius: '20px', padding: '2rem', border: '1px solid var(--green-primary)', marginBottom: '2rem' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', color: '#10b981' }}>Submit Work Completion Report</h2>
@@ -228,17 +272,19 @@ export default function OperatorPortal({ user, onLogout }) {
           </div>
         ) : null}
 
-        {/* Assigned & Active jobs list */}
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Assigned Work Orders</h3>
-        {loading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-            <Loader2 className="animate-spin" size={40} color="#10b981" />
-          </div>
-        ) : jobs.length === 0 ? (
-          <p style={{ color: '#94a3b8' }}>No work assignments assigned to you at the moment.</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {jobs.map((job) => {
+        {activeTab === 'jobs' && (
+          <>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Assigned Work Orders</h3>
+            {loading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
+                <Loader2 className="animate-spin" size={40} color="#10b981" />
+              </div>
+            ) : jobs.length === 0 ? (
+              <p style={{ color: '#94a3b8' }}>No work assignments assigned to you at the moment.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {jobs.map((job) => {
+
               const isActive = job.status === 'Started';
               const isCompleted = job.status === 'Completed';
 
@@ -346,6 +392,129 @@ export default function OperatorPortal({ user, onLogout }) {
                 </div>
               );
             })}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ========== TEAM & VEHICLES TAB ========== */}
+        {activeTab === 'team' && (
+          <div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.3rem' }}>Field Operator Directory</h3>
+              <p style={{ color: '#64748b', fontSize: '0.9rem' }}>All registered equipment operators and their assigned agricultural vehicles.</p>
+            </div>
+
+            {teamLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+                <Loader2 className="animate-spin" size={40} color="#10b981" />
+              </div>
+            ) : operatorsTeam.length === 0 ? (
+              <p style={{ color: '#94a3b8', padding: '2rem 0' }}>No operators found in the system.</p>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '1.5rem' }}>
+                {operatorsTeam.map((op) => (
+                  <div
+                    key={op._id}
+                    style={{
+                      backgroundColor: '#131d35',
+                      borderRadius: '20px',
+                      border: op._id === (user?._id || user?.id) ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.07)',
+                      overflow: 'hidden',
+                      boxShadow: op._id === (user?._id || user?.id) ? '0 0 20px rgba(16,185,129,0.12)' : 'none',
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                  >
+                    {/* Operator Card Header */}
+                    <div style={{ padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(56,189,248,0.05) 100%)', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      {/* Avatar */}
+                      <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.3rem', fontWeight: 800, color: '#fff' }}>
+                        {op.name.charAt(0)}
+                      </div>
+                      <div style={{ flexGrow: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '1.05rem', fontWeight: 800 }}>{op.name}</span>
+                          {op._id === (user?._id || user?.id) && (
+                            <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '8px', backgroundColor: 'rgba(16,185,129,0.2)', color: '#10b981', fontWeight: 700 }}>You</span>
+                          )}
+                          <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '8px', backgroundColor: op.isApproved ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: op.isApproved ? '#10b981' : '#ef4444', fontWeight: 700 }}>
+                            {op.isApproved ? 'Active' : 'Pending'}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <Phone size={11} /> {op.mobile || 'N/A'}
+                          </span>
+                          <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                            <MapPin size={11} /> {op.district || 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Vehicle count badge */}
+                      <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                        <div style={{ fontSize: '1.6rem', fontWeight: 900, color: op.assignedVehicles.length > 0 ? '#f59e0b' : '#475569', lineHeight: 1 }}>{op.assignedVehicles.length}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>VEHICLES</div>
+                      </div>
+                    </div>
+
+                    {/* Assigned Vehicles */}
+                    <div style={{ padding: '1rem 1.5rem 1.25rem' }}>
+                      {op.assignedVehicles.length === 0 ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                          <Tractor size={16} color="#475569" />
+                          <span style={{ fontSize: '0.82rem', color: '#475569', fontStyle: 'italic' }}>No vehicles assigned yet</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                          {op.assignedVehicles.map((vehicle) => (
+                            <div
+                              key={vehicle._id}
+                              style={{
+                                display: 'flex', alignItems: 'center', gap: '0.85rem',
+                                padding: '0.75rem 1rem', borderRadius: '12px',
+                                backgroundColor: 'rgba(255,255,255,0.03)',
+                                border: '1px solid rgba(255,255,255,0.07)',
+                                transition: 'background 0.15s'
+                              }}
+                            >
+                              {/* Vehicle icon */}
+                              <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <Tractor size={18} color="#10b981" />
+                              </div>
+                              <div style={{ flexGrow: 1, minWidth: 0 }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.88rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{vehicle.name}</div>
+                                <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '1px' }}>
+                                  {vehicle.brand} {vehicle.model} &bull; {vehicle.regNumber}
+                                </div>
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.25rem', flexShrink: 0 }}>
+                                <span style={{
+                                  fontSize: '0.65rem', padding: '0.18rem 0.55rem', borderRadius: '8px', fontWeight: 700,
+                                  backgroundColor:
+                                    vehicle.status === 'Available' ? 'rgba(16,185,129,0.12)' :
+                                    vehicle.status === 'In Use' ? 'rgba(56,189,248,0.12)' :
+                                    vehicle.status === 'Under Maintenance' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
+                                  color:
+                                    vehicle.status === 'Available' ? '#10b981' :
+                                    vehicle.status === 'In Use' ? '#38bdf8' :
+                                    vehicle.status === 'Under Maintenance' ? '#ef4444' : '#f59e0b'
+                                }}>
+                                  {vehicle.status}
+                                </span>
+                                <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>₹{vehicle.rentalRate}/day</span>
+                                <span style={{ fontSize: '0.65rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                  <Clock size={10} /> {vehicle.totalUsageHours}h used
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

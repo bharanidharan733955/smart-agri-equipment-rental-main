@@ -34,19 +34,19 @@ export default function FarmerPortal({ onLogout }) {
   }, []);
 
   const loadAllFarmerData = async () => {
-    const overview = await fetchFarmerOverview();
+    // Fire all 5 requests in parallel — reduces load time from sum of all calls to the slowest one
+    const [overview, eq, bk, cmp, notif] = await Promise.all([
+      fetchFarmerOverview(),
+      fetchFarmerEquipment(),
+      fetchFarmerBookings(),
+      fetchFarmerComplaints(),
+      fetchFarmerNotifications(),
+    ]);
+
     if (overview) setOverviewData(overview);
-
-    const eq = await fetchFarmerEquipment();
     if (eq && eq.length > 0) setEquipmentList(eq);
-
-    const bk = await fetchFarmerBookings();
     if (bk) setBookingsList(bk);
-
-    const cmp = await fetchFarmerComplaints();
     if (cmp) setComplaintsList(cmp);
-
-    const notif = await fetchFarmerNotifications();
     if (notif) setNotificationsList(notif);
   };
 
