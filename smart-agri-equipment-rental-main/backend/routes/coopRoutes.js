@@ -6,7 +6,7 @@ import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.
 const router = express.Router();
 
 // GET /api/cooperative/operators-with-equipment (Retrieve operators with their assigned vehicles)
-router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manager', 'Admin', 'Equipment Operator'), async (req, res) => {
+router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manager', 'Admin', 'Operator'), async (req, res) => {
   try {
     let operators = [];
     let equipmentList = [];
@@ -222,7 +222,7 @@ router.post('/equipment/:id/maintenance/complete', authenticateToken, authorizeR
   }
 });
 // GET /api/cooperative/maintenance (Fetch all maintenance records)
-router.get('/maintenance', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+router.get('/maintenance', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
   try {
     let list = [];
     if (isDbConnected()) {
@@ -482,6 +482,16 @@ router.post('/equipment/:id/maintenance/approve', authenticateToken, authorizeRo
     eq.status = 'Available';
     eq.currentCycleHours = 0;
     eq.lastMaintenanceDate = new Date();
+    
+    // Reset individual unit work hours for those under maintenance
+    if (eq.units && eq.units.length > 0) {
+      eq.units.forEach(u => {
+        if (u.status === 'Under Maintenance' || u.hours >= 350) {
+          u.hours = 0;
+          u.status = 'Available';
+        }
+      });
+    }
 
     if (isDbConnected()) {
       await eq.save();

@@ -6,7 +6,9 @@ import {
   completeMaintenance, 
   updateCoopEquipmentStatus,
   startEquipmentMaintenance,
-  reportEquipmentMaintenance
+  reportEquipmentMaintenance,
+  fetchMaintenanceLogs,
+  fetchOperatorJobs
 } from '../../api';
 import toast, { Toaster } from 'react-hot-toast';
 import { 
@@ -32,6 +34,8 @@ export default function MaintenancePortal({ user, onLogout }) {
   const [operators, setOperators] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [maintHistory, setMaintHistory] = useState([]);
+  const [jobs, setJobs] = useState([]);
 
   // Submit Report Modal State
   const [reportModalItem, setReportModalItem] = useState(null);
@@ -39,10 +43,8 @@ export default function MaintenancePortal({ user, onLogout }) {
   const [workPerformed, setWorkPerformed] = useState('');
   const [partsReplaced, setPartsReplaced] = useState('');
   const [partsCost, setPartsCost] = useState('');
-  const [labourCost, setLabourCost] = useState('');
   const [reportRemarks, setReportRemarks] = useState('');
   const [reportSpecialist, setReportSpecialist] = useState(user.name || '');
-  const [reportPhotos, setReportPhotos] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -51,6 +53,14 @@ export default function MaintenancePortal({ user, onLogout }) {
       setEquipmentList(eq || []);
       const ops = await fetchCoopOperators();
       setOperators(ops || []);
+      const logs = await fetchMaintenanceLogs();
+      setMaintHistory(logs || []);
+      try {
+        const jobsData = await fetchOperatorJobs();
+        setJobs(jobsData || []);
+      } catch (jobErr) {
+        console.error('Jobs fetch skipped:', jobErr);
+      }
     } catch (e) {
       console.error(e);
       toast.error('Failed to load maintenance data.');
@@ -93,10 +103,10 @@ export default function MaintenancePortal({ user, onLogout }) {
       workPerformed,
       partsReplaced,
       partsCost: parseFloat(partsCost) || 0,
-      labourCost: parseFloat(labourCost) || 0,
+      labourCost: 0,
       remarks: reportRemarks,
       specialist: reportSpecialist || user.name,
-      photos: reportPhotos ? reportPhotos.split(',').map(p => p.trim()) : []
+      photos: []
     };
     const res = await reportEquipmentMaintenance(reportModalItem._id || reportModalItem.id, payload);
     setActionLoading(false);
@@ -107,9 +117,7 @@ export default function MaintenancePortal({ user, onLogout }) {
       setWorkPerformed('');
       setPartsReplaced('');
       setPartsCost('');
-      setLabourCost('');
       setReportRemarks('');
-      setReportPhotos('');
       loadData();
     } else {
       toast.error(res.message || 'Failed to submit report.');
@@ -129,12 +137,55 @@ export default function MaintenancePortal({ user, onLogout }) {
 
   // Determine Operator status: Available (not assigned to any active vehicle) or Not Available
   const getOperatorStatus = (operatorId) => {
-    // An operator is Not Available if they are assigned to a machine that is Rented, In Use, or Under Maintenance
-    const isAssigned = equipmentList.some(eq => {
+    // Check 1: operator is assigned to a machine that is Rented, In Use, or Under Maintenance
+    const isAssignedToEquip = equipmentList.some(eq => {
       const eqOpId = typeof eq.assignedOperator === 'object' ? eq.assignedOperator?._id : eq.assignedOperator;
-      return eqOpId === operatorId && (eq.status === 'In Use' || eq.status === 'Under Maintenance' || eq.status === 'Rented');
+      return eqOpId === operatorId && (eq.status === 'In Use' || eq.status === 'Under Maintenance' || eq.status === 'Rented' || eq.status === 'Reserved');
     });
-    return isAssigned ? 'Not Available' : 'Available';
+    if (isAssignedToEquip) return 'Not Available';
+
+    // Check 2: operator has an active job (Assigned or In Progress)
+    const hasActiveJob = jobs.some(job => {
+      const jobOpId = typeof job.operator === 'object' ? (job.operator?._id || job.operator?.id) : job.operator;
+      return jobOpId === operatorId && (job.status === 'Assigned' || job.status === 'In Progress' || job.status === 'Started');
+    });
+    if (hasActiveJob) return 'Not Available';
+
+    return 'Available';
+  };
+
+  // Get the equipment/job details for a busy operator
+  const getBusyOperatorDetails = (operatorId) => {
+    // Check equipment assignment first
+    const assignedEq = equipmentList.find(eq => {
+      const eqOpId = typeof eq.assignedOperator === 'object' ? eq.assignedOperator?._id : eq.assignedOperator;
+      return eqOpId === operatorId && (eq.status === 'In Use' || eq.status === 'Under Maintenance' || eq.status === 'Rented' || eq.status === 'Reserved');
+    });
+    if (assignedEq) return `Working on: ${assignedEq.name} (${assignedEq.status})`;
+
+    // Check active jobs
+    const activeJob = jobs.find(job => {
+      const jobOpId = typeof job.operator === 'object' ? (job.operator?._id || job.operator?.id) : job.operator;
+      return jobOpId === operatorId && (job.status === 'Assigned' || job.status === 'In Progress' || job.status === 'Started');
+    });
+    if (activeJob) {
+      const eqName = typeof activeJob.equipment === 'object' ? activeJob.equipment?.name : 'Equipment';
+      return `Active Job: ${eqName} (${activeJob.status})`;
+    }
+
+    return 'Busy';
+  };
+
+  // Get permanently allocated equipment for an operator
+  const getOperatorAllocatedEquipment = (operatorId) => {
+    const assignedEq = equipmentList.filter(eq => {
+      const eqOpId = typeof eq.assignedOperator === 'object' ? eq.assignedOperator?._id : eq.assignedOperator;
+      return eqOpId === operatorId;
+    });
+    if (assignedEq.length > 0) {
+      return assignedEq.map(e => e.name).join(', ');
+    }
+    return 'None';
   };
 
   // Generate and print report
@@ -231,6 +282,37 @@ export default function MaintenancePortal({ user, onLogout }) {
             </thead>
             <tbody>
               ${operatorRows || '<tr><td colspan="4" style="text-align: center; color: #64748b;">No operators registered.</td></tr>'}
+            </tbody>
+          </table>
+
+          <h2>📋 Maintenance Service History Log</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Equipment</th>
+                <th>Description / Reason</th>
+                <th>Parts Cost (₹)</th>
+                <th>Specialist</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${maintHistory.length > 0 ? maintHistory.map(log => {
+                const eqName = log.equipment?.name || 'Unknown';
+                const eqReg = log.equipment?.regNumber || '';
+                const dateStr = log.serviceDate || log.createdAt || '';
+                return `
+                  <tr>
+                    <td>${dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A'}</td>
+                    <td><strong>${eqName}</strong><br><small>${eqReg}</small></td>
+                    <td>${log.description || log.maintenanceReason || 'N/A'}</td>
+                    <td>₹${(log.cost || 0).toLocaleString()}</td>
+                    <td>${log.specialist || 'N/A'}</td>
+                    <td>${log.status || (log.completedDate ? 'Completed' : 'Open')}</td>
+                  </tr>
+                `;
+              }).join('') : '<tr><td colspan="6" style="text-align: center; color: #64748b;">No maintenance history records found.</td></tr>'}
             </tbody>
           </table>
         </body>
@@ -442,9 +524,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                                       setWorkPerformed('');
                                       setPartsReplaced('');
                                       setPartsCost('');
-                                      setLabourCost('');
                                       setReportRemarks('');
-                                      setReportPhotos('');
                                       setReportSpecialist(user.name);
                                     }}
                                     style={{ backgroundColor: '#38bdf8', color: '#fff', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
@@ -487,6 +567,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                           <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
                             <th style={{ padding: '0.75rem 1rem' }}>Name</th>
                             <th style={{ padding: '0.75rem 1rem' }}>Contact Details</th>
+                            <th style={{ padding: '0.75rem 1rem' }}>Allocated Equipment</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -497,11 +578,14 @@ export default function MaintenancePortal({ user, onLogout }) {
                                 <span style={{ display: 'block' }}>{op.email}</span>
                                 <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>📞 {op.mobile || 'N/A'}</span>
                               </td>
+                              <td style={{ padding: '0.75rem 1rem', color: '#38bdf8', fontSize: '0.85rem' }}>
+                                {getOperatorAllocatedEquipment(op._id || op.id)}
+                              </td>
                             </tr>
                           ))}
                           {operators.filter(op => getOperatorStatus(op._id || op.id) === 'Available').length === 0 && (
                             <tr>
-                              <td colSpan="2" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                              <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
                                 No available operators.
                               </td>
                             </tr>
@@ -523,6 +607,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                           <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
                             <th style={{ padding: '0.75rem 1rem' }}>Name</th>
                             <th style={{ padding: '0.75rem 1rem' }}>Contact Details</th>
+                            <th style={{ padding: '0.75rem 1rem' }}>Assigned To</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -533,11 +618,16 @@ export default function MaintenancePortal({ user, onLogout }) {
                                 <span style={{ display: 'block' }}>{op.email}</span>
                                 <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>📞 {op.mobile || 'N/A'}</span>
                               </td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600 }}>
+                                  {getBusyOperatorDetails(op._id || op.id)}
+                                </span>
+                              </td>
                             </tr>
                           ))}
                           {operators.filter(op => getOperatorStatus(op._id || op.id) === 'Not Available').length === 0 && (
                             <tr>
-                              <td colSpan="2" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                              <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
                                 No busy operators.
                               </td>
                             </tr>
@@ -547,6 +637,71 @@ export default function MaintenancePortal({ user, onLogout }) {
                     </div>
                   </div>
 
+                </div>
+
+                {/* Maintenance History Section */}
+                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
+                      <FileText size={20} color="#a78bfa" />
+                      <span>Maintenance Service History ({maintHistory.length})</span>
+                    </h3>
+                  </div>
+
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                          <th style={{ padding: '0.75rem 1rem' }}>Date</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Equipment</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Description / Reason</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Parts Cost</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Specialist</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {maintHistory.map((log, idx) => {
+                          const eqName = log.equipment?.name || 'Unknown';
+                          const eqReg = log.equipment?.regNumber || '';
+                          const dateStr = log.serviceDate || log.createdAt || '';
+                          const statusLabel = log.status || (log.completedDate ? 'Completed' : 'Open');
+                          const statusColor = statusLabel === 'Completed' ? '#10b981' : statusLabel === 'Approved' ? '#10b981' : '#f59e0b';
+                          return (
+                            <tr key={log._id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
+                              <td style={{ padding: '0.75rem 1rem', whiteSpace: 'nowrap' }}>{dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A'}</td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{eqName}</span>
+                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{eqReg}</span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem', maxWidth: '250px' }}>
+                                <span style={{ display: 'block', fontWeight: 600, color: '#38bdf8' }}>{log.maintenanceReason || 'Service'}</span>
+                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{log.description || ''}</span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#f87171' }}>₹{(log.cost || 0).toLocaleString()}</td>
+                              <td style={{ padding: '0.75rem 1rem' }}>{log.specialist || 'N/A'}</td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{
+                                  fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '6px',
+                                  backgroundColor: statusColor === '#10b981' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
+                                  color: statusColor, fontWeight: 700
+                                }}>
+                                  {statusLabel}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        {maintHistory.length === 0 && (
+                          <tr>
+                            <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                              No maintenance history records found.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
               </div>
@@ -604,16 +759,8 @@ export default function MaintenancePortal({ user, onLogout }) {
                   <input type="number" required placeholder="0" value={partsCost} onChange={(e) => setPartsCost(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Labour Cost (₹)</label>
-                  <input type="number" required placeholder="0" value={labourCost} onChange={(e) => setLabourCost(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
-                </div>
-                <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Technician Name</label>
                   <input type="text" required value={reportSpecialist} onChange={(e) => setReportSpecialist(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Photo URLs (Comma-separated)</label>
-                  <input type="text" placeholder="e.g. http://url.com/1.jpg" value={reportPhotos} onChange={(e) => setReportPhotos(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Remarks</label>

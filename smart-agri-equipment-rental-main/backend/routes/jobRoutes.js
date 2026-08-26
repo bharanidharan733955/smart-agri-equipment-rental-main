@@ -83,6 +83,10 @@ router.post('/:id/start', authenticateToken, authorizeRoles('Operator'), async (
 
     if (eq) {
       eq.status = 'In Use';
+      if (job.unitNum) {
+        const unit = eq.units.find(u => u.unitNum === job.unitNum);
+        if (unit) unit.status = 'In Use';
+      }
     }
 
     // Update Booking status
@@ -173,21 +177,20 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       return res.status(400).json({ success: false, message: 'Job must be started before completing.' });
     }
 
-    // Resolve start/end times and calculate hours
-    const resolvedStartTime = job.startTime || (startTime ? new Date(startTime) : null);
-    if (!resolvedStartTime) {
-      return res.status(400).json({ success: false, message: 'Operator cannot complete a job without start time.' });
+    let booking;
+    if (isDbConnected()) {
+      booking = await Booking.findById(job.booking);
+    } else {
+      const bookings = localDb.read('bookings') || [];
+      booking = bookings.find(b => b._id?.toString() === job.booking?.toString() || b.id?.toString() === job.booking?.toString());
     }
 
-    const resolvedEndTime = endTime ? new Date(endTime) : new Date();
-    if (resolvedEndTime < new Date(resolvedStartTime)) {
-      return res.status(400).json({ success: false, message: 'End time cannot be before start time.' });
-    }
+    const durationDays = booking ? booking.durationDays : 1;
+    const hours = durationDays * 9;
 
-    const hours = Math.round(((resolvedEndTime - new Date(resolvedStartTime)) / (1000 * 60 * 60)) * 10) / 10;
-    if (hours > 9) {
-      return res.status(400).json({ success: false, message: 'Working hours cannot exceed 9 hours in a single day.' });
-    }
+    const resolvedStartTime = job.startTime || (booking ? new Date(booking.startDate) : new Date());
+    const resolvedEndTime = new Date(new Date(resolvedStartTime).getTime() + durationDays * 24 * 60 * 60 * 1000);
+
     const fuel = parseFloat(fuelUsed) || 0;
 
     // Update job details

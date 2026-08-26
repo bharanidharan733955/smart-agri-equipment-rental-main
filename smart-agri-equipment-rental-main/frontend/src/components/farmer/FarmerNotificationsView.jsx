@@ -33,9 +33,9 @@ export default function FarmerNotificationsView({ notificationsList }) {
       >
         {notificationsList.length > 0 ? (
           <div style={{ padding: '1rem 0' }}>
-            {notificationsList.map(n => (
+            {notificationsList.map((n, i) => (
               <div
-                key={n.id}
+                key={n._id || n.id || i}
                 style={{
                   padding: '1.4rem 2rem',
                   borderBottom: '1px solid rgba(255, 255, 255, 0.06)',

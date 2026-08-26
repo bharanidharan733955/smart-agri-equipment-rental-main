@@ -78,6 +78,11 @@ router.post('/', authenticateToken, authorizeRoles('Manager', 'Admin'), async (r
       return res.status(400).json({ success: false, message: 'Missing required fields.' });
     }
 
+    const rate = parseFloat(rentalRate);
+    if (isNaN(rate) || rate < 1800 || rate > 3500) {
+      return res.status(400).json({ success: false, message: 'Rental rate must be between ₹1800 and ₹3500 per day.' });
+    }
+
     const qrCode = `AGRIRENT-QR-${regNumber}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     let newEq;
@@ -134,6 +139,14 @@ router.put('/:id', authenticateToken, authorizeRoles('Manager', 'Admin'), async 
   try {
     const { id } = req.params;
     const updateData = req.body;
+
+    if (updateData.rentalRate !== undefined) {
+      const rate = parseFloat(updateData.rentalRate);
+      if (isNaN(rate) || rate < 1800 || rate > 3500) {
+        return res.status(400).json({ success: false, message: 'Rental rate must be between ₹1800 and ₹3500 per day.' });
+      }
+    }
+
     let updated;
 
     if (isDbConnected()) {

@@ -27,7 +27,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 12,
       totalUnits: 15,
-      rentalRate: 1500,
+      rentalRate: 1800,
       imageUrl: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-AT-8821',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -45,7 +45,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 5,
       totalUnits: 15,
-      rentalRate: 2200,
+      rentalRate: 2800,
       imageUrl: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-RT-5510',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -63,7 +63,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 800,
+      rentalRate: 1900,
       imageUrl: 'https://images.unsplash.com/photo-1534073828943-f801091bb28c?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-CL-4411',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -81,7 +81,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 1100,
+      rentalRate: 2200,
       imageUrl: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-TH-2212',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -99,7 +99,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 900,
+      rentalRate: 2000,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-SD-7711',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -117,7 +117,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 700,
+      rentalRate: 1850,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-CV-3311',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -135,7 +135,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 500,
+      rentalRate: 1800,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-SP-9911',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -153,7 +153,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 600,
+      rentalRate: 1800,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-PT-4411',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -171,7 +171,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 1300,
+      rentalRate: 2400,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-LL-1122',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -189,7 +189,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 950,
+      rentalRate: 2100,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-HS-3344',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -207,7 +207,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 1200,
+      rentalRate: 2200,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-SB-5566',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -225,7 +225,7 @@ function getMockEquipment() {
       status: 'Available',
       totalUsageHours: 0,
       totalUnits: 15,
-      rentalRate: 750,
+      rentalRate: 1950,
       imageUrl: 'https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80',
       qrCode: 'AGRIRENT-QR-PB-10-CR-7788',
       cooperativeHub: 'Ludhiana Central Hub #1'
@@ -236,16 +236,12 @@ function getMockEquipment() {
     const seed = parseInt(eq.id.split('-')[1]) || 1;
     const units = Array.from({ length: 15 }, (_, idx) => {
       const unitNum = idx + 1;
-      // Deterministic work hours ranging up to 370 hours
-      const hours = Math.round((((seed * 37 + unitNum * 17) % 38) * 9.8) * 10) / 10;
+      // Start all units completely fresh
+      const hours = 0;
       
       let status = 'Available';
       if (hours >= 350) {
         status = 'Under Maintenance';
-      } else {
-        const rand = (seed * 11 + unitNum * 7) % 10;
-        if (rand === 3 || rand === 7) status = 'Rented';
-        else if (rand === 5) status = 'Reserved';
       }
 
       return {
@@ -287,18 +283,22 @@ async function seedDemoData() {
 
   if (isConnected) {
     try {
-      // Clear existing demo users to ensure updated secure passwords take effect
-      await User.deleteMany({ email: { $in: demoUsers.map(u => u.email) } });
+      // Update or insert demo users to preserve their _ids across server restarts
       for (const u of demoUsers) {
         console.log(`🌱 Seeding database user: ${u.email}...`);
         const hashedPassword = await bcrypt.hash(u.password, 10);
-        await User.create({ ...u, password: hashedPassword });
+        await User.updateOne(
+          { email: u.email },
+          { $set: { ...u, password: hashedPassword } },
+          { upsert: true }
+        );
       }
 
-      // Seed equipment to MongoDB if count < 12 or units array is missing
+      // Seed equipment to MongoDB if count < 12 or units array is missing or rates out of range
       const eqCount = await Equipment.countDocuments();
       const eqWithUnits = await Equipment.countDocuments({ units: { $exists: true, $not: { $size: 0 } } });
-      if (eqCount < 12 || eqWithUnits < eqCount) {
+      const outOfBounds = await Equipment.countDocuments({ $or: [{ rentalRate: { $lt: 1800 } }, { rentalRate: { $gt: 3500 } }] });
+      if (eqCount < 12 || eqWithUnits < eqCount || outOfBounds > 0) {
         console.log("🌱 Seeding MongoDB equipment database (with units fleet)...");
         await Equipment.deleteMany({}); // clear existing
         const mockEq = getMockEquipment();
@@ -316,20 +316,22 @@ async function seedDemoData() {
   } else {
     // Local memory file seeding
     const fileUsers = localDb.read('users');
-    const demoEmails = demoUsers.map(u => u.email);
-    let updatedUsers = fileUsers.filter(item => !demoEmails.includes(item.email));
+    const existingEmails = fileUsers.map(u => u.email);
+    let updatedUsers = [...fileUsers];
     let seededAny = false;
 
     for (const u of demoUsers) {
-      console.log(`🌱 Seeding local JSON user: ${u.email}...`);
-      const hashedPassword = await bcrypt.hash(u.password, 10);
-      updatedUsers.push({
-        _id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
-        ...u,
-        password: hashedPassword,
-        createdAt: new Date().toISOString()
-      });
-      seededAny = true;
+      if (!existingEmails.includes(u.email)) {
+        console.log(`🌱 Seeding local JSON user: ${u.email}...`);
+        const hashedPassword = await bcrypt.hash(u.password, 10);
+        updatedUsers.push({
+          _id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
+          ...u,
+          password: hashedPassword,
+          createdAt: new Date().toISOString()
+        });
+        seededAny = true;
+      }
     }
 
     if (seededAny) {
@@ -337,19 +339,62 @@ async function seedDemoData() {
       console.log('✅ Local JSON Seeding completed.');
     }
 
-    // Seed equipment locally if count < 12 or units are missing
-    const fileEq = localDb.read('equipment');
-    if (fileEq.length < 12 || !fileEq[0] || !fileEq[0].units || fileEq[0].units.length === 0) {
+    // Seed equipment locally if count < 12 or units are missing or rates out of range
+    const fileEq = localDb.read('equipment') || [];
+    const outOfBoundsLocal = fileEq.some(e => e.rentalRate < 1800 || e.rentalRate > 3500);
+    if (fileEq.length < 12 || !fileEq[0] || !fileEq[0].units || fileEq[0].units.length === 0 || outOfBoundsLocal) {
       console.log("🌱 Seeding local JSON equipment database (with units fleet)...");
       const mockEq = getMockEquipment();
       const users = localDb.read('users');
       const op = users.find(u => u.role === 'Equipment Operator');
+      const farmer = users.find(u => u.role === 'Farmer');
+      
       if (op) {
         mockEq[0].assignedOperator = op._id;
+        mockEq[0].status = 'In Use';
         mockEq[1].assignedOperator = op._id;
       }
       localDb.write('equipment', mockEq);
       console.log('✅ Local JSON Seeding of equipment completed with units fleet.');
+
+      // Also seed a mock booking and job so the operator has something to see
+      if (op && farmer) {
+        const bookings = localDb.read('bookings') || [];
+        const jobs = localDb.read('jobs') || [];
+
+        if (jobs.length === 0) {
+          console.log("🌱 Seeding local JSON mock job for operator...");
+          const bookingId = 'BKG-' + Math.floor(1000 + Math.random() * 9000);
+          const jobId = 'JOB-' + Math.floor(1000 + Math.random() * 9000);
+          
+          bookings.push({
+            _id: bookingId,
+            farmer: farmer._id,
+            equipment: mockEq[0]._id || mockEq[0].id,
+            startDate: new Date().toISOString(),
+            durationDays: 2,
+            totalCost: 5000,
+            status: 'Approved',
+            paymentStatus: 'Paid',
+            createdAt: new Date().toISOString()
+          });
+
+          jobs.push({
+            _id: jobId,
+            booking: bookingId,
+            operator: op._id,
+            equipment: mockEq[0]._id || mockEq[0].id,
+            farmer: farmer._id,
+            status: 'Assigned',
+            workLocation: farmer.farmAddress || 'Ludhiana North Fields',
+            assignedDate: new Date().toISOString()
+          });
+
+          localDb.write('bookings', bookings);
+          localDb.write('jobs', jobs);
+          console.log('✅ Local JSON Seeding of mock job completed.');
+        }
+      }
     }
   }
 }

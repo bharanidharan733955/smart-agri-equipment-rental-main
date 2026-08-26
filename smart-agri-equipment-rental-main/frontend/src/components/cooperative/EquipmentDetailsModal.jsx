@@ -25,42 +25,7 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
   }, [isOpen, equipment]);
   if (!isOpen || !equipment) return null;
 
-  // Deterministically generate 15 units based on equipment unique properties
-  const generateUnits = (eq) => {
-    const seed = eq._id || eq.id || 'default';
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
-    return Array.from({ length: 15 }, (_, index) => {
-      const unitNum = index + 1;
-      // Distribute a range of operating hours centered around the main equipment hours
-      // Some lower-use units, some high-use units.
-      const baseHours = eq.totalUsageHours || 12;
-      const factor = Math.abs(Math.sin(hash + unitNum * 17));
-      // Generate hours up to 380 to make some units close to or exceeding the 360h maintenance mark
-      const hours = Math.round((factor * 370) * 10) / 10;
-      
-      let status = 'Available';
-      if (hours >= 360) {
-        status = 'Under Maintenance';
-      } else {
-        const randStatus = Math.cos(hash + unitNum * 23);
-        if (randStatus > 0.4) status = 'Rented';
-        else if (randStatus < -0.6) status = 'Reserved';
-      }
-      
-      return {
-        unitNum,
-        serial: `${eq.regNumber || 'PB-10-AT-8821'}-${String(unitNum).padStart(2, '0')}`,
-        hours,
-        status
-      };
-    });
-  };
-
-  const units = equipment.units && equipment.units.length > 0 ? equipment.units : generateUnits(equipment);
+  const units = equipment.units || [];
 
   return (
     <div
@@ -192,7 +157,7 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
         <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginBottom: '1.5rem' }}>
           <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Activity size={18} color="#10b981" />
-            <span>Individual Fleet Unit Tracking (15 units available)</span>
+            <span>Individual Fleet Unit Tracking ({units.filter(u => u.status === 'Available').length} units available)</span>
           </h3>
 
           <div

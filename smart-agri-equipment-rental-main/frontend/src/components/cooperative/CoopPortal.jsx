@@ -67,6 +67,36 @@ export default function CoopPortal({ onLogout }) {
   // Maintenance form state
   const [maintDesc, setMaintDesc] = useState('');
   const [maintCost, setMaintCost] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState(null);
+
+  // Generate deterministic units for an equipment type (same logic as EquipmentDetailsModal)
+  const generateUnits = (eq) => {
+    const seed = eq._id || eq.id || 'default';
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Array.from({ length: 15 }, (_, index) => {
+      const unitNum = index + 1;
+      const baseHours = eq.totalUsageHours || 12;
+      const factor = Math.abs(Math.sin(hash + unitNum * 17));
+      const hours = Math.round((factor * 370) * 10) / 10;
+      let status = 'Available';
+      if (hours >= 360) {
+        status = 'Under Maintenance';
+      } else {
+        const randStatus = Math.cos(hash + unitNum * 23);
+        if (randStatus > 0.4) status = 'Rented';
+        else if (randStatus < -0.6) status = 'Reserved';
+      }
+      return {
+        unitNum,
+        serial: `${eq.regNumber || 'PB-10-AT-8821'}-${String(unitNum).padStart(2, '0')}`,
+        hours,
+        status
+      };
+    });
+  };
 
   useEffect(() => {
     loadCoopData();
@@ -185,7 +215,7 @@ export default function CoopPortal({ onLogout }) {
     e.preventDefault();
     const res = await scheduleMaintenance(maintItem._id || maintItem.id, {
       description: maintDesc,
-      cost: parseFloat(maintCost) || 0
+      cost: 0
     });
     if (res.success) {
       toast.success('Equipment sent to Under Maintenance.');
@@ -1165,28 +1195,79 @@ export default function CoopPortal({ onLogout }) {
         onUploadImage={handleUploadImage}
       />
 
-      {/* Maintenance modal */}
-      {maintItem && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-          <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '16px', maxWidth: '450px', width: '100%', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>Send {maintItem.name} to Maintenance</h3>
-            <form onSubmit={handleScheduleMaintSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem' }}>Reason / Service Details</label>
-                <textarea required value={maintDesc} onChange={(e) => setMaintDesc(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+      {/* Maintenance modal – shows all units of the selected equipment type */}
+      {maintItem && (() => {
+        const units = maintItem.units && maintItem.units.length > 0 ? maintItem.units : generateUnits(maintItem);
+        const availableUnits = units.filter(u => u.status === 'Available');
+        return (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+            <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '16px', maxWidth: '600px', width: '100%', border: '1px solid rgba(255,255,255,0.1)', maxHeight: '90vh', overflowY: 'auto' }}>
+              <h3 style={{ marginBottom: '0.5rem', color: '#ef4444', fontSize: '1.25rem', fontWeight: 800 }}>Send to Maintenance</h3>
+              <div style={{ marginBottom: '0.75rem', fontSize: '0.9rem', color: '#94a3b8', fontWeight: 700 }}>
+                Equipment: <span style={{ color: '#fff' }}>{maintItem.name}</span> &bull; Type: <span style={{ color: '#38bdf8' }}>{maintItem.category}</span>
               </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem' }}>Estimated Cost (₹)</label>
-                <input type="number" required value={maintCost} onChange={(e) => setMaintCost(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+
+              {/* Unit Selection */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: '#cbd5e1', fontWeight: 700 }}>Select a Unit to Send for Maintenance *</label>
+                {availableUnits.length === 0 ? (
+                  <div style={{ padding: '1rem', backgroundColor: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', color: '#f87171', textAlign: 'center', fontSize: '0.88rem' }}>
+                    No available units for this equipment type. All units are currently rented, reserved, or already under maintenance.
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                    {availableUnits.map(unit => {
+                      const isSelected = selectedUnit && selectedUnit.unitNum === unit.unitNum;
+                      return (
+                        <div
+                          key={unit.unitNum}
+                          onClick={() => setSelectedUnit(unit)}
+                          style={{
+                            padding: '0.7rem',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            border: isSelected ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
+                            backgroundColor: isSelected ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.03)',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, color: isSelected ? '#10b981' : '#fff', fontSize: '0.82rem' }}>Unit #{unit.unitNum}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>{unit.serial}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#38bdf8', marginTop: '2px', fontWeight: 600 }}>{unit.hours} hrs</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button type="submit" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Confirm Maintenance</button>
-                <button type="button" onClick={() => setMaintItem(null)} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
-              </div>
-            </form>
+
+              {/* Reason textarea (only show if a unit is selected) */}
+              {selectedUnit && (
+                <form onSubmit={handleScheduleMaintSubmit}>
+                  <div style={{ marginBottom: '0.5rem', padding: '0.6rem 0.8rem', backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '8px', fontSize: '0.82rem', color: '#10b981', fontWeight: 600 }}>
+                    Selected: Unit #{selectedUnit.unitNum} — {selectedUnit.serial} ({selectedUnit.hours} hrs)
+                  </div>
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#cbd5e1', fontWeight: 600 }}>Reason / Service Details (Explain the issue) *</label>
+                    <textarea required placeholder="Describe the fault or service needed..." value={maintDesc} onChange={(e) => setMaintDesc(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', minHeight: '80px', outline: 'none' }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                    <button type="submit" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Confirm Maintenance</button>
+                    <button type="button" onClick={() => { setMaintItem(null); setSelectedUnit(null); }} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                  </div>
+                </form>
+              )}
+
+              {/* Cancel button when no unit selected */}
+              {!selectedUnit && (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <button type="button" onClick={() => { setMaintItem(null); setSelectedUnit(null); }} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </CoopStaffLayout>
   );
 }

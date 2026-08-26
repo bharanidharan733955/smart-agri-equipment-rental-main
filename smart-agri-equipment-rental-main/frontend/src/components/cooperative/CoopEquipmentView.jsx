@@ -262,7 +262,7 @@ export default function CoopEquipmentView({
                     border: '1px solid rgba(16,185,129,0.25)',
                     color: '#10b981'
                   }}>
-                    {item.totalUnits || 15} units
+                    {item.units ? item.units.filter(u => u.status === 'Available').length : (item.totalUnits || 15)} units available
                   </span>
                   <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{item.cooperativeHub || item.location}</span>
                 </div>
@@ -271,7 +271,7 @@ export default function CoopEquipmentView({
               {/* Rate & Serial */}
               <div>
                 <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#10b981' }}>
-                  ₹{item.price || item.pricePerDay}<span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 400 }}>/day</span>
+                  ₹{item.rentalRate || item.price || item.pricePerDay}<span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 400 }}>/day</span>
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>
                   Brand: {item.manufacturer || 'Standard'}

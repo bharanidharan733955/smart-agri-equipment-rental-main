@@ -7,7 +7,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
 
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Tractor');
-  const [price, setPrice] = useState(1500);
+  const [price, setPrice] = useState(1800);
   const [location, setLocation] = useState('Ludhiana Central Hub #1');
   const [condition, setCondition] = useState('good');
   const [status, setStatus] = useState('Available');
@@ -176,7 +176,8 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
               <input
                 type="number"
                 required
-                min="100"
+                min="1800"
+                max="3500"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 style={{
@@ -256,29 +257,6 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
               required
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.7rem 0.9rem',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#ffffff',
-                fontSize: '0.9rem',
-                outline: 'none'
-              }}
-            />
-          </div>
-
-          {/* Image URL */}
-          <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
-              Equipment Image URL (Upload / Link)
-            </label>
-            <input
-              type="url"
-              placeholder="https://images.unsplash.com/..."
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
               style={{
                 width: '100%',
                 padding: '0.7rem 0.9rem',

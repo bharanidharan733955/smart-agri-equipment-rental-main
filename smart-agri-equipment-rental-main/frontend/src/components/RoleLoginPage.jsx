@@ -155,23 +155,6 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
     }
   };
 
-  const handleFillDemo = () => {
-    const demoEmail = 
-      role.id === 'farmer' ? 'farmer@agrirent.gov' :
-      role.id === 'operator' ? 'operator@agrirent.gov' :
-      role.id === 'equipmaintance' ? 'maint@agrirent.gov' : 'staff@agrirent.gov';
-    
-    const demoPassword = 
-      role.id === 'farmer' ? 'AgriRentGov#Secure2026!Farmer' :
-      role.id === 'operator' ? 'AgriRentGov#Secure2026!Operator' :
-      role.id === 'equipmaintance' ? 'AgriRentGov#Secure2026!Maint' : 'AgriRentGov#Secure2026!Staff';
-
-    setFormData(prev => ({
-      ...prev,
-      email: demoEmail,
-      password: demoPassword
-    }));
-  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-dark)', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
@@ -275,45 +258,6 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
               <p style={{ fontSize: '0.92rem', color: '#94a3b8', marginBottom: '1.5rem', lineHeight: 1.5 }}>
                 {isRegistering ? 'Create your official co-operative account below.' : role.subtitle}
               </p>
-
-              {/* Demo Helper Button (only for sign in) */}
-              {!isRegistering && (
-                <div
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                    border: '1px dashed rgba(255, 255, 255, 0.15)',
-                    borderRadius: '12px',
-                    padding: '0.75rem 1rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '1.5rem',
-                    fontSize: '0.82rem',
-                    color: '#94a3b8'
-                  }}
-                >
-                  <div>
-                    <span style={{ color: '#10b981', fontWeight: 700 }}>Demo Login: </span>
-                    {role.demoCreds}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleFillDemo}
-                    style={{
-                      background: 'rgba(16, 185, 129, 0.15)',
-                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                      color: '#10b981',
-                      padding: '0.3rem 0.75rem',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: 700,
-                      fontSize: '0.75rem'
-                    }}
-                  >
-                    Auto Fill
-                  </button>
-                </div>
-              )}
 
               {/* Action Form */}
               <form onSubmit={isRegistering ? handleRegisterSubmit : handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>

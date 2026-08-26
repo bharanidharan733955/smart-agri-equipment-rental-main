@@ -77,46 +77,23 @@ export default function OperatorPortal({ user, onLogout }) {
 
   const handleCompleteJob = async (e) => {
     e.preventDefault();
-    if (!startTime || !endTime) {
-      toast.error('Please enter both start and end times.');
-      return;
-    }
-    const startVal = new Date(startTime);
-    const endVal = new Date(endTime);
-    if (endVal < startVal) {
-      toast.error('End time cannot be before start time.');
-      return;
-    }
-    const diffHours = (endVal - startVal) / (1000 * 60 * 60);
-    if (diffHours > 9) {
-      toast.error('Working hours cannot exceed 9 hours in a single day.');
-      return;
-    }
     setActionLoading(true);
     const res = await completeJobApi(activeJob._id || activeJob.id, {
-      startTime,
-      endTime,
       fuelUsed: parseFloat(fuelUsed) || 0,
       remarks,
       workCompleted,
-      fieldLocation,
       equipmentCondition,
-      damageInfo,
-      photos: photosInput ? photosInput.split(',').map(s => s.trim()) : []
+      damageInfo
     });
     setActionLoading(false);
     if (res.success) {
       toast.success('Job completed and report submitted successfully!');
       setActiveJob(null);
-      setStartTime('');
-      setEndTime('');
       setFuelUsed('');
       setRemarks('');
       setWorkCompleted('Fully Completed');
-      setFieldLocation('');
       setEquipmentCondition('Good');
       setDamageInfo('');
-      setPhotosInput('');
       loadJobs();
     } else {
       toast.error(res.message || 'Failed to complete job.');
@@ -230,26 +207,6 @@ export default function OperatorPortal({ user, onLogout }) {
             </p>
             <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Actual Start Time</label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Actual End Time</label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
-                />
-              </div>
-              <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Fuel Consumption (Liters)</label>
                 <input
                   type="number"
@@ -273,18 +230,7 @@ export default function OperatorPortal({ user, onLogout }) {
                   <option value="Aborted">Aborted / Halted</option>
                 </select>
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Field Location / Plot Details</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Ludhiana East Sector, Plot 4B"
-                  value={fieldLocation}
-                  onChange={(e) => setFieldLocation(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
-                />
-              </div>
-              <div>
+              <div style={{ gridColumn: 'span 2' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Equipment Post-Work Condition</label>
                 <select
                   value={equipmentCondition}
@@ -312,16 +258,6 @@ export default function OperatorPortal({ user, onLogout }) {
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', minHeight: '80px' }}
-                />
-              </div>
-              <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Photo URLs (Comma-separated, optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. https://image1.jpg, https://image2.jpg"
-                  value={photosInput}
-                  onChange={(e) => setPhotosInput(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
                 />
               </div>
               <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem', marginTop: '1rem' }}>

@@ -138,6 +138,13 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         status: bookingStatus
       });
 
+      // Update the specific unit status to 'Reserved'
+      const unit = eq.units.find(u => u.unitNum === selectedUnitNum);
+      if (unit) {
+        unit.status = 'Reserved';
+        await eq.save();
+      }
+
       // Create Job automatically
       await Job.create({
         booking: newBooking._id,

@@ -18,7 +18,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
     if (equipment) {
       setName(equipment.name || '');
       setCategory(equipment.category || 'Tractor');
-      setPrice(equipment.price || equipment.pricePerDay || 1500);
+      setPrice(equipment.rentalRate || equipment.price || equipment.pricePerDay || 1500);
       setLocation(equipment.location || 'Ludhiana Central Hub #1');
       setCondition(equipment.condition || 'good');
       setStatus(equipment.status || 'Available');
@@ -29,10 +29,11 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSaveEdit(equipment.id, {
+    onSaveEdit(equipment._id || equipment.id, {
       name,
       category,
       price: parseFloat(price),
+      rentalRate: parseFloat(price),
       location,
       condition,
       status,
@@ -174,6 +175,8 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
               <input
                 type="number"
                 required
+                min="1800"
+                max="3500"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 style={{
@@ -250,28 +253,6 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
               required
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.7rem 0.9rem',
-                borderRadius: '10px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#ffffff',
-                fontSize: '0.9rem',
-                outline: 'none'
-              }}
-            />
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
-              Image URL *
-            </label>
-            <input
-              type="url"
-              required
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
               style={{
                 width: '100%',
                 padding: '0.7rem 0.9rem',
