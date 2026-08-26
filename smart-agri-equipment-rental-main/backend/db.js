@@ -268,32 +268,31 @@ function getMockEquipment() {
 
 async function seedDemoData() {
   const demoUsers = [
-    { name: 'Siva Farmer', email: 'farmer@agrirent.gov', password: 'farmer123', role: 'Farmer', mobile: '9876543210', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', farmerId: '123456789012', isApproved: true },
-    { name: 'Vikram Operator', email: 'operator@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543212', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Rajesh Operator', email: 'rajesh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543220', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Ramesh Operator', email: 'ramesh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543221', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Suresh Operator', email: 'suresh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543222', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Ganesh Operator', email: 'ganesh@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543223', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Karthik Operator', email: 'karthik@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543224', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Murugan Operator', email: 'murugan@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543225', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Siva Operator', email: 'siva@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543226', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Hari Operator', email: 'hari@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543227', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Arjun Operator', email: 'arjun@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543228', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Vijay Operator', email: 'vijay@agrirent.gov', password: 'operator123', role: 'Equipment Operator', mobile: '9876543229', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Maintenance Tech', email: 'maint@agrirent.gov', password: 'maint123', role: 'Equipmaintance', mobile: '9876543213', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'Staff Controller', email: 'staff@agrirent.gov', password: 'staff123', role: 'Staff', mobile: '9876543214', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
-    { name: 'State Government Auditor', email: 'officer@agrirent.gov', password: 'officer123', role: 'Officer', mobile: '9876543215', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true }
+    { name: 'Siva Farmer', email: 'farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543210', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', farmerId: '123456789012', isApproved: true },
+    { name: 'Vikram Operator', email: 'operator@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543212', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Rajesh Operator', email: 'rajesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543220', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Ramesh Operator', email: 'ramesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543221', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Suresh Operator', email: 'suresh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543222', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Ganesh Operator', email: 'ganesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543223', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Karthik Operator', email: 'karthik@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543224', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Murugan Operator', email: 'murugan@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543225', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Siva Operator', email: 'siva@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543226', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Hari Operator', email: 'hari@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543227', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Arjun Operator', email: 'arjun@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543228', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Vijay Operator', email: 'vijay@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543229', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Maintenance Tech', email: 'maint@agrirent.gov', password: 'AgriRentGov#Secure2026!Maint', role: 'Equipmaintance', mobile: '9876543213', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'Staff Controller', email: 'staff@agrirent.gov', password: 'AgriRentGov#Secure2026!Staff', role: 'Staff', mobile: '9876543214', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true },
+    { name: 'State Government Auditor', email: 'officer@agrirent.gov', password: 'AgriRentGov#Secure2026!Officer', role: 'Officer', mobile: '9876543215', district: 'Ludhiana', cooperativeHub: 'Ludhiana Central Hub #1', isApproved: true }
   ];
 
   if (isConnected) {
     try {
+      // Clear existing demo users to ensure updated secure passwords take effect
+      await User.deleteMany({ email: { $in: demoUsers.map(u => u.email) } });
       for (const u of demoUsers) {
-        const exists = await User.findOne({ email: u.email });
-        if (!exists) {
-          console.log(`🌱 Seeding database user: ${u.email}...`);
-          const hashedPassword = await bcrypt.hash(u.password, 10);
-          await User.create({ ...u, password: hashedPassword });
-        }
+        console.log(`🌱 Seeding database user: ${u.email}...`);
+        const hashedPassword = await bcrypt.hash(u.password, 10);
+        await User.create({ ...u, password: hashedPassword });
       }
 
       // Seed equipment to MongoDB if count < 12 or units array is missing
@@ -317,22 +316,20 @@ async function seedDemoData() {
   } else {
     // Local memory file seeding
     const fileUsers = localDb.read('users');
-    let updatedUsers = [...fileUsers];
+    const demoEmails = demoUsers.map(u => u.email);
+    let updatedUsers = fileUsers.filter(item => !demoEmails.includes(item.email));
     let seededAny = false;
 
     for (const u of demoUsers) {
-      const exists = fileUsers.find(item => item.email === u.email);
-      if (!exists) {
-        console.log(`🌱 Seeding local JSON user: ${u.email}...`);
-        const hashedPassword = await bcrypt.hash(u.password, 10);
-        updatedUsers.push({
-          _id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
-          ...u,
-          password: hashedPassword,
-          createdAt: new Date().toISOString()
-        });
-        seededAny = true;
-      }
+      console.log(`🌱 Seeding local JSON user: ${u.email}...`);
+      const hashedPassword = await bcrypt.hash(u.password, 10);
+      updatedUsers.push({
+        _id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
+        ...u,
+        password: hashedPassword,
+        createdAt: new Date().toISOString()
+      });
+      seededAny = true;
     }
 
     if (seededAny) {
@@ -409,8 +406,9 @@ const equipmentSchema = new mongoose.Schema({
   model: String,
   purchaseDate: Date,
   assignedOperator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  status: { type: String, enum: ['Available', 'Reserved', 'In Use', 'Under Inspection', 'Under Maintenance'], default: 'Available' },
+  status: { type: String, enum: ['Available', 'Reserved', 'In Use', 'Under Inspection', 'Under Maintenance', 'Maintenance Required', 'Awaiting Maintenance Approval'], default: 'Available' },
   totalUsageHours: { type: Number, default: 0 },
+  currentCycleHours: { type: Number, default: 0 },
   totalUnits: { type: Number, default: 15 },
   units: [unitSchema],
   rentalRate: { type: Number, required: true },
@@ -455,6 +453,11 @@ const jobSchema = new mongoose.Schema({
   remarks: String,
   beforeImage: String,
   afterImage: String,
+  workCompleted: String,
+  fieldLocation: String,
+  equipmentCondition: String,
+  damageInfo: String,
+  photos: [String],
   status: { type: String, enum: ['Assigned', 'Started', 'Completed', 'Cancelled'], default: 'Assigned' },
   createdAt: { type: Date, default: Date.now }
 });
@@ -483,7 +486,18 @@ const maintenanceSchema = new mongoose.Schema({
   partsChanged: String,
   cost: { type: Number, default: 0 },
   nextServiceDate: Date,
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  problemDescription: String,
+  workPerformed: String,
+  partsReplaced: String,
+  partsCost: { type: Number, default: 0 },
+  labourCost: { type: Number, default: 0 },
+  specialist: String,
+  remarks: String,
+  photos: [String],
+  status: { type: String, enum: ['Pending', 'Completed', 'Approved', 'Rejected'], default: 'Pending' },
+  previousUsageHours: Number,
+  maintenanceReason: String
 });
 
 export const Maintenance = mongoose.models.Maintenance || mongoose.model('Maintenance', maintenanceSchema);
@@ -520,6 +534,9 @@ const feedbackSchema = new mongoose.Schema({
   farmer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
   comments: String,
+  equipmentRating: { type: Number, min: 1, max: 5 },
+  serviceRating: { type: Number, min: 1, max: 5 },
+  operatorFeedback: String,
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -1,6 +1,6 @@
 // backend/routes/jobRoutes.js
 import express from 'express';
-import { Job, Booking, Equipment, Notification, logAudit, isDbConnected, localDb } from '../db.js';
+import { Job, Booking, Equipment, User, Maintenance, Notification, logAudit, isDbConnected, localDb } from '../db.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -147,7 +147,7 @@ router.post('/:id/start', authenticateToken, authorizeRoles('Operator'), async (
 router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { fuelUsed, workingHours, remarks, afterImage } = req.body;
+    const { fuelUsed, startTime, endTime, remarks, workCompleted, fieldLocation, equipmentCondition, damageInfo, photos } = req.body;
     let job;
     let eq;
 
@@ -173,40 +173,99 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       return res.status(400).json({ success: false, message: 'Job must be started before completing.' });
     }
 
-    const hours = parseFloat(workingHours) || 1;
+    // Resolve start/end times and calculate hours
+    const resolvedStartTime = job.startTime || (startTime ? new Date(startTime) : null);
+    if (!resolvedStartTime) {
+      return res.status(400).json({ success: false, message: 'Operator cannot complete a job without start time.' });
+    }
+
+    const resolvedEndTime = endTime ? new Date(endTime) : new Date();
+    if (resolvedEndTime < new Date(resolvedStartTime)) {
+      return res.status(400).json({ success: false, message: 'End time cannot be before start time.' });
+    }
+
+    const hours = Math.round(((resolvedEndTime - new Date(resolvedStartTime)) / (1000 * 60 * 60)) * 10) / 10;
+    if (hours > 9) {
+      return res.status(400).json({ success: false, message: 'Working hours cannot exceed 9 hours in a single day.' });
+    }
     const fuel = parseFloat(fuelUsed) || 0;
 
     // Update job details
     job.status = 'Completed';
-    job.endTime = new Date();
+    job.endTime = resolvedEndTime;
+    job.startTime = resolvedStartTime;
     job.fuelUsed = fuel;
     job.workingHours = hours;
     job.remarks = remarks || '';
-    if (afterImage) {
-      job.afterImage = afterImage;
+    job.workCompleted = workCompleted || '';
+    job.fieldLocation = fieldLocation || '';
+    job.equipmentCondition = equipmentCondition || 'Good';
+    job.damageInfo = damageInfo || '';
+    if (photos && photos.length > 0) {
+      job.photos = photos;
     }
 
     let bookingId = job.booking;
+    let oldEquipmentStatus = eq ? eq.status : 'In Use';
+    let newEquipmentStatus = 'Available';
 
-    // Update sub-unit work hours and preventative maintenance status
-    if (eq && job.unitNum) {
-      const unit = eq.units.find(u => u.unitNum === job.unitNum);
-      if (unit) {
-        unit.hours = Math.round((unit.hours + hours) * 10) / 10;
-        if (unit.hours >= 350) {
-          unit.status = 'Under Maintenance';
-        } else {
-          unit.status = 'Available';
+    // Update equipment usage hours
+    if (eq) {
+      eq.currentCycleHours = Math.round((eq.currentCycleHours + hours) * 10) / 10;
+      eq.totalUsageHours = Math.round((eq.totalUsageHours + hours) * 10) / 10;
+      
+      // Update sub-unit work hours
+      if (job.unitNum) {
+        const unit = eq.units.find(u => u.unitNum === job.unitNum);
+        if (unit) {
+          unit.hours = Math.round((unit.hours + hours) * 10) / 10;
         }
       }
-      eq.totalUsageHours = Math.round(eq.units.reduce((sum, u) => sum + u.hours, 0) / 15 * 10) / 10;
-      const hasAvailable = eq.units.some(u => u.status === 'Available' || u.status === 'Rented' || u.status === 'Reserved');
-      eq.status = hasAvailable ? 'Available' : 'Under Maintenance';
+
+      // Check 360-hour threshold
+      if (eq.currentCycleHours >= 360) {
+        newEquipmentStatus = 'Maintenance Required';
+        eq.status = 'Maintenance Required';
+        if (job.unitNum) {
+          const unit = eq.units.find(u => u.unitNum === job.unitNum);
+          if (unit) unit.status = 'Under Maintenance';
+        }
+      } else {
+        eq.status = 'Available';
+        if (job.unitNum) {
+          const unit = eq.units.find(u => u.unitNum === job.unitNum);
+          if (unit) unit.status = 'Available';
+        }
+      }
     }
 
     if (isDbConnected()) {
       await job.save();
-      if (eq) await eq.save();
+      if (eq) {
+        await eq.save();
+        
+        // If maintenance is required, create a Maintenance record and notify
+        if (newEquipmentStatus === 'Maintenance Required') {
+          await Maintenance.create({
+            equipment: eq._id,
+            description: 'Automated 360-hour preventative maintenance trigger',
+            cost: 0,
+            status: 'Pending',
+            previousUsageHours: eq.totalUsageHours,
+            maintenanceReason: '360 Hour Threshold Reached'
+          });
+
+          // Notify Specialists
+          const specialists = await User.find({ role: 'Equipmaintance' });
+          for (const sp of specialists) {
+            await Notification.create({
+              user: sp._id,
+              title: 'Preventative Maintenance Required',
+              message: `Equipment ${eq.name} (${eq.regNumber}) has reached ${eq.currentCycleHours}/360 hours. Maintenance task has been auto-generated.`
+            });
+          }
+        }
+      }
 
       // Update booking
       await Booking.findByIdAndUpdate(bookingId, { status: 'Returned' });
@@ -220,41 +279,59 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
     } else {
       const jobs = localDb.read('jobs');
       const jIdx = jobs.findIndex(j => j._id === id || j.id === id);
-      jobs[jIdx].status = 'Completed';
-      jobs[jIdx].endTime = new Date().toISOString();
-      jobs[jIdx].fuelUsed = fuel;
-      jobs[jIdx].workingHours = hours;
-      jobs[jIdx].remarks = remarks || '';
-      if (afterImage) jobs[jIdx].afterImage = afterImage;
+      jobs[jIdx] = {
+        ...jobs[jIdx],
+        status: 'Completed',
+        endTime: resolvedEndTime.toISOString(),
+        startTime: resolvedStartTime.toISOString(),
+        fuelUsed: fuel,
+        workingHours: hours,
+        remarks: remarks || '',
+        workCompleted: workCompleted || '',
+        fieldLocation: fieldLocation || '',
+        equipmentCondition: equipmentCondition || 'Good',
+        damageInfo: damageInfo || '',
+        photos: photos || []
+      };
       localDb.write('jobs', jobs);
 
       if (eq) {
-        const equipment = localDb.read('equipment');
-        const eqIdx = equipment.findIndex(e => e._id === eq._id || e.id === eq.id);
+        const equipmentList = localDb.read('equipment');
+        const eqIdx = equipmentList.findIndex(e => e._id === eq._id || e.id === eq.id);
         if (eqIdx !== -1) {
-          const localEq = equipment[eqIdx];
-          if (!localEq.units) {
-            localEq.units = Array.from({ length: 15 }, (_, idx) => ({
-              unitNum: idx + 1,
-              serial: `${localEq.regNumber}-${String(idx + 1).padStart(2, '0')}`,
-              hours: 0,
-              status: 'Available'
-            }));
+          equipmentList[eqIdx] = eq;
+          localDb.write('equipment', equipmentList);
+        }
+
+        if (newEquipmentStatus === 'Maintenance Required') {
+          const maintenanceList = localDb.read('maintenance') || [];
+          maintenanceList.push({
+            _id: 'MNT-' + Date.now(),
+            equipment: eq._id || eq.id,
+            serviceDate: new Date().toISOString(),
+            description: 'Automated 360-hour preventative maintenance trigger',
+            cost: 0,
+            status: 'Pending',
+            previousUsageHours: eq.totalUsageHours,
+            maintenanceReason: '360 Hour Threshold Reached',
+            createdAt: new Date().toISOString()
+          });
+          localDb.write('maintenance', maintenanceList);
+
+          const users = localDb.read('users');
+          const specialists = users.filter(u => u.role === 'Equipmaintance');
+          const notifications = localDb.read('notifications') || [];
+          for (const sp of specialists) {
+            notifications.push({
+              _id: 'NTF-M-' + Date.now() + Math.random().toString(36).substr(2, 4),
+              user: sp._id || sp.id,
+              title: 'Preventative Maintenance Required',
+              message: `Equipment ${eq.name} (${eq.regNumber}) has reached ${eq.currentCycleHours}/360 hours. Maintenance task has been auto-generated.`,
+              read: false,
+              timestamp: new Date().toISOString()
+            });
           }
-          const unit = localEq.units.find(u => u.unitNum === job.unitNum);
-          if (unit) {
-            unit.hours = Math.round((unit.hours + hours) * 10) / 10;
-            if (unit.hours >= 350) {
-              unit.status = 'Under Maintenance';
-            } else {
-              unit.status = 'Available';
-            }
-          }
-          localEq.totalUsageHours = Math.round(localEq.units.reduce((sum, u) => sum + u.hours, 0) / 15 * 10) / 10;
-          const hasAvailable = localEq.units.some(u => u.status === 'Available' || u.status === 'Rented' || u.status === 'Reserved');
-          localEq.status = hasAvailable ? 'Available' : 'Under Maintenance';
-          
-          localDb.write('equipment', equipment);
+          localDb.write('notifications', notifications);
         }
       }
 
@@ -266,7 +343,7 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       }
 
       // Notify Farmer
-      const notifications = localDb.read('notifications');
+      const notifications = localDb.read('notifications') || [];
       notifications.push({
         _id: 'NTF-' + Date.now(),
         user: job.farmer,
@@ -278,7 +355,13 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       localDb.write('notifications', notifications);
     }
 
-    await logAudit(req, req.user, 'Work Completed', 'Started', 'Completed', `Operator completed job ID ${id}. Working hours: ${hours}, Fuel: ${fuel}`);
+    // Audit logs
+    await logAudit(req, req.user, 'Operator submitted work completion report', 'Started', 'Completed', `Operator completed job ID ${id}. Working hours: ${hours}`);
+    if (newEquipmentStatus === 'Maintenance Required') {
+      await logAudit(req, null, 'Equipment reached 360 usage hours', String(hours), String(eq.currentCycleHours), `Equipment ${eq.name} reached 360 hours threshold.`);
+      await logAudit(req, null, 'Equipment automatically marked Maintenance Required', oldEquipmentStatus, 'Maintenance Required', `Equipment ${eq.name} status updated automatically.`);
+      await logAudit(req, null, 'Maintenance task created', '', 'Pending', `Automated maintenance task created for ${eq.name}`);
+    }
 
     return res.json({ success: true, message: 'Job completed successfully.', data: job });
   } catch (err) {

@@ -30,6 +30,7 @@ export function authorizeRoles(...roles) {
     for (const r of roles) {
       if (r === 'Farmer' && userRole === 'Farmer') isAuthorized = true;
       if (r === 'Operator' && userRole === 'Equipment Operator') isAuthorized = true;
+      if (r === 'Officer' && userRole === 'Officer') isAuthorized = true;
       if ((r === 'Admin' || r === 'Manager' || r === 'Officer') && (userRole === 'Staff' || userRole === 'Equipmaintance')) {
         isAuthorized = true;
       }

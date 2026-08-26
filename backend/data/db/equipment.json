@@ -1,0 +1,1322 @@
+[
+  {
+    "_id": "65d1b716f9f30b2cd8133501",
+    "id": "eq-1",
+    "name": "Mahindra Tractor 6670",
+    "regNumber": "PB-10-AT-8821",
+    "category": "Tractor",
+    "brand": "Mahindra",
+    "model": "Arjun Ultra",
+    "purchaseDate": "2025-01-10",
+    "assignedOperator": "USR-3352",
+    "status": "Available",
+    "totalUsageHours": 181,
+    "totalUnits": 15,
+    "rentalRate": 1500,
+    "imageUrl": "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-AT-8821",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-AT-8821-01",
+        "hours": 156.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-AT-8821-02",
+        "hours": 323.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-AT-8821-03",
+        "hours": 117.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-AT-8821-04",
+        "hours": 284.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-AT-8821-05",
+        "hours": 78.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-AT-8821-06",
+        "hours": 245,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-AT-8821-07",
+        "hours": 39.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-AT-8821-08",
+        "hours": 205.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-AT-8821-09",
+        "hours": 0,
+        "status": "Available"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-AT-8821-10",
+        "hours": 166.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-AT-8821-11",
+        "hours": 333.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-AT-8821-12",
+        "hours": 127.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-AT-8821-13",
+        "hours": 294,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-AT-8821-14",
+        "hours": 88.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-AT-8821-15",
+        "hours": 254.8,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133502",
+    "id": "eq-2",
+    "name": "John Deere Harvester 84",
+    "regNumber": "PB-10-RT-5510",
+    "category": "Harvester",
+    "brand": "John Deere",
+    "model": "GreenSystem",
+    "purchaseDate": "2025-03-15",
+    "assignedOperator": "USR-3352",
+    "status": "Available",
+    "totalUsageHours": 196,
+    "totalUnits": 15,
+    "rentalRate": 2200,
+    "imageUrl": "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-RT-5510",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-RT-5510-01",
+        "hours": 147,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-RT-5510-02",
+        "hours": 313.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-RT-5510-03",
+        "hours": 107.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-RT-5510-04",
+        "hours": 274.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-RT-5510-05",
+        "hours": 68.6,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-RT-5510-06",
+        "hours": 235.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-RT-5510-07",
+        "hours": 29.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-RT-5510-08",
+        "hours": 196,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-RT-5510-09",
+        "hours": 362.6,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-RT-5510-10",
+        "hours": 156.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-RT-5510-11",
+        "hours": 323.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-RT-5510-12",
+        "hours": 117.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-RT-5510-13",
+        "hours": 284.2,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-RT-5510-14",
+        "hours": 78.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-RT-5510-15",
+        "hours": 245,
+        "status": "Rented"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133503",
+    "id": "eq-3",
+    "name": "Sonalika Rotavator Premium",
+    "regNumber": "PB-10-CL-4411",
+    "category": "Rotavator",
+    "brand": "Sonalika",
+    "model": "ProTillage",
+    "purchaseDate": "2025-02-18",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 186.2,
+    "totalUnits": 15,
+    "rentalRate": 800,
+    "imageUrl": "https://images.unsplash.com/photo-1534073828943-f801091bb28c?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-CL-4411",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-CL-4411-01",
+        "hours": 137.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-CL-4411-02",
+        "hours": 303.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-CL-4411-03",
+        "hours": 98,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-CL-4411-04",
+        "hours": 264.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-CL-4411-05",
+        "hours": 58.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-CL-4411-06",
+        "hours": 225.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-CL-4411-07",
+        "hours": 19.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-CL-4411-08",
+        "hours": 186.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-CL-4411-09",
+        "hours": 352.8,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-CL-4411-10",
+        "hours": 147,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-CL-4411-11",
+        "hours": 313.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-CL-4411-12",
+        "hours": 107.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-CL-4411-13",
+        "hours": 274.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-CL-4411-14",
+        "hours": 68.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-CL-4411-15",
+        "hours": 235.2,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133504",
+    "id": "eq-4",
+    "name": "Dasmesh Multi-Crop Thresher",
+    "regNumber": "PB-10-TH-2212",
+    "category": "Thresher",
+    "brand": "Dasmesh",
+    "model": "PowerThresh 912",
+    "purchaseDate": "2025-04-05",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 176.4,
+    "totalUnits": 15,
+    "rentalRate": 1100,
+    "imageUrl": "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-TH-2212",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-TH-2212-01",
+        "hours": 127.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-TH-2212-02",
+        "hours": 294,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-TH-2212-03",
+        "hours": 88.2,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-TH-2212-04",
+        "hours": 254.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-TH-2212-05",
+        "hours": 49,
+        "status": "Available"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-TH-2212-06",
+        "hours": 215.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-TH-2212-07",
+        "hours": 9.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-TH-2212-08",
+        "hours": 176.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-TH-2212-09",
+        "hours": 343,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-TH-2212-10",
+        "hours": 137.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-TH-2212-11",
+        "hours": 303.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-TH-2212-12",
+        "hours": 98,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-TH-2212-13",
+        "hours": 264.6,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-TH-2212-14",
+        "hours": 58.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-TH-2212-15",
+        "hours": 225.4,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133505",
+    "id": "eq-5",
+    "name": "Landforce Zero Till Seed Drill",
+    "regNumber": "PB-10-SD-7711",
+    "category": "Seed Drill",
+    "brand": "Landforce",
+    "model": "ZeroTill-X",
+    "purchaseDate": "2025-05-12",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 166.6,
+    "totalUnits": 15,
+    "rentalRate": 900,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-SD-7711",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-SD-7711-01",
+        "hours": 117.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-SD-7711-02",
+        "hours": 284.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-SD-7711-03",
+        "hours": 78.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-SD-7711-04",
+        "hours": 245,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-SD-7711-05",
+        "hours": 39.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-SD-7711-06",
+        "hours": 205.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-SD-7711-07",
+        "hours": 0,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-SD-7711-08",
+        "hours": 166.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-SD-7711-09",
+        "hours": 333.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-SD-7711-10",
+        "hours": 127.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-SD-7711-11",
+        "hours": 294,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-SD-7711-12",
+        "hours": 88.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-SD-7711-13",
+        "hours": 254.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-SD-7711-14",
+        "hours": 49,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-SD-7711-15",
+        "hours": 215.6,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133506",
+    "id": "eq-6",
+    "name": "Tillage Cultivator Pro",
+    "regNumber": "PB-10-CV-3311",
+    "category": "Cultivator",
+    "brand": "Sonalika",
+    "model": "Cultivator-X",
+    "purchaseDate": "2025-05-15",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 181.6,
+    "totalUnits": 15,
+    "rentalRate": 700,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-CV-3311",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-CV-3311-01",
+        "hours": 107.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-CV-3311-02",
+        "hours": 274.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-CV-3311-03",
+        "hours": 68.6,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-CV-3311-04",
+        "hours": 235.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-CV-3311-05",
+        "hours": 29.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-CV-3311-06",
+        "hours": 196,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-CV-3311-07",
+        "hours": 362.6,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-CV-3311-08",
+        "hours": 156.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-CV-3311-09",
+        "hours": 323.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-CV-3311-10",
+        "hours": 117.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-CV-3311-11",
+        "hours": 284.2,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-CV-3311-12",
+        "hours": 78.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-CV-3311-13",
+        "hours": 245,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-CV-3311-14",
+        "hours": 39.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-CV-3311-15",
+        "hours": 205.8,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133507",
+    "id": "eq-7",
+    "name": "Crop Sprayer Max",
+    "regNumber": "PB-10-SP-9911",
+    "category": "Sprayer",
+    "brand": "Mahindra",
+    "model": "Sprayer-X",
+    "purchaseDate": "2025-06-12",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 171.8,
+    "totalUnits": 15,
+    "rentalRate": 500,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-SP-9911",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-SP-9911-01",
+        "hours": 98,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-SP-9911-02",
+        "hours": 264.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-SP-9911-03",
+        "hours": 58.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-SP-9911-04",
+        "hours": 225.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-SP-9911-05",
+        "hours": 19.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-SP-9911-06",
+        "hours": 186.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-SP-9911-07",
+        "hours": 352.8,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-SP-9911-08",
+        "hours": 147,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-SP-9911-09",
+        "hours": 313.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-SP-9911-10",
+        "hours": 107.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-SP-9911-11",
+        "hours": 274.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-SP-9911-12",
+        "hours": 68.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-SP-9911-13",
+        "hours": 235.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-SP-9911-14",
+        "hours": 29.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-SP-9911-15",
+        "hours": 196,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133508",
+    "id": "eq-8",
+    "name": "Power Tiller Pro",
+    "regNumber": "PB-10-PT-4411",
+    "category": "Power Tiller",
+    "brand": "Honda",
+    "model": "Tiller-X",
+    "purchaseDate": "2025-06-15",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 162,
+    "totalUnits": 15,
+    "rentalRate": 600,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-PT-4411",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-PT-4411-01",
+        "hours": 88.2,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-PT-4411-02",
+        "hours": 254.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-PT-4411-03",
+        "hours": 49,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-PT-4411-04",
+        "hours": 215.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-PT-4411-05",
+        "hours": 9.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-PT-4411-06",
+        "hours": 176.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-PT-4411-07",
+        "hours": 343,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-PT-4411-08",
+        "hours": 137.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-PT-4411-09",
+        "hours": 303.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-PT-4411-10",
+        "hours": 98,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-PT-4411-11",
+        "hours": 264.6,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-PT-4411-12",
+        "hours": 58.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-PT-4411-13",
+        "hours": 225.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-PT-4411-14",
+        "hours": 19.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-PT-4411-15",
+        "hours": 186.2,
+        "status": "Rented"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd8133509",
+    "id": "eq-9",
+    "name": "Laser Land Leveler",
+    "regNumber": "PB-10-LL-1122",
+    "category": "Cultivator",
+    "brand": "Trimble",
+    "model": "LaserLand-1",
+    "purchaseDate": "2025-07-01",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 152.2,
+    "totalUnits": 15,
+    "rentalRate": 1300,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-LL-1122",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-LL-1122-01",
+        "hours": 78.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-LL-1122-02",
+        "hours": 245,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-LL-1122-03",
+        "hours": 39.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-LL-1122-04",
+        "hours": 205.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-LL-1122-05",
+        "hours": 0,
+        "status": "Available"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-LL-1122-06",
+        "hours": 166.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-LL-1122-07",
+        "hours": 333.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-LL-1122-08",
+        "hours": 127.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-LL-1122-09",
+        "hours": 294,
+        "status": "Available"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-LL-1122-10",
+        "hours": 88.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-LL-1122-11",
+        "hours": 254.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-LL-1122-12",
+        "hours": 49,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-LL-1122-13",
+        "hours": 215.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-LL-1122-14",
+        "hours": 9.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-LL-1122-15",
+        "hours": 176.4,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd813350a",
+    "id": "eq-10",
+    "name": "Happy Seeder",
+    "regNumber": "PB-10-HS-3344",
+    "category": "Seed Drill",
+    "brand": "Kalgidhar",
+    "model": "HappySeed-2",
+    "purchaseDate": "2025-07-10",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 167.3,
+    "totalUnits": 15,
+    "rentalRate": 950,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-HS-3344",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-HS-3344-01",
+        "hours": 68.6,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-HS-3344-02",
+        "hours": 235.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-HS-3344-03",
+        "hours": 29.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-HS-3344-04",
+        "hours": 196,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-HS-3344-05",
+        "hours": 362.6,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-HS-3344-06",
+        "hours": 156.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-HS-3344-07",
+        "hours": 323.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-HS-3344-08",
+        "hours": 117.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-HS-3344-09",
+        "hours": 284.2,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-HS-3344-10",
+        "hours": 78.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-HS-3344-11",
+        "hours": 245,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-HS-3344-12",
+        "hours": 39.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-HS-3344-13",
+        "hours": 205.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-HS-3344-14",
+        "hours": 0,
+        "status": "Available"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-HS-3344-15",
+        "hours": 166.6,
+        "status": "Reserved"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd813350b",
+    "id": "eq-11",
+    "name": "Straw Baler",
+    "regNumber": "PB-10-SB-5566",
+    "category": "Tractor",
+    "brand": "New Holland",
+    "model": "Baler-3",
+    "purchaseDate": "2025-07-20",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 182.3,
+    "totalUnits": 15,
+    "rentalRate": 1200,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-SB-5566",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-SB-5566-01",
+        "hours": 58.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-SB-5566-02",
+        "hours": 225.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-SB-5566-03",
+        "hours": 19.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-SB-5566-04",
+        "hours": 186.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-SB-5566-05",
+        "hours": 352.8,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-SB-5566-06",
+        "hours": 147,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-SB-5566-07",
+        "hours": 313.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-SB-5566-08",
+        "hours": 107.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-SB-5566-09",
+        "hours": 274.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-SB-5566-10",
+        "hours": 68.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-SB-5566-11",
+        "hours": 235.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-SB-5566-12",
+        "hours": 29.4,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-SB-5566-13",
+        "hours": 196,
+        "status": "Available"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-SB-5566-14",
+        "hours": 362.6,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-SB-5566-15",
+        "hours": 156.8,
+        "status": "Available"
+      }
+    ]
+  },
+  {
+    "_id": "65d1b716f9f30b2cd813350c",
+    "id": "eq-12",
+    "name": "Crop Reaper",
+    "regNumber": "PB-10-CR-7788",
+    "category": "Rotavator",
+    "brand": "Stihl",
+    "model": "Reaper-4",
+    "purchaseDate": "2025-07-25",
+    "assignedOperator": null,
+    "status": "Available",
+    "totalUsageHours": 172.5,
+    "totalUnits": 15,
+    "rentalRate": 750,
+    "imageUrl": "https://images.unsplash.com/photo-1595838788640-5e3e3b1c68e0?auto=format&fit=crop&w=800&q=80",
+    "qrCode": "AGRIRENT-QR-PB-10-CR-7788",
+    "cooperativeHub": "Ludhiana Central Hub #1",
+    "units": [
+      {
+        "unitNum": 1,
+        "serial": "PB-10-CR-7788-01",
+        "hours": 49,
+        "status": "Available"
+      },
+      {
+        "unitNum": 2,
+        "serial": "PB-10-CR-7788-02",
+        "hours": 215.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 3,
+        "serial": "PB-10-CR-7788-03",
+        "hours": 9.8,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 4,
+        "serial": "PB-10-CR-7788-04",
+        "hours": 176.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 5,
+        "serial": "PB-10-CR-7788-05",
+        "hours": 343,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 6,
+        "serial": "PB-10-CR-7788-06",
+        "hours": 137.2,
+        "status": "Available"
+      },
+      {
+        "unitNum": 7,
+        "serial": "PB-10-CR-7788-07",
+        "hours": 303.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 8,
+        "serial": "PB-10-CR-7788-08",
+        "hours": 98,
+        "status": "Available"
+      },
+      {
+        "unitNum": 9,
+        "serial": "PB-10-CR-7788-09",
+        "hours": 264.6,
+        "status": "Reserved"
+      },
+      {
+        "unitNum": 10,
+        "serial": "PB-10-CR-7788-10",
+        "hours": 58.8,
+        "status": "Available"
+      },
+      {
+        "unitNum": 11,
+        "serial": "PB-10-CR-7788-11",
+        "hours": 225.4,
+        "status": "Available"
+      },
+      {
+        "unitNum": 12,
+        "serial": "PB-10-CR-7788-12",
+        "hours": 19.6,
+        "status": "Available"
+      },
+      {
+        "unitNum": 13,
+        "serial": "PB-10-CR-7788-13",
+        "hours": 186.2,
+        "status": "Rented"
+      },
+      {
+        "unitNum": 14,
+        "serial": "PB-10-CR-7788-14",
+        "hours": 352.8,
+        "status": "Under Maintenance"
+      },
+      {
+        "unitNum": 15,
+        "serial": "PB-10-CR-7788-15",
+        "hours": 147,
+        "status": "Rented"
+      }
+    ]
+  }
+]

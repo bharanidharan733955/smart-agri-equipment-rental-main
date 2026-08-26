@@ -106,9 +106,48 @@ router.post('/notifications/:id/read', authenticateToken, async (req, res) => {
 // POST /api/farmer/feedback
 router.post('/feedback', authenticateToken, async (req, res) => {
   try {
-    const { bookingId, rating, comments } = req.body;
+    const { bookingId, rating, comments, equipmentRating, serviceRating, operatorFeedback } = req.body;
     if (!bookingId || !rating) {
       return res.status(400).json({ success: false, message: 'Booking ID and rating are required.' });
+    }
+
+    let booking;
+    let duplicateFeedbackExists = false;
+
+    if (isDbConnected()) {
+      booking = await Booking.findById(bookingId);
+      if (booking) {
+        const existing = await Feedback.findOne({ booking: bookingId });
+        if (existing) duplicateFeedbackExists = true;
+      }
+    } else {
+      const bookingsList = localDb.read('bookings');
+      booking = bookingsList.find(b => b._id === bookingId || b.id === bookingId);
+      if (booking) {
+        const feedbacks = localDb.read('feedbacks') || [];
+        const existing = feedbacks.find(f => f.booking === bookingId);
+        if (existing) duplicateFeedbackExists = true;
+      }
+    }
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found.' });
+    }
+
+    // Validate booking ownership
+    const bookingFarmerId = booking.farmer?._id?.toString() || booking.farmer?.toString() || booking.farmerId;
+    if (bookingFarmerId !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'Access denied: you do not own this booking.' });
+    }
+
+    // Validate that the job is completed (status is Returned)
+    if (booking.status !== 'Returned') {
+      return res.status(400).json({ success: false, message: 'Cannot submit feedback for an incomplete job.' });
+    }
+
+    // Validate against duplicate feedback
+    if (duplicateFeedbackExists) {
+      return res.status(400).json({ success: false, message: 'Cannot submit duplicate feedback.' });
     }
 
     let feedback;
@@ -117,7 +156,10 @@ router.post('/feedback', authenticateToken, async (req, res) => {
         booking: bookingId,
         farmer: req.user.id,
         rating: parseInt(rating),
-        comments
+        comments: comments || '',
+        equipmentRating: parseInt(equipmentRating) || parseInt(rating),
+        serviceRating: parseInt(serviceRating) || parseInt(rating),
+        operatorFeedback: operatorFeedback || ''
       });
     } else {
       const list = localDb.read('feedbacks') || [];
@@ -126,14 +168,17 @@ router.post('/feedback', authenticateToken, async (req, res) => {
         booking: bookingId,
         farmer: req.user.id,
         rating: parseInt(rating),
-        comments,
+        comments: comments || '',
+        equipmentRating: parseInt(equipmentRating) || parseInt(rating),
+        serviceRating: parseInt(serviceRating) || parseInt(rating),
+        operatorFeedback: operatorFeedback || '',
         createdAt: new Date().toISOString()
       };
       list.push(feedback);
       localDb.write('feedbacks', list);
     }
 
-    await logAudit(req, req.user, 'Feedback Submitted', '', String(rating), `Submitted feedback rating ${rating} for booking ${bookingId}`);
+    await logAudit(req, req.user, 'Farmer submitted feedback', '', String(rating), `Submitted feedback rating ${rating} for booking ${bookingId}`);
 
     return res.status(201).json({ success: true, message: 'Feedback submitted successfully.', data: feedback });
   } catch (err) {

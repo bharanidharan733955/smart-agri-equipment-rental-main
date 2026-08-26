@@ -121,9 +121,9 @@ export async function cancelFarmerBooking(id) {
   }
 }
 
-export async function submitFarmerFeedback(bookingId, rating, comments) {
+export async function submitFarmerFeedback(bookingId, rating, comments, equipmentRating, serviceRating, operatorFeedback) {
   try {
-    const res = await api.post('/farmer/feedback', { bookingId, rating, comments });
+    const res = await api.post('/farmer/feedback', { bookingId, rating, comments, equipmentRating, serviceRating, operatorFeedback });
     return res.data;
   } catch (err) {
     console.error('Submit feedback error:', err);
@@ -440,6 +440,66 @@ export async function fetchMaintenanceLogs() {
   } catch (err) {
     console.error('Fetch maintenance logs error:', err);
     return [];
+  }
+}
+
+export async function startEquipmentMaintenance(id) {
+  try {
+    const res = await api.post(`/cooperative/equipment/${id}/maintenance/start`);
+    return res.data;
+  } catch (err) {
+    console.error('Start maintenance API error:', err);
+    return { success: false };
+  }
+}
+
+export async function reportEquipmentMaintenance(id, payload) {
+  try {
+    const res = await api.post(`/cooperative/equipment/${id}/maintenance/report`, payload);
+    return res.data;
+  } catch (err) {
+    console.error('Report maintenance API error:', err);
+    return { success: false, message: err.response?.data?.message || 'Server error' };
+  }
+}
+
+export async function approveEquipmentMaintenance(id) {
+  try {
+    const res = await api.post(`/cooperative/equipment/${id}/maintenance/approve`);
+    return res.data;
+  } catch (err) {
+    console.error('Approve maintenance API error:', err);
+    return { success: false, message: err.response?.data?.message || 'Server error' };
+  }
+}
+
+export async function rejectEquipmentMaintenance(id) {
+  try {
+    const res = await api.post(`/cooperative/equipment/${id}/maintenance/reject`);
+    return res.data;
+  } catch (err) {
+    console.error('Reject maintenance API error:', err);
+    return { success: false };
+  }
+}
+
+export async function fetchFarmerFeedbackCoop() {
+  try {
+    const res = await api.get('/cooperative/feedback');
+    return res.data.success ? res.data.data : [];
+  } catch (err) {
+    console.error('Fetch farmer feedback API error:', err);
+    return [];
+  }
+}
+
+export async function fetchBillingReport(from, to) {
+  try {
+    const res = await api.get('/cooperative/billing-report', { params: { from, to } });
+    return res.data.success ? res.data.data : null;
+  } catch (err) {
+    console.error('Fetch billing report API error:', err);
+    return null;
   }
 }
 

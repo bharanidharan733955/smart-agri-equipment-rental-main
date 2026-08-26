@@ -30,7 +30,7 @@ export const ROLE_DETAILS = {
     badgeColor: 'green',
     title: 'Farmer Cooperative Portal',
     subtitle: 'Enter your credentials to manage rentals & track machinery.',
-    demoCreds: 'Email: farmer@agrirent.gov | Pass: farmer123',
+    demoCreds: 'Email: farmer@agrirent.gov | Pass: AgriRentGov#Secure2026!Farmer',
     features: [
       'Cooperative Rental Rates (Up to 60% Savings)',
       'Instant Booking with ID verification',
@@ -46,7 +46,7 @@ export const ROLE_DETAILS = {
     badgeColor: 'green',
     title: 'Equipment Operator Portal',
     subtitle: 'Sign in to view assigned field jobs, log operating hours, and record machinery telemetry.',
-    demoCreds: 'Email: operator@agrirent.gov | Pass: operator123',
+    demoCreds: 'Email: operator@agrirent.gov | Pass: AgriRentGov#Secure2026!Operator',
     features: [
       'Daily Field Work Assignments & Jobs',
       'Engine Hours & Fuel Telemetry Logging',
@@ -62,7 +62,7 @@ export const ROLE_DETAILS = {
     badgeColor: 'blue',
     title: 'Equipment Maintenance Portal',
     subtitle: 'Sign in to manage machinery maintenance log sheets and schedule inspections.',
-    demoCreds: 'Email: maint@agrirent.gov | Pass: maint123',
+    demoCreds: 'Email: maint@agrirent.gov | Pass: AgriRentGov#Secure2026!Maint',
     features: [
       'Track machinery servicing status and schedule next maintenance',
       'Log parts replacement costs and technician diagnostics',
@@ -78,7 +78,7 @@ export const ROLE_DETAILS = {
     badgeColor: 'blue',
     title: 'Cooperative Staff Portal',
     subtitle: 'Sign in to manage equipment inventory, approve rental requests, and handle invoices.',
-    demoCreds: 'Email: staff@agrirent.gov | Pass: staff123',
+    demoCreds: 'Email: staff@agrirent.gov | Pass: AgriRentGov#Secure2026!Staff',
     features: [
       'Review and Approve Farmer account registries & Rental bookings',
       'Manage cooperative machinery stock list inventory',
@@ -162,9 +162,9 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
       role.id === 'equipmaintance' ? 'maint@agrirent.gov' : 'staff@agrirent.gov';
     
     const demoPassword = 
-      role.id === 'farmer' ? 'farmer123' :
-      role.id === 'operator' ? 'operator123' :
-      role.id === 'equipmaintance' ? 'maint123' : 'staff123';
+      role.id === 'farmer' ? 'AgriRentGov#Secure2026!Farmer' :
+      role.id === 'operator' ? 'AgriRentGov#Secure2026!Operator' :
+      role.id === 'equipmaintance' ? 'AgriRentGov#Secure2026!Maint' : 'AgriRentGov#Secure2026!Staff';
 
     setFormData(prev => ({
       ...prev,

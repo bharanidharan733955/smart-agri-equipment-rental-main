@@ -1,6 +1,6 @@
 // backend/routes/coopRoutes.js
 import express from 'express';
-import { User, Equipment, Booking, Invoice, Maintenance, logAudit, isDbConnected, localDb } from '../db.js';
+import { User, Equipment, Booking, Invoice, Maintenance, Job, Feedback, logAudit, isDbConnected, localDb } from '../db.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -306,6 +306,600 @@ router.post('/invoices/:id/pay', authenticateToken, async (req, res) => {
     return res.json({ success: true, message: 'Payment registered successfully.', data: invoice });
   } catch (err) {
     console.error('Invoice pay error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/cooperative/equipment/:id/maintenance/start (Starts maintenance work)
+router.post('/equipment/:id/maintenance/start', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    let eq;
+    if (isDbConnected()) {
+      eq = await Equipment.findById(id);
+    } else {
+      const list = localDb.read('equipment');
+      eq = list.find(e => e._id === id || e.id === id);
+    }
+    if (!eq) return res.status(404).json({ success: false, message: 'Equipment not found.' });
+
+    const oldStatus = eq.status;
+    eq.status = 'Under Maintenance';
+
+    if (isDbConnected()) {
+      await eq.save();
+      let maintRecord = await Maintenance.findOne({ equipment: id, status: 'Pending' });
+      if (!maintRecord) {
+        maintRecord = await Maintenance.create({
+          equipment: id,
+          description: 'Maintenance started manually by specialist',
+          status: 'Pending',
+          previousUsageHours: eq.totalUsageHours,
+          maintenanceReason: 'Manual trigger'
+        });
+      }
+    } else {
+      const list = localDb.read('equipment');
+      const idx = list.findIndex(e => e._id === id || e.id === id);
+      list[idx] = eq;
+      localDb.write('equipment', list);
+
+      const maintList = localDb.read('maintenance') || [];
+      let maintRecord = maintList.find(m => m.equipment === id && m.status === 'Pending');
+      if (!maintRecord) {
+        maintRecord = {
+          _id: 'MNT-' + Date.now(),
+          equipment: id,
+          description: 'Maintenance started manually by specialist',
+          status: 'Pending',
+          previousUsageHours: eq.totalUsageHours,
+          maintenanceReason: 'Manual trigger',
+          createdAt: new Date().toISOString()
+        };
+        maintList.push(maintRecord);
+        localDb.write('maintenance', maintList);
+      }
+    }
+
+    await logAudit(req, req.user, 'Maintenance started', oldStatus, 'Under Maintenance', `Started maintenance work for equipment ${eq.name}`);
+    return res.json({ success: true, message: 'Equipment maintenance started successfully.' });
+  } catch (err) {
+    console.error('Start maintenance error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/cooperative/equipment/:id/maintenance/report (Specialist submits completion details)
+router.post('/equipment/:id/maintenance/report', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { problemDescription, workPerformed, partsReplaced, partsCost, labourCost, remarks, photos, specialist } = req.body;
+    
+    let eq;
+    if (isDbConnected()) {
+      eq = await Equipment.findById(id);
+    } else {
+      const list = localDb.read('equipment');
+      eq = list.find(e => e._id === id || e.id === id);
+    }
+    if (!eq) return res.status(404).json({ success: false, message: 'Equipment not found.' });
+
+    const oldStatus = eq.status;
+    eq.status = 'Awaiting Maintenance Approval';
+
+    const pCost = parseFloat(partsCost) || 0;
+    const lCost = parseFloat(labourCost) || 0;
+    const totalCost = pCost + lCost;
+
+    let maintRecord;
+    if (isDbConnected()) {
+      await eq.save();
+      maintRecord = await Maintenance.findOne({ equipment: id, status: 'Pending' });
+      if (!maintRecord) {
+        maintRecord = new Maintenance({ equipment: id });
+      }
+      maintRecord.problemDescription = problemDescription;
+      maintRecord.workPerformed = workPerformed;
+      maintRecord.partsReplaced = partsReplaced;
+      maintRecord.partsCost = pCost;
+      maintRecord.labourCost = lCost;
+      maintRecord.cost = totalCost;
+      maintRecord.remarks = remarks || '';
+      maintRecord.specialist = specialist || req.user.name || 'Technician';
+      maintRecord.status = 'Completed';
+      maintRecord.previousUsageHours = eq.totalUsageHours;
+      maintRecord.serviceDate = new Date();
+      if (photos && photos.length > 0) {
+        maintRecord.photos = photos;
+      }
+      await maintRecord.save();
+    } else {
+      const list = localDb.read('equipment');
+      const idx = list.findIndex(e => e._id === id || e.id === id);
+      list[idx] = eq;
+      localDb.write('equipment', list);
+
+      const maintList = localDb.read('maintenance') || [];
+      let mIdx = maintList.findIndex(m => m.equipment === id && m.status === 'Pending');
+      if (mIdx === -1) {
+        maintRecord = { _id: 'MNT-' + Date.now(), equipment: id, createdAt: new Date().toISOString() };
+        maintList.push(maintRecord);
+        mIdx = maintList.length - 1;
+      }
+      maintList[mIdx] = {
+        ...maintList[mIdx],
+        problemDescription,
+        workPerformed,
+        partsReplaced,
+        partsCost: pCost,
+        labourCost: lCost,
+        cost: totalCost,
+        remarks: remarks || '',
+        specialist: specialist || req.user.name || 'Technician',
+        status: 'Completed',
+        previousUsageHours: eq.totalUsageHours,
+        serviceDate: new Date().toISOString(),
+        photos: photos || []
+      };
+      maintRecord = maintList[mIdx];
+      localDb.write('maintenance', maintList);
+    }
+
+    await logAudit(req, req.user, 'Maintenance report submitted', oldStatus, 'Awaiting Maintenance Approval', `Submitted maintenance report for equipment ${eq.name}. Total cost: ₹${totalCost}`);
+    return res.json({ success: true, message: 'Maintenance completion report submitted. Awaiting manager approval.', data: maintRecord });
+  } catch (err) {
+    console.error('Submit maintenance report error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/cooperative/equipment/:id/maintenance/approve (Approves completed maintenance)
+router.post('/equipment/:id/maintenance/approve', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    let eq;
+    if (isDbConnected()) {
+      eq = await Equipment.findById(id);
+    } else {
+      const list = localDb.read('equipment');
+      eq = list.find(e => e._id === id || e.id === id);
+    }
+    if (!eq) return res.status(404).json({ success: false, message: 'Equipment not found.' });
+
+    let maintRecord;
+    if (isDbConnected()) {
+      maintRecord = await Maintenance.findOne({ equipment: id, status: 'Completed' });
+    } else {
+      const maintList = localDb.read('maintenance') || [];
+      maintRecord = maintList.find(m => m.equipment === id && m.status === 'Completed');
+    }
+
+    if (!maintRecord) {
+      return res.status(400).json({ success: false, message: 'Cannot approve maintenance: no completed report found to approve.' });
+    }
+
+    const oldStatus = eq.status;
+    eq.status = 'Available';
+    eq.currentCycleHours = 0;
+    eq.lastMaintenanceDate = new Date();
+
+    if (isDbConnected()) {
+      await eq.save();
+      maintRecord.status = 'Approved';
+      maintRecord.serviceDate = new Date();
+      await maintRecord.save();
+    } else {
+      const list = localDb.read('equipment');
+      const idx = list.findIndex(e => e._id === id || e.id === id);
+      list[idx] = eq;
+      localDb.write('equipment', list);
+
+      const maintList = localDb.read('maintenance') || [];
+      const mIdx = maintList.findIndex(m => m.equipment === id && m.status === 'Completed');
+      if (mIdx !== -1) {
+        maintList[mIdx].status = 'Approved';
+        maintList[mIdx].serviceDate = new Date().toISOString();
+        localDb.write('maintenance', maintList);
+      }
+    }
+
+    await logAudit(req, req.user, 'Maintenance approved', oldStatus, 'Available', `Approved maintenance completion for equipment ${eq.name}`);
+    await logAudit(req, null, 'Equipment returned to Available status', oldStatus, 'Available', `Equipment ${eq.name} returned to available status after maintenance.`);
+
+    return res.json({ success: true, message: 'Equipment maintenance approved and returned to service.', data: eq });
+  } catch (err) {
+    console.error('Approve maintenance error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/cooperative/equipment/:id/maintenance/reject (Rejects completed maintenance)
+router.post('/equipment/:id/maintenance/reject', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    let eq;
+    if (isDbConnected()) {
+      eq = await Equipment.findById(id);
+    } else {
+      const list = localDb.read('equipment');
+      eq = list.find(e => e._id === id || e.id === id);
+    }
+    if (!eq) return res.status(404).json({ success: false, message: 'Equipment not found.' });
+
+    const oldStatus = eq.status;
+    eq.status = 'Under Maintenance';
+
+    let maintRecord;
+    if (isDbConnected()) {
+      await eq.save();
+      maintRecord = await Maintenance.findOne({ equipment: id, status: 'Completed' });
+      if (maintRecord) {
+        maintRecord.status = 'Rejected';
+        await maintRecord.save();
+      }
+    } else {
+      const list = localDb.read('equipment');
+      const idx = list.findIndex(e => e._id === id || e.id === id);
+      list[idx] = eq;
+      localDb.write('equipment', list);
+
+      const maintList = localDb.read('maintenance') || [];
+      const mIdx = maintList.findIndex(m => m.equipment === id && m.status === 'Completed');
+      if (mIdx !== -1) {
+        maintList[mIdx].status = 'Rejected';
+        localDb.write('maintenance', maintList);
+      }
+    }
+
+    await logAudit(req, req.user, 'Maintenance rejected', oldStatus, 'Under Maintenance', `Rejected maintenance completion for equipment ${eq.name}`);
+    return res.json({ success: true, message: 'Equipment maintenance report rejected. Reverted status to Under Maintenance.' });
+  } catch (err) {
+    console.error('Reject maintenance error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// GET /api/cooperative/feedback (Fetch all farmer feedbacks for managers)
+router.get('/feedback', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
+  try {
+    let list = [];
+    if (isDbConnected()) {
+      list = await Feedback.find()
+        .populate({
+          path: 'booking',
+          populate: [
+            { path: 'equipment' },
+            { path: 'farmer', select: 'name email mobile' }
+          ]
+        })
+        .populate('farmer', 'name email mobile')
+        .sort({ createdAt: -1 });
+    } else {
+      list = localDb.read('feedbacks') || [];
+      const bookings = localDb.read('bookings');
+      const equipmentList = localDb.read('equipment');
+      const users = localDb.read('users');
+
+      list = list.map(f => {
+        const bk = bookings.find(b => b._id === f.booking || b.id === f.booking);
+        const farmerUser = users.find(u => u._id === f.farmer || u.id === f.farmer) || { name: 'Farmer' };
+        
+        return {
+          ...f,
+          farmer: farmerUser,
+          booking: bk ? {
+            ...bk,
+            equipment: equipmentList.find(e => e._id === bk.equipment || e.id === bk.equipment),
+            farmer: users.find(u => u._id === bk.farmer || u.id === bk.farmer) || farmerUser
+          } : null
+        };
+      });
+      list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+
+    let jobsList = [];
+    let usersList = [];
+    if (isDbConnected()) {
+      jobsList = await Job.find().populate('operator', 'name email mobile');
+    } else {
+      jobsList = localDb.read('jobs') || [];
+      usersList = localDb.read('users') || [];
+    }
+
+    const populatedList = list.map(f => {
+      let operatorName = 'N/A';
+      const bookingIdStr = f.booking?._id?.toString() || f.booking?.id?.toString() || f.booking;
+      if (bookingIdStr) {
+        const job = jobsList.find(j => {
+          const jBkId = j.booking?._id?.toString() || j.booking?.toString() || j.booking;
+          return jBkId === bookingIdStr;
+        });
+        if (job) {
+          if (typeof job.operator === 'object' && job.operator) {
+            operatorName = job.operator.name;
+          } else if (job.operator) {
+            const opUser = usersList.find(u => u._id === job.operator || u.id === job.operator);
+            if (opUser) operatorName = opUser.name;
+          }
+        }
+      }
+
+      return {
+        ...JSON.parse(JSON.stringify(f)),
+        operatorName
+      };
+    });
+
+    return res.json({ success: true, count: populatedList.length, data: populatedList });
+  } catch (err) {
+    console.error('Fetch cooperative feedback error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// GET /api/cooperative/billing-report (Generates financial report for custom period)
+router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    if (!from || !to) {
+      return res.status(400).json({ success: false, message: 'From and To dates are required.' });
+    }
+
+    const parseDate = (dStr) => {
+      const parts = dStr.split('-');
+      if (parts.length === 3) {
+        return new Date(parts[2], parts[1] - 1, parts[0], 0, 0, 0);
+      }
+      return new Date(dStr);
+    };
+
+    const fromDate = parseDate(from);
+    const toDate = parseDate(to);
+    toDate.setHours(23, 59, 59, 999);
+
+    if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+      return res.status(400).json({ success: false, message: 'Invalid Date format.' });
+    }
+
+    if (fromDate > toDate) {
+      return res.status(400).json({ success: false, message: 'From Date cannot be after To Date.' });
+    }
+
+    let bookings = [];
+    let jobs = [];
+    let maintenance = [];
+    let invoices = [];
+
+    if (isDbConnected()) {
+      bookings = await Booking.find({
+        createdAt: { $gte: fromDate, $lte: toDate }
+      }).populate('farmer', 'name email mobile farmerId')
+        .populate('equipment', 'name category regNumber rentalRate');
+
+      const bookingIds = bookings.map(b => b._id);
+      jobs = await Job.find({
+        booking: { $in: bookingIds }
+      }).populate('operator', 'name email mobile');
+
+      invoices = await Invoice.find({
+        booking: { $in: bookingIds }
+      });
+
+      maintenance = await Maintenance.find({
+        createdAt: { $gte: fromDate, $lte: toDate }
+      }).populate('equipment', 'name category regNumber');
+    } else {
+      const allBookings = localDb.read('bookings') || [];
+      bookings = allBookings.filter(b => {
+        const d = new Date(b.createdAt);
+        return d >= fromDate && d <= toDate;
+      });
+
+      const bIds = bookings.map(b => b._id || b.id);
+      const allJobs = localDb.read('jobs') || [];
+      jobs = allJobs.filter(j => bIds.includes(j.booking));
+
+      const allInvoices = localDb.read('invoices') || [];
+      invoices = allInvoices.filter(i => bIds.includes(i.booking));
+
+      const allMaint = localDb.read('maintenance') || [];
+      maintenance = allMaint.filter(m => {
+        const d = new Date(m.createdAt || m.serviceDate);
+        return d >= fromDate && d <= toDate;
+      });
+
+      const allEq = localDb.read('equipment') || [];
+      const allUsers = localDb.read('users') || [];
+
+      bookings = bookings.map(b => ({
+        ...b,
+        farmer: allUsers.find(u => u._id === b.farmer || u.id === b.farmer) || { name: 'Farmer', farmerId: 'N/A' },
+        equipment: allEq.find(e => e._id === b.equipment || e.id === b.equipment)
+      }));
+
+      jobs = jobs.map(j => ({
+        ...j,
+        operator: allUsers.find(u => u._id === j.operator || u.id === j.operator) || { name: 'Operator' }
+      }));
+
+      maintenance = maintenance.map(m => ({
+        ...m,
+        equipment: allEq.find(e => e._id === m.equipment || e.id === m.equipment)
+      }));
+    }
+
+    const bookingDetails = bookings.map(b => {
+      const bIdStr = b._id?.toString() || b.id?.toString();
+      const job = jobs.find(j => {
+        const jBkId = j.booking?._id?.toString() || j.booking?.toString() || j.booking;
+        return jBkId === bIdStr;
+      });
+      const invoice = invoices.find(inv => {
+        const invBkId = inv.booking?._id?.toString() || inv.booking?.toString() || inv.booking;
+        return invBkId === bIdStr;
+      });
+
+      const farmerName = b.farmer?.name || 'Farmer';
+      const farmerId = b.farmer?.farmerId || 'N/A';
+      const equipmentName = b.equipment?.name || 'Equipment';
+      const equipmentReg = b.equipment?.regNumber || 'N/A';
+      const operatorName = job?.operator?.name || 'Assigned Operator';
+      const operatorId = job?.operator?._id?.toString() || job?.operator?.id?.toString() || 'N/A';
+      const workingHours = job?.workingHours || 0;
+      
+      const hourlyRate = 0;
+      const operatorCost = 0;
+
+      const penalty = b.penalty || invoice?.penalty || 0;
+      const tax = invoice?.tax || Math.round(b.totalAmount * 0.18);
+      const totalAmount = invoice?.totalAmount || (b.totalAmount + tax + penalty);
+      const paymentStatus = invoice?.paymentStatus || 'Paid';
+      const invoiceNumber = invoice?.invoiceNumber || 'INV-TEMP';
+      
+      return {
+        bookingId: bIdStr,
+        farmerName,
+        farmerId,
+        equipmentId: b.equipment?._id?.toString() || b.equipment?.id?.toString() || 'N/A',
+        equipmentName,
+        equipmentReg,
+        operatorName,
+        operatorId,
+        cooperative: b.equipment?.cooperativeHub || 'Ludhiana Central Hub #1',
+        bookingDate: b.createdAt,
+        workDate: job?.endTime || b.startDate,
+        startTime: job?.startTime || null,
+        endTime: job?.endTime || null,
+        workingHours,
+        bookingStatus: b.status,
+        equipmentRentalCost: b.rentalRate,
+        baseRentalAmount: b.totalAmount,
+        penalty,
+        tax,
+        totalAmount,
+        paymentStatus,
+        paymentDate: invoice?.createdAt || b.createdAt,
+        invoiceNumber,
+        operatorHourlyRate: hourlyRate,
+        operatorCost
+      };
+    });
+
+    // Calculate the number of days in this period
+    const diffTime = Math.abs(toDate - fromDate);
+    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+    // Fetch operators and specialists
+    let operators = [];
+    let specialists = [];
+    if (isDbConnected()) {
+      operators = await User.find({ role: 'Equipment Operator' }).select('name email mobile');
+      specialists = await User.find({ role: 'Equipmaintance' }).select('name email mobile');
+    } else {
+      const allUsers = localDb.read('users') || [];
+      operators = allUsers.filter(u => u.role === 'Equipment Operator');
+      specialists = allUsers.filter(u => u.role === 'Equipmaintance');
+    }
+
+    const OPERATOR_MONTHLY = 25000;
+    const SPECIALIST_MONTHLY = 30000;
+
+    const operatorCostsList = operators.map(op => {
+      const periodCost = Math.round((OPERATOR_MONTHLY / 30) * diffDays);
+      return {
+        operatorName: op.name,
+        operatorId: op._id?.toString() || op.id,
+        workingHours: 'Salaried',
+        hourlyRate: 'Fixed',
+        monthlySalary: OPERATOR_MONTHLY,
+        totalCost: periodCost
+      };
+    });
+
+    const specialistCostsList = specialists.map(sp => {
+      const periodCost = Math.round((SPECIALIST_MONTHLY / 30) * diffDays);
+      return {
+        specialistName: sp.name,
+        specialistId: sp._id?.toString() || sp.id,
+        monthlySalary: SPECIALIST_MONTHLY,
+        totalCost: periodCost
+      };
+    });
+
+    const maintenanceExpensesList = maintenance.map(m => {
+      const pCost = m.partsCost || 0;
+      const lCost = 0; // Covered under specialist monthly salary
+      const totalCost = pCost + lCost;
+      return {
+        equipmentId: m.equipment?._id?.toString() || m.equipment?.id?.toString() || 'N/A',
+        equipmentName: m.equipment?.name || 'Equipment',
+        equipmentReg: m.equipment?.regNumber || 'N/A',
+        maintenanceDate: m.serviceDate || m.createdAt,
+        maintenanceType: m.maintenanceReason || 'Routine Maintenance',
+        maintenanceDescription: m.description || m.problemDescription || 'Service',
+        partsCost: pCost,
+        labourCost: lCost,
+        totalCost,
+        specialist: m.specialist || 'Technician',
+        status: m.status || 'Completed'
+      };
+    });
+
+    const totalBookings = bookings.length;
+    const completedJobs = bookings.filter(b => b.status === 'Returned').length;
+    const cancelledBookings = bookings.filter(b => b.status === 'Cancelled').length;
+
+    const totalRentalRevenue = bookingDetails.reduce((sum, bd) => sum + bd.baseRentalAmount, 0);
+    const totalOperatorCost = operatorCostsList.reduce((sum, oc) => sum + oc.totalCost, 0);
+    const totalSpecialistCost = specialistCostsList.reduce((sum, sc) => sum + sc.totalCost, 0);
+    const totalStaffPayroll = totalOperatorCost + totalSpecialistCost;
+
+    const totalMaintenanceCost = maintenanceExpensesList.reduce((sum, me) => sum + me.totalCost, 0);
+    
+    const totalPenalties = bookingDetails.reduce((sum, bd) => sum + bd.penalty, 0);
+    const totalTaxes = bookingDetails.reduce((sum, bd) => sum + bd.tax, 0);
+    
+    const netRevenue = totalRentalRevenue - totalStaffPayroll - totalMaintenanceCost;
+    
+    const totalAmountCollected = bookingDetails
+      .filter(bd => bd.paymentStatus === 'Paid')
+      .reduce((sum, bd) => sum + bd.totalAmount, 0);
+      
+    const pendingAmount = bookingDetails
+      .filter(bd => bd.paymentStatus === 'Pending')
+      .reduce((sum, bd) => sum + bd.totalAmount, 0);
+
+    const summary = {
+      totalBookings,
+      completedJobs,
+      cancelledBookings,
+      totalRentalRevenue,
+      totalOperatorCost: totalStaffPayroll, // maps staff payroll combined
+      totalOperatorSalariesOnly: totalOperatorCost,
+      totalSpecialistSalariesOnly: totalSpecialistCost,
+      totalMaintenanceCost,
+      totalPenalties,
+      totalTaxes,
+      netRevenue,
+      totalAmountCollected,
+      pendingAmount
+    };
+
+    await logAudit(req, req.user, 'Billing report generated', '', `Period: ${from} to ${to}`, `Generated billing financial report containing ${totalBookings} bookings.`);
+
+    return res.json({
+      success: true,
+      data: {
+        period: { from, to, days: diffDays },
+        summary,
+        bookings: bookingDetails,
+        operatorCosts: operatorCostsList,
+        specialistCosts: specialistCostsList,
+        maintenanceCosts: maintenanceExpensesList
+      }
+    });
+  } catch (err) {
+    console.error('Generate billing report error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });

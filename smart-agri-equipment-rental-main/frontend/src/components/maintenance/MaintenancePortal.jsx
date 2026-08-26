@@ -4,7 +4,9 @@ import {
   fetchCoopEquipment, 
   fetchCoopOperators, 
   completeMaintenance, 
-  updateCoopEquipmentStatus 
+  updateCoopEquipmentStatus,
+  startEquipmentMaintenance,
+  reportEquipmentMaintenance
 } from '../../api';
 import toast, { Toaster } from 'react-hot-toast';
 import { 
@@ -18,7 +20,10 @@ import {
   AlertTriangle,
   UserCheck,
   UserX,
-  Printer
+  Printer,
+  Play,
+  Clipboard,
+  Loader2
 } from 'lucide-react';
 
 export default function MaintenancePortal({ user, onLogout }) {
@@ -26,6 +31,18 @@ export default function MaintenancePortal({ user, onLogout }) {
   const [equipmentList, setEquipmentList] = useState([]);
   const [operators, setOperators] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Submit Report Modal State
+  const [reportModalItem, setReportModalItem] = useState(null);
+  const [problemDescription, setProblemDescription] = useState('');
+  const [workPerformed, setWorkPerformed] = useState('');
+  const [partsReplaced, setPartsReplaced] = useState('');
+  const [partsCost, setPartsCost] = useState('');
+  const [labourCost, setLabourCost] = useState('');
+  const [reportRemarks, setReportRemarks] = useState('');
+  const [reportSpecialist, setReportSpecialist] = useState(user.name || '');
+  const [reportPhotos, setReportPhotos] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -47,13 +64,55 @@ export default function MaintenancePortal({ user, onLogout }) {
 
   const handleCompleteService = async (id) => {
     try {
-      // In this app, completeMaintenance resets status to Available
       await completeMaintenance(id);
-      toast.success('Maintenance completed. Vehicle is now Available!');
+      toast.success('Maintenance completed successfully!');
       loadData();
     } catch (e) {
       console.error(e);
       toast.error('Failed to complete maintenance.');
+    }
+  };
+
+  const handleStartMaintenance = async (id) => {
+    setActionLoading(true);
+    const res = await startEquipmentMaintenance(id);
+    setActionLoading(false);
+    if (res.success) {
+      toast.success('Preventative Maintenance started. Status set to Under Maintenance.');
+      loadData();
+    } else {
+      toast.error(res.message || 'Failed to start maintenance.');
+    }
+  };
+
+  const handleSubmitReport = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    const payload = {
+      problemDescription,
+      workPerformed,
+      partsReplaced,
+      partsCost: parseFloat(partsCost) || 0,
+      labourCost: parseFloat(labourCost) || 0,
+      remarks: reportRemarks,
+      specialist: reportSpecialist || user.name,
+      photos: reportPhotos ? reportPhotos.split(',').map(p => p.trim()) : []
+    };
+    const res = await reportEquipmentMaintenance(reportModalItem._id || reportModalItem.id, payload);
+    setActionLoading(false);
+    if (res.success) {
+      toast.success('Maintenance report submitted successfully. Awaiting Manager Approval.');
+      setReportModalItem(null);
+      setProblemDescription('');
+      setWorkPerformed('');
+      setPartsReplaced('');
+      setPartsCost('');
+      setLabourCost('');
+      setReportRemarks('');
+      setReportPhotos('');
+      loadData();
+    } else {
+      toast.error(res.message || 'Failed to submit report.');
     }
   };
 
@@ -314,8 +373,8 @@ export default function MaintenancePortal({ user, onLogout }) {
                 <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                     <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
-                      <Tractor size={20} color="#ef4444" />
-                      <span>Vehicles Under Maintenance ({vehiclesUnderMaint.length})</span>
+                      <Wrench size={20} color="#38bdf8" />
+                      <span>Active Maintenance Work Queue ({equipmentList.filter(e => ['Maintenance Required', 'Under Maintenance', 'Awaiting Maintenance Approval'].includes(e.status)).length})</span>
                     </h3>
                   </div>
 
@@ -324,48 +383,87 @@ export default function MaintenancePortal({ user, onLogout }) {
                       <thead>
                         <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
                           <th style={{ padding: '0.75rem 1rem' }}>Vehicle Model</th>
-                          <th style={{ padding: '0.75rem 1rem' }}>Registration Number</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Registration</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Cycle Hours / Lifetime</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Condition</th>
-                          <th style={{ padding: '0.75rem 1rem' }}>Worker / Operator Working On It</th>
+                          <th style={{ padding: '0.75rem 1rem' }}>Workflow Status</th>
                           <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {vehiclesUnderMaint.map((v) => (
-                          <tr key={v._id || v.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
-                            <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{v.name}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{v.category}</span>
-                            </td>
-                            <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{v.regNumber}</td>
-                            <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{
-                                fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
-                                backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', fontWeight: 700,
-                                textTransform: 'capitalize'
-                              }}>
-                                {v.condition || 'Needs Service'}
-                              </span>
-                            </td>
-                            <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#ffffff' }}>
-                              {getOperatorForEquipment(v)}
-                            </td>
-                            <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                              <button
-                                onClick={() => handleCompleteService(v._id || v.id)}
-                                style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-                              >
-                                <CheckCircle2 size={14} />
-                                <span>Complete Service</span>
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                        {vehiclesUnderMaint.length === 0 && (
+                        {equipmentList
+                          .filter(e => ['Maintenance Required', 'Under Maintenance', 'Awaiting Maintenance Approval'].includes(e.status))
+                          .map((v) => (
+                            <tr key={v._id || v.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{v.name}</span>
+                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{v.category}</span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{v.regNumber}</td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{ display: 'block', fontWeight: 700, color: '#38bdf8' }}>{v.currentCycleHours || 0} / 360 hrs</span>
+                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Total: {v.totalUsageHours || 0} hrs</span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{
+                                  fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
+                                  backgroundColor: v.condition === 'Damaged' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                  color: v.condition === 'Damaged' ? '#ef4444' : '#f59e0b', fontWeight: 700
+                                }}>
+                                  {v.condition || 'Needs Service'}
+                                </span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem' }}>
+                                <span style={{
+                                  fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '6px',
+                                  backgroundColor: v.status === 'Maintenance Required' ? 'rgba(245, 158, 11, 0.1)' : v.status === 'Under Maintenance' ? 'rgba(56, 189, 248, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                                  color: v.status === 'Maintenance Required' ? '#f59e0b' : v.status === 'Under Maintenance' ? '#38bdf8' : '#10b981',
+                                  fontWeight: 700
+                                }}>
+                                  {v.status}
+                                </span>
+                              </td>
+                              <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                                {v.status === 'Maintenance Required' && (
+                                  <button
+                                    onClick={() => handleStartMaintenance(v._id || v.id)}
+                                    disabled={actionLoading}
+                                    style={{ backgroundColor: '#f59e0b', color: '#fff', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                                  >
+                                    <Play size={14} />
+                                    <span>Start Maintenance</span>
+                                  </button>
+                                )}
+                                {v.status === 'Under Maintenance' && (
+                                  <button
+                                    onClick={() => {
+                                      setReportModalItem(v);
+                                      setProblemDescription(v.remarks || 'Automated 360-hour preventative maintenance trigger');
+                                      setWorkPerformed('');
+                                      setPartsReplaced('');
+                                      setPartsCost('');
+                                      setLabourCost('');
+                                      setReportRemarks('');
+                                      setReportPhotos('');
+                                      setReportSpecialist(user.name);
+                                    }}
+                                    style={{ backgroundColor: '#38bdf8', color: '#fff', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                                  >
+                                    <Clipboard size={14} />
+                                    <span>Submit Report</span>
+                                  </button>
+                                )}
+                                {v.status === 'Awaiting Maintenance Approval' && (
+                                  <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>Pending Manager Signature</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        {equipmentList.filter(e => ['Maintenance Required', 'Under Maintenance', 'Awaiting Maintenance Approval'].includes(e.status)).length === 0 && (
                           <tr>
-                            <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                            <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
                               <AlertTriangle size={24} style={{ display: 'block', margin: '0 auto 0.5rem auto', color: '#10b981' }} />
-                              No vehicles currently under maintenance.
+                              All cooperative equipment is in healthy operating condition. No pending tasks.
                             </td>
                           </tr>
                         )}
@@ -474,6 +572,64 @@ export default function MaintenancePortal({ user, onLogout }) {
               </div>
             )}
           </>
+        )}
+
+        {/* Submit Maintenance Report Modal */}
+        {reportModalItem && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+            <div style={{ backgroundColor: '#131d35', padding: '2.5rem', borderRadius: '20px', maxWidth: '600px', width: '100%', border: '1px solid rgba(255,255,255,0.1)', overflowY: 'auto', maxHeight: '90vh' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Wrench size={22} />
+                <span>Submit Service Report: {reportModalItem.name}</span>
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                Registration: {reportModalItem.regNumber} | Current Usage: {reportModalItem.totalUsageHours} hrs
+              </p>
+              
+              <form onSubmit={handleSubmitReport} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Problem Description</label>
+                  <textarea required value={problemDescription} onChange={(e) => setProblemDescription(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Performed / Repairs Undertaken</label>
+                  <textarea required placeholder="e.g. Engine oil replaced, fuel filter serviced" value={workPerformed} onChange={(e) => setWorkPerformed(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Parts Replaced</label>
+                  <input type="text" placeholder="e.g. Air filter, Spark plug" value={partsReplaced} onChange={(e) => setPartsReplaced(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Parts Cost (₹)</label>
+                  <input type="number" required placeholder="0" value={partsCost} onChange={(e) => setPartsCost(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Labour Cost (₹)</label>
+                  <input type="number" required placeholder="0" value={labourCost} onChange={(e) => setLabourCost(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Technician Name</label>
+                  <input type="text" required value={reportSpecialist} onChange={(e) => setReportSpecialist(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Photo URLs (Comma-separated)</label>
+                  <input type="text" placeholder="e.g. http://url.com/1.jpg" value={reportPhotos} onChange={(e) => setReportPhotos(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Remarks</label>
+                  <textarea value={reportRemarks} onChange={(e) => setReportRemarks(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                </div>
+                
+                <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+                  <button type="submit" disabled={actionLoading} style={{ backgroundColor: '#38bdf8', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {actionLoading && <Loader2 className="animate-spin" size={16} />}
+                    <span>Submit Report</span>
+                  </button>
+                  <button type="button" onClick={() => setReportModalItem(null)} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </main>
     </div>

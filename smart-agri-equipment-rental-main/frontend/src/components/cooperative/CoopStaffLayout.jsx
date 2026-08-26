@@ -1,5 +1,3 @@
-// src/components/cooperative/CoopStaffLayout.jsx
-import React from 'react';
 import { 
   Sprout, 
   Tractor, 
@@ -9,7 +7,9 @@ import {
   LogOut, 
   ShieldCheck, 
   Building2,
-  Menu
+  Menu,
+  MessageSquare,
+  FileText
 } from 'lucide-react';
 
 export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onOpenAddModal, children }) {
@@ -18,7 +18,9 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
     { id: 'add-equipment', label: 'Add Equipment', icon: PlusCircle, isAction: true },
     { id: 'requests', label: 'Rental Requests', icon: Calendar },
     { id: 'farmers', label: 'Registered Farmers', icon: ShieldCheck },
-    { id: 'invoices', label: 'Billing & Invoices', icon: Building2 }
+    { id: 'invoices', label: 'Billing & Invoices', icon: Building2 },
+    { id: 'feedback', label: 'Farmer Feedback', icon: MessageSquare },
+    { id: 'reports', label: 'Billing & Reports', icon: FileText }
   ];
 
   return (

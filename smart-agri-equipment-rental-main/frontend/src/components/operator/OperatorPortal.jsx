@@ -17,10 +17,27 @@ export default function OperatorPortal({ user, onLogout }) {
   
   // Job execution state
   const [beforeImage, setBeforeImage] = useState('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80');
-  const [afterImage, setAfterImage] = useState('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [fuelUsed, setFuelUsed] = useState('');
-  const [workingHours, setWorkingHours] = useState('');
   const [remarks, setRemarks] = useState('');
+  const [workCompleted, setWorkCompleted] = useState('Fully Completed');
+  const [fieldLocation, setFieldLocation] = useState('');
+  const [equipmentCondition, setEquipmentCondition] = useState('Good');
+  const [damageInfo, setDamageInfo] = useState('');
+  const [photosInput, setPhotosInput] = useState('');
+
+  useEffect(() => {
+    if (activeJob) {
+      const defaultStart = activeJob.startTime ? new Date(activeJob.startTime) : new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const formatLocal = (d) => {
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      };
+      setStartTime(formatLocal(defaultStart));
+      setEndTime(formatLocal(new Date()));
+    }
+  }, [activeJob]);
 
   const loadJobs = async () => {
     setLoading(true);
@@ -60,24 +77,46 @@ export default function OperatorPortal({ user, onLogout }) {
 
   const handleCompleteJob = async (e) => {
     e.preventDefault();
-    if (!fuelUsed || !workingHours) {
-      toast.error('Please enter fuel used and working hours.');
+    if (!startTime || !endTime) {
+      toast.error('Please enter both start and end times.');
+      return;
+    }
+    const startVal = new Date(startTime);
+    const endVal = new Date(endTime);
+    if (endVal < startVal) {
+      toast.error('End time cannot be before start time.');
+      return;
+    }
+    const diffHours = (endVal - startVal) / (1000 * 60 * 60);
+    if (diffHours > 9) {
+      toast.error('Working hours cannot exceed 9 hours in a single day.');
       return;
     }
     setActionLoading(true);
     const res = await completeJobApi(activeJob._id || activeJob.id, {
-      fuelUsed: parseFloat(fuelUsed),
-      workingHours: parseFloat(workingHours),
+      startTime,
+      endTime,
+      fuelUsed: parseFloat(fuelUsed) || 0,
       remarks,
-      afterImage
+      workCompleted,
+      fieldLocation,
+      equipmentCondition,
+      damageInfo,
+      photos: photosInput ? photosInput.split(',').map(s => s.trim()) : []
     });
     setActionLoading(false);
     if (res.success) {
-      toast.success('Job completed and report submitted! Status returned to Available.');
+      toast.success('Job completed and report submitted successfully!');
       setActiveJob(null);
+      setStartTime('');
+      setEndTime('');
       setFuelUsed('');
-      setWorkingHours('');
       setRemarks('');
+      setWorkCompleted('Fully Completed');
+      setFieldLocation('');
+      setEquipmentCondition('Good');
+      setDamageInfo('');
+      setPhotosInput('');
       loadJobs();
     } else {
       toast.error(res.message || 'Failed to complete job.');
@@ -191,6 +230,26 @@ export default function OperatorPortal({ user, onLogout }) {
             </p>
             <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Actual Start Time</label>
+                <input
+                  type="datetime-local"
+                  required
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Actual End Time</label>
+                <input
+                  type="datetime-local"
+                  required
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                />
+              </div>
+              <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Fuel Consumption (Liters)</label>
                 <input
                   type="number"
@@ -203,19 +262,51 @@ export default function OperatorPortal({ user, onLogout }) {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Actual Work Hours</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Status / Progress</label>
+                <select
+                  value={workCompleted}
+                  onChange={(e) => setWorkCompleted(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: '#131d35', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                >
+                  <option value="Fully Completed">Fully Completed</option>
+                  <option value="Partially Completed">Partially Completed</option>
+                  <option value="Aborted">Aborted / Halted</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Field Location / Plot Details</label>
                 <input
-                  type="number"
-                  step="0.5"
+                  type="text"
                   required
-                  placeholder="e.g. 4.5"
-                  value={workingHours}
-                  onChange={(e) => setWorkingHours(e.target.value)}
+                  placeholder="e.g. Ludhiana East Sector, Plot 4B"
+                  value={fieldLocation}
+                  onChange={(e) => setFieldLocation(e.target.value)}
                   style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
                 />
               </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Equipment Post-Work Condition</label>
+                <select
+                  value={equipmentCondition}
+                  onChange={(e) => setEquipmentCondition(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: '#131d35', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                >
+                  <option value="Good">Good / Ready</option>
+                  <option value="Needs Maintenance">Needs Preventive Maintenance</option>
+                  <option value="Damaged">Damaged / Malfunctioning</option>
+                </select>
+              </div>
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Remarks / Condition Details</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Damage details (if any)</label>
+                <textarea
+                  placeholder="Describe damage, component failures, or technical faults if any..."
+                  value={damageInfo}
+                  onChange={(e) => setDamageInfo(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', minHeight: '60px' }}
+                />
+              </div>
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Remarks & Notes</label>
                 <textarea
                   placeholder="Explain work done, land coverage, or machinery status..."
                   value={remarks}
@@ -223,12 +314,13 @@ export default function OperatorPortal({ user, onLogout }) {
                   style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', minHeight: '80px' }}
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Post-Work Image Verification URL</label>
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Photo URLs (Comma-separated, optional)</label>
                 <input
                   type="text"
-                  value={afterImage}
-                  onChange={(e) => setAfterImage(e.target.value)}
+                  placeholder="e.g. https://image1.jpg, https://image2.jpg"
+                  value={photosInput}
+                  onChange={(e) => setPhotosInput(e.target.value)}
                   style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
                 />
               </div>

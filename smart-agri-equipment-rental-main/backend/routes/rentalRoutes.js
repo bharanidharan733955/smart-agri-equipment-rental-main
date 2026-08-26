@@ -65,7 +65,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       return res.status(404).json({ success: false, message: 'Equipment not found.' });
     }
 
-    if (eq.status === 'Under Maintenance' || eq.status === 'Under Inspection') {
+    if (eq.status === 'Under Maintenance' || eq.status === 'Under Inspection' || eq.status === 'Maintenance Required' || eq.status === 'Awaiting Maintenance Approval') {
       return res.status(400).json({ success: false, message: 'Equipment is currently unavailable due to maintenance.' });
     }
 
