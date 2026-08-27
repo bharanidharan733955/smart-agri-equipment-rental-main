@@ -17,7 +17,7 @@ import {
   fetchFarmerNotifications 
 } from '../../api';
 
-export default function FarmerPortal({ onLogout }) {
+export default function FarmerPortal({ onLogout, user }) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [overviewData, setOverviewData] = useState(null);
   const [equipmentList, setEquipmentList] = useState([]);
@@ -76,7 +76,7 @@ export default function FarmerPortal({ onLogout }) {
       activeTab={activeTab}
       setActiveTab={setActiveTab}
       onLogout={onLogout}
-      farmerUser={overviewData?.user}
+      farmerUser={user}
     >
       {activeTab === 'dashboard' && (
         <FarmerDashboardView

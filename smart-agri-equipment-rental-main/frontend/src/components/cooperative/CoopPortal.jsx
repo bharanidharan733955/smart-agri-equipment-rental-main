@@ -6,14 +6,14 @@ import AddEquipmentModal from './AddEquipmentModal';
 import EditEquipmentModal from './EditEquipmentModal';
 import EquipmentDetailsModal from './EquipmentDetailsModal';
 import UploadImageModal from './UploadImageModal';
-import { 
-  fetchCoopEquipment, 
-  fetchCoopStats, 
-  addCoopEquipment, 
-  editCoopEquipment, 
-  deleteCoopEquipment, 
-  updateCoopEquipmentStatus, 
-  updateCoopEquipmentCondition, 
+import {
+  fetchCoopEquipment,
+  fetchCoopStats,
+  addCoopEquipment,
+  editCoopEquipment,
+  deleteCoopEquipment,
+  updateCoopEquipmentStatus,
+  updateCoopEquipmentCondition,
   uploadCoopEquipmentImage,
   fetchFarmerBookings,
   approveRentalBooking,
@@ -29,16 +29,16 @@ import {
   fetchBillingReport
 } from '../../api';
 import toast, { Toaster } from 'react-hot-toast';
-import { 
-  CheckCircle2, XCircle, UserCheck, Wrench, FileSpreadsheet, DollarSign, 
-  MessageSquare, Star, Printer, Calendar, ShieldCheck, Download, BarChart2 
+import {
+  CheckCircle2, XCircle, UserCheck, Wrench, FileSpreadsheet, DollarSign,
+  MessageSquare, Star, Printer, Calendar, ShieldCheck, Download, BarChart2
 } from 'lucide-react';
 
 export default function CoopPortal({ onLogout }) {
   const [activeTab, setActiveTab] = useState('inventory');
   const [equipmentList, setEquipmentList] = useState([]);
   const [stats, setStats] = useState(null);
-  
+
   // Data lists
   const [bookings, setBookings] = useState([]);
   const [farmers, setFarmers] = useState([]);
@@ -63,6 +63,7 @@ export default function CoopPortal({ onLogout }) {
   const [detailsItem, setDetailsItem] = useState(null);
   const [uploadItem, setUploadItem] = useState(null);
   const [maintItem, setMaintItem] = useState(null);
+  const [jobReportItem, setJobReportItem] = useState(null);
 
   // Maintenance form state
   const [maintDesc, setMaintDesc] = useState('');
@@ -469,7 +470,7 @@ export default function CoopPortal({ onLogout }) {
   const handleDownloadExcel = () => {
     if (!billingReport) return;
     const { summary, bookings, operatorCosts, maintenanceCosts } = billingReport;
-    
+
     let xml = `<?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
@@ -702,6 +703,14 @@ export default function CoopPortal({ onLogout }) {
                           </button>
                         </>
                       )}
+                      {bk.status === 'Returned' && bk.jobDetails && (
+                        <button
+                          onClick={() => setJobReportItem(bk.jobDetails)}
+                          style={{ backgroundColor: '#0ea5e9', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                        >
+                          View Report
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -932,7 +941,10 @@ export default function CoopPortal({ onLogout }) {
                       <td style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>
                         <div style={{ color: '#ffffff', fontWeight: 500 }}>"{f.comments || 'No comment provided.'}"</div>
                         {f.operatorFeedback && (
-                          <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '4px' }}>Operator feedback: "{f.operatorFeedback}"</div>
+                          <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '4px' }}>Farmer on Operator: "{f.operatorFeedback}"</div>
+                        )}
+                        {f.operatorRemarks && (
+                          <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '4px' }}>Operator's Remarks: "{f.operatorRemarks}"</div>
                         )}
                       </td>
                       <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#94a3b8' }}>
@@ -1268,6 +1280,29 @@ export default function CoopPortal({ onLogout }) {
           </div>
         );
       })()}
+      {/* Job Report Modal */}
+      {jobReportItem && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(8,14,28,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#131d35', borderRadius: '16px', padding: '2rem', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '1.5rem' }}>Operator Job Report</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.9rem', color: '#cbd5e1' }}>
+              <div><strong style={{ display: 'block', color: '#94a3b8' }}>Fuel Used:</strong> {jobReportItem.fuelUsed || 0} L</div>
+              <div><strong style={{ display: 'block', color: '#94a3b8' }}>Equipment Condition:</strong> {jobReportItem.equipmentCondition || 'Good'}</div>
+              <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: '#94a3b8' }}>Work Completed:</strong> {jobReportItem.workCompleted || 'N/A'}</div>
+              {jobReportItem.damageInfo && (
+                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: '#ef4444' }}>Damage Info:</strong> {jobReportItem.damageInfo}</div>
+              )}
+              {jobReportItem.remarks && (
+                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: '#94a3b8' }}>Remarks:</strong> {jobReportItem.remarks}</div>
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setJobReportItem(null)} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </CoopStaffLayout>
   );
 }

@@ -13,8 +13,8 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
     const locationStr = item.location || item.cooperativeHub || '';
     const manufacturerStr = item.manufacturer || item.brand || '';
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          manufacturerStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          locationStr.toLowerCase().includes(searchQuery.toLowerCase());
+      manufacturerStr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      locationStr.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCat && matchesSearch;
   });
 
@@ -23,7 +23,7 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
 
   return (
     <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-      
+
       {/* Section Tag */}
       <span className="section-tag">CATALOG</span>
 
@@ -40,7 +40,7 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
         >
           Equipment
         </h1>
-        
+
         <div
           style={{
             backgroundColor: 'rgba(16, 185, 129, 0.1)',

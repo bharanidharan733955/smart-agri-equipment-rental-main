@@ -5,7 +5,7 @@ import { submitRentalApi } from '../api';
 
 export default function RentalModal({ equipment, isOpen, onClose }) {
   const [startDate, setStartDate] = useState('');
-  const [durationDays, setDurationDays] = useState(2);
+  const [durationDays, setDurationDays] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookingRef, setBookingRef] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,14 +14,22 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
   const savedUserStr = localStorage.getItem('agrirent_user');
   const sessionUser = savedUserStr ? JSON.parse(savedUserStr) : null;
 
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const dailyPrice = equipment?.rentalRate || equipment?.price || equipment?.pricePerDay || 800;
-  const grandTotal = dailyPrice * durationDays;
+  const grandTotal = dailyPrice * (parseInt(durationDays) || 0);
 
   // Guard must come AFTER all hooks (Rules of Hooks)
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (startDate < todayStr) {
+      alert("Invalid date: Booking day cannot be in the past.");
+      return;
+    }
+
     setLoading(true);
 
     const payload = {
@@ -139,6 +147,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                   <input
                     type="date"
                     required
+                    min={todayStr}
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     style={{

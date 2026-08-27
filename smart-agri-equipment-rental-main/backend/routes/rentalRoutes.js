@@ -32,7 +32,31 @@ router.get('/', authenticateToken, async (req, res) => {
       }
     }
 
-    return res.json({ success: true, count: list.length, data: list });
+    let jobsList = [];
+    if (isDbConnected()) {
+      jobsList = await Job.find().populate('operator', 'name email mobile');
+    } else {
+      jobsList = localDb.read('jobs') || [];
+      const users = localDb.read('users') || [];
+      jobsList = jobsList.map(j => ({
+        ...j,
+        operator: users.find(u => u._id === j.operator || u.id === j.operator) || { name: 'Operator' }
+      }));
+    }
+
+    const populatedList = list.map(b => {
+      const bIdStr = b._id?.toString() || b.id?.toString();
+      const job = jobsList.find(j => {
+        const jBkId = j.booking?._id?.toString() || j.booking?.toString() || j.booking;
+        return jBkId === bIdStr;
+      });
+      return {
+        ...JSON.parse(JSON.stringify(b)),
+        jobDetails: job || null
+      };
+    });
+
+    return res.json({ success: true, count: populatedList.length, data: populatedList });
   } catch (err) {
     console.error('Fetch rentals error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
@@ -69,36 +93,70 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       return res.status(400).json({ success: false, message: 'Equipment is currently unavailable due to maintenance.' });
     }
 
-    // Find overlapping bookings to allocate the next free unit out of 15
-    let overlaps = [];
+    // Find all future bookings to evaluate availability and maintenance capacity
+    let allFutureBookings = [];
     if (isDbConnected()) {
-      overlaps = await Booking.find({
+      allFutureBookings = await Booking.find({
         equipment: equipmentId,
         status: { $in: ['Approved', 'Issued', 'Reserved', 'Pending'] },
-        $or: [
-          { startDate: { $lte: end }, endDate: { $gte: start } }
-        ]
       });
     } else {
       const bookings = localDb.read('bookings');
-      overlaps = bookings.filter(b =>
+      allFutureBookings = bookings.filter(b =>
         (b.equipment === equipmentId || b.equipmentId === equipmentId) &&
-        ['Approved', 'Issued', 'Reserved', 'Pending'].includes(b.status) &&
-        (new Date(b.startDate) <= end && new Date(b.endDate) >= start)
+        ['Approved', 'Issued', 'Reserved', 'Pending'].includes(b.status)
       );
     }
 
-    const bookedUnitNums = overlaps.map(o => o.unitNum).filter(Boolean);
-    let selectedUnitNum = 1;
+    let selectedUnitNum = null;
+
     for (let i = 1; i <= 15; i++) {
-      if (!bookedUnitNums.includes(i)) {
+      // 1. Time overlap check
+      const unitBookings = allFutureBookings.filter(b => b.unitNum === i);
+      
+      const hasOverlap = unitBookings.some(b => 
+        (new Date(b.startDate) <= end && new Date(b.endDate) >= start)
+      );
+
+      if (hasOverlap) continue; // Skip to next unit if dates overlap
+
+      // 2. Maintenance hours simulation
+      let currentUnitHours = 0;
+      if (eq.units) {
+        const u = eq.units.find(u => u.unitNum === i);
+        if (u) currentUnitHours = u.hours || 0;
+      } else {
+        currentUnitHours = eq.totalUsageHours || 0;
+      }
+
+      // Collect all future bookings for this unit + the new requested booking
+      const timeline = [
+        ...unitBookings,
+        { startDate: start, durationDays: duration }
+      ];
+      // Sort chronologically by start date
+      timeline.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+      let simHours = currentUnitHours;
+      let maintenanceExceeded = false;
+      
+      for (const b of timeline) {
+        simHours += (b.durationDays * 9); // 9 hours of operation per day
+        if (simHours > 360) {
+          maintenanceExceeded = true;
+          break;
+        }
+      }
+
+      // If unit satisfies both time and maintenance constraints, select it
+      if (!maintenanceExceeded) {
         selectedUnitNum = i;
         break;
       }
     }
 
-    if (overlaps.length >= 15) {
-      return res.status(400).json({ success: false, message: 'This equipment is not available for the selected dates (all 15 units are currently booked).' });
+    if (!selectedUnitNum) {
+      return res.status(400).json({ success: false, message: 'This equipment is not available for the selected dates (all units are booked or lack sufficient maintenance hours).' });
     }
 
     const totalAmount = eq.rentalRate * duration;

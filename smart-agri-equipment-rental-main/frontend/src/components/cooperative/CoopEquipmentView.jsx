@@ -1,15 +1,15 @@
 // src/components/cooperative/CoopEquipmentView.jsx
 import React, { useState } from 'react';
-import { 
-  PlusCircle, 
-  Search, 
-  Eye, 
-  Edit3, 
-  Trash2, 
-  Image, 
-  CheckCircle2, 
-  Wrench, 
-  Sliders, 
+import {
+  PlusCircle,
+  Search,
+  Eye,
+  Edit3,
+  Trash2,
+  Image,
+  CheckCircle2,
+  Wrench,
+  Sliders,
   Tractor,
   Building2,
   Clock
@@ -36,14 +36,14 @@ export default function CoopEquipmentView({
   const filteredItems = equipmentList.filter(item => {
     const matchesStatus = statusFilter === 'All' || item.status.toLowerCase() === statusFilter.toLowerCase();
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          (item.manufacturer && item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()));
+      item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (item.manufacturer && item.manufacturer.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesStatus && matchesSearch;
   });
 
   return (
     <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
-      
+
       {/* Top Header Row with Title & Add Equipment Button */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
@@ -185,7 +185,7 @@ export default function CoopEquipmentView({
                 borderRadius: '20px',
                 padding: '1.5rem 1.8rem',
                 display: 'grid',
-                gridTemplateColumns: '120px 1.5fr 1fr 1fr 2.2fr',
+                gridTemplateColumns: '1.5fr 1fr 1fr 2.2fr',
                 alignItems: 'center',
                 gap: '1.8rem',
                 transition: 'all 0.2s ease'
@@ -193,53 +193,14 @@ export default function CoopEquipmentView({
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)')}
             >
-              {/* Image Preview (Clickable to view details) */}
-              <div
-                onClick={() => onViewDetails(item)}
-                style={{
-                  width: '120px',
-                  height: '85px',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  position: 'relative',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  cursor: 'pointer'
-                }}
-              >
-                <img
-                  src={item.imageUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=400&q=80'}
-                  alt={item.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-                <button
-                  title="Upload Image"
-                  onClick={() => onUploadImage(item)}
-                  style={{
-                    position: 'absolute',
-                    bottom: '4px',
-                    right: '4px',
-                    backgroundColor: 'rgba(15, 25, 48, 0.85)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    color: '#ffffff',
-                    padding: '3px 6px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  <Image size={12} />
-                </button>
-              </div>
-
               {/* Title & Hub info (Clickable to view details) */}
               <div>
-                <h3 
+                <h3
                   onClick={() => onViewDetails(item)}
-                  style={{ 
-                    fontSize: '1.15rem', 
-                    fontWeight: 800, 
-                    color: '#ffffff', 
+                  style={{
+                    fontSize: '1.15rem',
+                    fontWeight: 800,
+                    color: '#ffffff',
                     marginBottom: '4px',
                     cursor: 'pointer',
                     transition: 'color 0.2s ease'
@@ -325,7 +286,7 @@ export default function CoopEquipmentView({
 
               {/* Action Buttons Toolbar (View, Edit, Image, Mark Available, Mark Maintenance, Delete) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                
+
                 {/* 👁️ View Details */}
                 <button
                   title="View Details"

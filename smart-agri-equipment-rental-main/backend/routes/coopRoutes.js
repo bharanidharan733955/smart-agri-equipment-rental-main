@@ -10,22 +10,36 @@ router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manag
   try {
     let operators = [];
     let equipmentList = [];
+    let activeJobs = [];
 
     if (isDbConnected()) {
       operators = await User.find({ role: 'Equipment Operator' }).select('-password');
       equipmentList = await Equipment.find();
+      activeJobs = await Job.find({ status: { $in: ['Assigned', 'Started'] } });
     } else {
       operators = localDb.read('users').filter(u => u.role === 'Equipment Operator');
       equipmentList = localDb.read('equipment');
+      activeJobs = localDb.read('jobs').filter(j => ['Assigned', 'Started'].includes(j.status));
     }
 
-    // Map each operator with their assigned equipment
+    // Map each operator with equipment they are currently actively working on (via active jobs)
     const result = operators.map(op => {
       const opId = op._id?.toString() || op.id;
-      const assigned = equipmentList.filter(eq => {
-        const eqOpId = eq.assignedOperator?._id?.toString() || eq.assignedOperator?.toString() || eq.assignedOperator;
-        return eqOpId === opId;
+      
+      // Find all active jobs for this operator
+      const opJobs = activeJobs.filter(j => {
+        const jOpId = j.operator?._id?.toString() || j.operator?.toString();
+        return jOpId === opId;
       });
+
+      // Extract unique equipment assigned to these jobs
+      const eqIds = [...new Set(opJobs.map(j => j.equipment?.toString() || j.equipment))];
+      
+      const assigned = equipmentList.filter(eq => {
+        const eqId = eq._id?.toString() || eq.id;
+        return eqIds.includes(eqId);
+      });
+
       return {
         _id: opId,
         name: op.name,
@@ -618,6 +632,7 @@ router.get('/feedback', authenticateToken, authorizeRoles('Manager', 'Admin', 'O
 
     const populatedList = list.map(f => {
       let operatorName = 'N/A';
+      let operatorRemarks = '';
       const bookingIdStr = f.booking?._id?.toString() || f.booking?.id?.toString() || f.booking;
       if (bookingIdStr) {
         const job = jobsList.find(j => {
@@ -625,6 +640,7 @@ router.get('/feedback', authenticateToken, authorizeRoles('Manager', 'Admin', 'O
           return jBkId === bookingIdStr;
         });
         if (job) {
+          operatorRemarks = job.remarks || '';
           if (typeof job.operator === 'object' && job.operator) {
             operatorName = job.operator.name;
           } else if (job.operator) {
@@ -636,7 +652,8 @@ router.get('/feedback', authenticateToken, authorizeRoles('Manager', 'Admin', 'O
 
       return {
         ...JSON.parse(JSON.stringify(f)),
-        operatorName
+        operatorName,
+        operatorRemarks
       };
     });
 
