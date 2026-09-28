@@ -217,6 +217,7 @@ router.post('/equipment/:id/maintenance/complete', authenticateToken, authorizeR
 
     const oldStatus = eq.status;
     eq.status = 'Available';
+    eq.currentCycleHours = 0;
 
     if (isDbConnected()) {
       await eq.save();

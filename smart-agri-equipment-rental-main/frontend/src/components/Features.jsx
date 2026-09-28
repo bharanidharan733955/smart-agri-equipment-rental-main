@@ -25,70 +25,26 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" style={{ padding: '3rem 2.5rem 4rem 2.5rem' }}>
-      <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '1.8rem'
-          }}
-        >
+    <section id="features" style={{ padding: '4rem 2rem', backgroundColor: 'var(--color-background)' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
           {featureList.map((feat) => {
             const IconComponent = feat.icon;
 
             return (
-              <div
-                key={feat.id}
-                style={{
-                  backgroundColor: '#131d35',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '20px',
-                  padding: '2.2rem 2rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start'
-                }}
-              >
-                {/* Blue Squircle Icon Container */}
-                <div
-                  style={{
-                    width: '46px',
-                    height: '46px',
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(2, 132, 199, 0.25)',
-                    border: '1px solid rgba(56, 189, 248, 0.35)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '1.6rem'
-                  }}
-                >
-                  <IconComponent size={22} color="#38bdf8" />
+              <div key={feat.id} className="agri-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                {/* Icon Container */}
+                <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-neutral-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                  <IconComponent size={24} color="var(--color-secondary)" />
                 </div>
 
                 {/* Title */}
-                <h3
-                  style={{
-                    fontSize: '1.25rem',
-                    fontWeight: 700,
-                    color: '#ffffff',
-                    marginBottom: '0.8rem',
-                    lineHeight: 1.3
-                  }}
-                >
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--color-secondary)', marginBottom: '0.75rem', lineHeight: 1.3 }}>
                   {feat.title}
                 </h3>
 
                 {/* Description */}
-                <p
-                  style={{
-                    fontSize: '0.92rem',
-                    color: '#94a3b8',
-                    lineHeight: 1.6,
-                    fontWeight: 400
-                  }}
-                >
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-muted)', lineHeight: 1.6, fontWeight: 400 }}>
                   {feat.description}
                 </p>
               </div>

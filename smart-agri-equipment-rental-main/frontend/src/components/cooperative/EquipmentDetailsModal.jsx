@@ -33,7 +33,7 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'rgba(8, 14, 28, 0.85)',
+        backgroundColor: 'var(--color-surface)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -47,11 +47,11 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
           maxWidth: '850px',
           maxHeight: '90vh',
           overflowY: 'auto',
-          backgroundColor: '#131d35',
+          backgroundColor: 'var(--color-surface)',
           borderRadius: '24px',
           padding: '2.5rem',
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
         }}
       >
@@ -61,9 +61,9 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
             position: 'absolute',
             top: '1.5rem',
             right: '1.5rem',
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-border)',
             border: 'none',
-            color: '#ffffff',
+            color: 'var(--color-text)',
             width: '34px',
             height: '34px',
             borderRadius: '50%',
@@ -77,10 +77,10 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
         </button>
 
         <span className="section-tag">EQUIPMENT HEALTH PASSPORT & SPECIFICATIONS</span>
-        <h2 style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.4rem' }}>
+        <h2 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.4rem' }}>
           {equipment.name}
         </h2>
-        <div style={{ fontSize: '0.88rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+        <div style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginBottom: '1.5rem' }}>
           Category: {equipment.category} • Serial No: {equipment.serialNumber || 'EQ-SN-882190'}
         </div>
 
@@ -95,7 +95,7 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
                 borderRadius: '16px',
                 overflow: 'hidden',
                 marginBottom: '1rem',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+                border: '1px solid var(--color-border)'
               }}
             >
               <img
@@ -107,10 +107,10 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
 
             {/* Quick Badges Row */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.25)', color: '#10b981', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 700 }}>
+              <div style={{ backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-border)', color: 'var(--color-primary)', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 700 }}>
                 Category Status: {equipment.status}
               </div>
-              <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#ffffff', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 700 }}>
+              <div style={{ backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 700 }}>
                 Cooperative Rate: ₹{equipment.price || equipment.pricePerDay}/day
               </div>
             </div>
@@ -120,8 +120,8 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
             {/* Detailed Specs Grid */}
             <div
               style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                backgroundColor: 'var(--color-border)',
+                border: '1px solid var(--color-border)',
                 borderRadius: '16px',
                 padding: '1.25rem',
                 display: 'grid',
@@ -131,23 +131,23 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
               }}
             >
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>HUB LOCATION</div>
-                <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: 600, marginTop: '2px' }}>{equipment.cooperativeHub || equipment.location || 'Ludhiana Central Hub #1'}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700 }}>HUB LOCATION</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--color-text)', fontWeight: 600, marginTop: '2px' }}>{equipment.cooperativeHub || equipment.location || 'Ludhiana Central Hub #1'}</div>
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>MANUFACTURER</div>
-                <div style={{ fontSize: '0.9rem', color: '#ffffff', fontWeight: 600, marginTop: '2px' }}>{equipment.brand || equipment.manufacturer || 'Standard'}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700 }}>MANUFACTURER</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--color-text)', fontWeight: 600, marginTop: '2px' }}>{equipment.brand || equipment.manufacturer || 'Standard'}</div>
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>LIFETIME USAGE HOURS</div>
-                <div style={{ fontSize: '0.9rem', color: '#10b981', fontWeight: 700, marginTop: '2px' }}>{equipment.totalUsageHours || 0} Hrs</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700 }}>LIFETIME USAGE HOURS</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--color-primary)', fontWeight: 700, marginTop: '2px' }}>{equipment.totalUsageHours || 0} Hrs</div>
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 700 }}>CURRENT CYCLE HOURS</div>
-                <div style={{ fontSize: '0.9rem', color: '#f59e0b', fontWeight: 700, marginTop: '2px' }}>{equipment.currentCycleHours || 0} / 360 Hrs</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700 }}>CURRENT CYCLE HOURS</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--color-warning)', fontWeight: 700, marginTop: '2px' }}>{equipment.currentCycleHours || 0} / 360 Hrs</div>
               </div>
             </div>
           </div>
@@ -155,8 +155,8 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
 
         {/* 15 Individual Units Fleet Display */}
         <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Activity size={18} color="#10b981" />
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Activity size={18} color="var(--color-primary)" />
             <span>Individual Fleet Unit Tracking ({units.filter(u => u.status === 'Available').length} units available)</span>
           </h3>
 
@@ -178,16 +178,16 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
               const isRented = unit.status === 'Rented';
               const isReserved = unit.status === 'Reserved';
               
-              const statusColor = isMaint ? '#ef4444' : isRented ? '#38bdf8' : isReserved ? '#f59e0b' : '#10b981';
-              const bgStatus = isMaint ? 'rgba(239, 68, 68, 0.12)' : isRented ? 'rgba(56, 189, 248, 0.12)' : isReserved ? 'rgba(245, 158, 11, 0.12)' : 'rgba(16, 185, 129, 0.12)';
-              const barColor = unit.hours >= 360 ? '#ef4444' : unit.hours >= 300 ? '#f59e0b' : '#10b981';
+              const statusColor = isMaint ? '#ef4444' : isRented ? '#38bdf8' : isReserved ? '#f59e0b' : 'var(--color-primary)';
+              const bgStatus = isMaint ? 'var(--color-danger-bg)' : isRented ? 'var(--color-info-bg)' : isReserved ? 'var(--color-warning-bg)' : 'var(--color-success-bg)';
+              const barColor = unit.hours >= 360 ? '#ef4444' : unit.hours >= 300 ? '#f59e0b' : 'var(--color-primary)';
 
               return (
                 <div
                   key={unit.id || unit.serial}
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    backgroundColor: 'var(--color-border)',
+                    border: '1px solid var(--color-border)',
                     borderRadius: '12px',
                     padding: '0.85rem',
                     display: 'flex',
@@ -195,11 +195,11 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
                     gap: '0.5rem',
                     transition: 'all 0.2s ease'
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)')}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ffffff' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>
                       Unit #{unit.unitNum}
                     </span>
                     <span
@@ -217,79 +217,24 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
                     </span>
                   </div>
 
-                  <div style={{ fontSize: '0.72rem', color: '#94a3b8', fontFamily: 'monospace' }}>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)', fontFamily: 'monospace' }}>
                     SN: {unit.serial}
                   </div>
 
                   {/* Work Hours Progress Bar */}
                   <div style={{ marginTop: '0.2rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', marginBottom: '2px' }}>
-                      <span style={{ color: '#64748b' }}>Work Hours</span>
+                      <span style={{ color: 'var(--color-muted)' }}>Work Hours</span>
                       <span style={{ color: barColor, fontWeight: 700 }}>{unit.hours} / {THRESHOLD}h</span>
                     </div>
-                    <div style={{ height: '4px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '99px', overflow: 'hidden' }}>
+                    <div style={{ height: '4px', backgroundColor: 'var(--color-border)', borderRadius: '99px', overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${pct}%`, backgroundColor: barColor, borderRadius: '99px' }} />
                     </div>
-                    {unit.hours >= 360 && (
-                      <div style={{ fontSize: '0.6rem', color: '#ef4444', marginTop: '3px', fontWeight: 600 }}>
-                        ⚠ Auto-Sent to Maintenance
-                      </div>
-                    )}
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-
-        {/* Maintenance History Log */}
-        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginBottom: '2rem' }}>
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Wrench size={18} color="#38bdf8" />
-            <span>Service & Maintenance History Log</span>
-          </h3>
-
-          {maintLoading ? (
-            <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Loading service logs...</div>
-          ) : maintLogs.length === 0 ? (
-            <div style={{ color: '#94a3b8', fontSize: '0.88rem', fontStyle: 'italic' }}>
-              No service or preventative maintenance records logged for this vehicle.
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto', maxHeight: '200px', backgroundColor: 'rgba(0,0,0,0.15)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>
-                    <th style={{ padding: '0.6rem 0.8rem' }}>Date</th>
-                    <th style={{ padding: '0.6rem 0.8rem' }}>Reason / Description</th>
-                    <th style={{ padding: '0.6rem 0.8rem' }}>Technician</th>
-                    <th style={{ padding: '0.6rem 0.8rem' }}>Cost</th>
-                    <th style={{ padding: '0.6rem 0.8rem', textAlign: 'right' }}>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {maintLogs.map((log) => (
-                    <tr key={log._id || log.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
-                      <td style={{ padding: '0.5rem 0.8rem', color: '#cbd5e1' }}>{new Date(log.serviceDate || log.createdAt).toLocaleDateString()}</td>
-                      <td style={{ padding: '0.5rem 0.8rem' }}>
-                        <div style={{ fontWeight: 600, color: '#ffffff' }}>{log.maintenanceReason || 'Preventative'}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{log.description || log.problemDescription}</div>
-                      </td>
-                      <td style={{ padding: '0.5rem 0.8rem', color: '#cbd5e1' }}>{log.specialist || 'N/A'}</td>
-                      <td style={{ padding: '0.5rem 0.8rem', fontWeight: 700, color: '#f87171' }}>₹{log.cost || 0}</td>
-                      <td style={{ padding: '0.5rem 0.8rem', textAlign: 'right' }}>
-                        <span style={{
-                          fontSize: '0.7rem', padding: '0.15rem 0.4rem', borderRadius: '4px',
-                          backgroundColor: log.status === 'Approved' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
-                          color: log.status === 'Approved' ? '#10b981' : '#f59e0b', fontWeight: 700
-                        }}>{log.status}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
 
         <button onClick={onClose} className="btn-green" style={{ width: '100%', padding: '0.85rem', justifyContent: 'center' }}>

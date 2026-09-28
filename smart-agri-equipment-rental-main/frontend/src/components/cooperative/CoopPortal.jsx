@@ -293,7 +293,7 @@ export default function CoopPortal({ onLogout }) {
             h1 { color: #0f172a; text-align: center; font-size: 26px; margin-bottom: 5px; }
             .hub-title { text-align: center; font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.05em; }
             .report-meta { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
-            .section-title { font-size: 18px; color: #0f172a; border-left: 4px solid #10b981; padding-left: 10px; margin-top: 35px; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; }
+            .section-title { font-size: 18px; color: #0f172a; border-left: 4px solid var(--color-primary); padding-left: 10px; margin-top: 35px; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
             th { background-color: #f8fafc; color: #475569; font-weight: bold; text-align: left; padding: 12px 10px; border-bottom: 2px solid #e2e8f0; border-top: 1px solid #e2e8f0; font-size: 11px; text-transform: uppercase; }
             td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 12px; color: #334155; }
@@ -303,9 +303,9 @@ export default function CoopPortal({ onLogout }) {
             .summary-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; text-align: center; }
             .summary-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
             .summary-value { font-size: 20px; font-weight: 800; color: #0f172a; }
-            .summary-value.positive { color: #10b981; }
+            .summary-value.positive { color: var(--color-primary); }
             .summary-value.negative { color: #ef4444; }
-            .btn-print { background-color: #10b981; color: white; border: none; padding: 12px 24px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: block; margin: 0 auto 30px auto; }
+            .btn-print { background-color: var(--color-primary); color: white; border: none; padding: 12px 24px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: block; margin: 0 auto 30px auto; }
             @media print {
               .btn-print { display: none; }
               body { padding: 0; }
@@ -356,7 +356,7 @@ export default function CoopPortal({ onLogout }) {
             </div>
             <div class="summary-card">
               <div class="summary-label">Net Cooperative Revenue</div>
-              <div class="summary-value positive" style="color: ${summary.netRevenue >= 0 ? '#10b981' : '#ef4444'}">₹${summary.netRevenue.toLocaleString()}</div>
+              <div class="summary-value positive" style="color: ${summary.netRevenue >= 0 ? 'var(--color-primary)' : '#ef4444'}">₹${summary.netRevenue.toLocaleString()}</div>
             </div>
             <div class="summary-card">
               <div class="summary-label">Total Amount Collected</div>
@@ -645,15 +645,15 @@ export default function CoopPortal({ onLogout }) {
       )}
 
       {activeTab === 'requests' && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#cbd5e1' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', color: 'var(--color-muted)' }}>
           <span className="section-tag">COOPERATIVE DISPATCH</span>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
             Farmer Rental Applications
           </h1>
-          <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem 1rem' }}>Farmer</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Equipment</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Start Date</th>
@@ -665,22 +665,22 @@ export default function CoopPortal({ onLogout }) {
               </thead>
               <tbody>
                 {bookings.map((bk) => (
-                  <tr key={bk._id || bk.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <tr key={bk._id || bk.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <span style={{ fontWeight: 700, display: 'block' }}>{bk.farmer?.name || 'Farmer'}</span>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{bk.farmer?.mobile}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{bk.farmer?.mobile}</span>
                     </td>
                     <td style={{ padding: '0.75rem 1rem' }}>{bk.equipment?.name}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>{new Date(bk.startDate).toLocaleDateString()}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>{bk.durationDays} Days</td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#10b981', fontWeight: 700 }}>₹{bk.totalAmount}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 700 }}>₹{bk.totalAmount}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <span style={{
                         fontSize: '0.72rem',
                         padding: '0.2rem 0.5rem',
                         borderRadius: '6px',
-                        backgroundColor: bk.status === 'Pending' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)',
-                        color: bk.status === 'Pending' ? '#f59e0b' : '#10b981',
+                        backgroundColor: bk.status === 'Pending' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
+                        color: bk.status === 'Pending' ? '#f59e0b' : 'var(--color-primary)',
                         fontWeight: 700
                       }}>
                         {bk.status}
@@ -691,13 +691,13 @@ export default function CoopPortal({ onLogout }) {
                         <>
                           <button
                             onClick={() => handleApproveBooking(bk._id || bk.id)}
-                            style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', marginRight: '0.5rem', fontWeight: 700 }}
+                            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', marginRight: '0.5rem', fontWeight: 700 }}
                           >
                             Approve
                           </button>
                           <button
                             onClick={() => handleRejectBooking(bk._id || bk.id)}
-                            style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                            style={{ backgroundcolor: 'var(--color-danger)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
                           >
                             Reject
                           </button>
@@ -706,7 +706,7 @@ export default function CoopPortal({ onLogout }) {
                       {bk.status === 'Returned' && bk.jobDetails && (
                         <button
                           onClick={() => setJobReportItem(bk.jobDetails)}
-                          style={{ backgroundColor: '#0ea5e9', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                          style={{ backgroundcolor: 'var(--color-info)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
                         >
                           View Report
                         </button>
@@ -721,15 +721,15 @@ export default function CoopPortal({ onLogout }) {
       )}
 
       {activeTab === 'farmers' && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#cbd5e1' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', color: 'var(--color-muted)' }}>
           <span className="section-tag">COOPERATIVE MEMBERS</span>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
             Registered Farmers
           </h1>
-          <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem 1rem' }}>Name</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Email</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Mobile</th>
@@ -740,7 +740,7 @@ export default function CoopPortal({ onLogout }) {
               </thead>
               <tbody>
                 {farmers.map((f) => (
-                  <tr key={f._id || f.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <tr key={f._id || f.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{f.name}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>{f.email}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>{f.mobile}</td>
@@ -750,8 +750,8 @@ export default function CoopPortal({ onLogout }) {
                         fontSize: '0.72rem',
                         padding: '0.2rem 0.5rem',
                         borderRadius: '6px',
-                        backgroundColor: f.isApproved ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                        color: f.isApproved ? '#10b981' : '#ef4444',
+                        backgroundColor: f.isApproved ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+                        color: f.isApproved ? 'var(--color-primary)' : '#ef4444',
                         fontWeight: 700
                       }}>
                         {f.isApproved ? 'Approved' : 'Pending Approval'}
@@ -761,7 +761,7 @@ export default function CoopPortal({ onLogout }) {
                       {!f.isApproved && (
                         <button
                           onClick={() => handleApproveFarmer(f._id || f.id)}
-                          style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                          style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
                         >
                           Approve Farmer
                         </button>
@@ -776,15 +776,15 @@ export default function CoopPortal({ onLogout }) {
       )}
 
       {activeTab === 'invoices' && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#cbd5e1' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', color: 'var(--color-muted)' }}>
           <span className="section-tag">FINANCES</span>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
             Billing & Invoices
           </h1>
-          <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem 1rem' }}>Invoice Number</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Farmer</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Tax (18% GST)</th>
@@ -794,21 +794,21 @@ export default function CoopPortal({ onLogout }) {
               </thead>
               <tbody>
                 {invoices.map((inv) => (
-                  <tr key={inv._id || inv.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <tr key={inv._id || inv.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                     <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{inv.invoiceNumber}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       <span style={{ display: 'block', fontWeight: 600 }}>{inv.booking?.farmer?.name || 'Farmer'}</span>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{inv.booking?.equipment?.name}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{inv.booking?.equipment?.name}</span>
                     </td>
                     <td style={{ padding: '0.75rem 1rem' }}>₹{inv.tax}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#10b981', fontWeight: 800 }}>₹{inv.totalAmount}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 800 }}>₹{inv.totalAmount}</td>
                     <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                       <span style={{
                         fontSize: '0.72rem',
                         padding: '0.2rem 0.6rem',
                         borderRadius: '6px',
-                        backgroundColor: 'rgba(16,185,129,0.1)',
-                        color: '#10b981',
+                        backgroundColor: 'var(--color-success-bg)',
+                        color: 'var(--color-primary)',
                         fontWeight: 700
                       }}>✓ Paid at Booking</span>
                     </td>
@@ -821,16 +821,16 @@ export default function CoopPortal({ onLogout }) {
       )}
 
       {activeTab === 'feedback' && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#cbd5e1' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', color: 'var(--color-muted)' }}>
           <span className="section-tag">FEEDBACK LEDGER</span>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
             Farmer Feedback & Reviews
           </h1>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem', marginBottom: '2rem' }}>
-            <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ fontSize: '0.85rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>Average Rating</span>
-              <span style={{ fontSize: '3.5rem', fontWeight: 800, color: '#f59e0b', lineHeight: 1 }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem' }}>Average Rating</span>
+              <span style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--color-warning)', lineHeight: 1 }}>
                 {(feedbacks.reduce((sum, f) => sum + f.rating, 0) / (feedbacks.length || 1)).toFixed(1)}
               </span>
               <div style={{ display: 'flex', gap: '2px', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
@@ -839,30 +839,30 @@ export default function CoopPortal({ onLogout }) {
                   return <Star key={i} size={18} fill={i < Math.round(avg) ? '#f59e0b' : 'none'} color="#f59e0b" />;
                 })}
               </div>
-              <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Based on {feedbacks.length} Reviews</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>Based on {feedbacks.length} Reviews</span>
             </div>
 
-            <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '0.6rem', justifyContent: 'center' }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '0.6rem', justifyContent: 'center' }}>
               {[5, 4, 3, 2, 1].map(stars => {
                 const count = feedbacks.filter(f => f.rating === stars).length;
                 const pct = feedbacks.length ? (count / feedbacks.length) * 100 : 0;
                 return (
                   <div key={stars} style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.85rem' }}>
-                    <span style={{ width: '45px', color: '#94a3b8', fontWeight: 600 }}>{stars} Stars</span>
-                    <div style={{ flexGrow: 1, height: '8px', backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: '99px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, backgroundColor: '#f59e0b', borderRadius: '99px' }} />
+                    <span style={{ width: '45px', color: 'var(--color-muted)', fontWeight: 600 }}>{stars} Stars</span>
+                    <div style={{ flexGrow: 1, height: '8px', backgroundColor: 'var(--color-border)', borderRadius: '99px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${pct}%`, backgroundcolor: 'var(--color-warning)', borderRadius: '99px' }} />
                     </div>
-                    <span style={{ width: '40px', textAlign: 'right', color: '#ffffff', fontWeight: 700 }}>{count}</span>
+                    <span style={{ width: '40px', textAlign: 'right', color: 'var(--color-text)', fontWeight: 700 }}>{count}</span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '20px', border: '1px solid var(--color-border)', marginBottom: '1.5rem', display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Rating</label>
-              <select value={filterRating} onChange={(e) => setFilterRating(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Rating</label>
+              <select value={filterRating} onChange={(e) => setFilterRating(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
                 <option value="All">All Ratings</option>
                 <option value="5">5 Stars</option>
                 <option value="4">4 Stars</option>
@@ -872,8 +872,8 @@ export default function CoopPortal({ onLogout }) {
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Equipment</label>
-              <select value={filterEquipment} onChange={(e) => setFilterEquipment(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Equipment</label>
+              <select value={filterEquipment} onChange={(e) => setFilterEquipment(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
                 <option value="All">All Equipment</option>
                 {Array.from(new Set(feedbacks.map(f => f.booking?.equipment?.name).filter(Boolean))).map(eq => (
                   <option key={eq} value={eq}>{eq}</option>
@@ -881,8 +881,8 @@ export default function CoopPortal({ onLogout }) {
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Operator</label>
-              <select value={filterOperator} onChange={(e) => setFilterOperator(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Operator</label>
+              <select value={filterOperator} onChange={(e) => setFilterOperator(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>
                 <option value="All">All Operators</option>
                 {Array.from(new Set(feedbacks.map(f => f.operatorName).filter(Boolean))).map(op => (
                   <option key={op} value={op}>{op}</option>
@@ -890,19 +890,19 @@ export default function CoopPortal({ onLogout }) {
               </select>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Farmer Search</label>
-              <input type="text" placeholder="Search farmer name..." value={filterFarmer} onChange={(e) => setFilterFarmer(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Farmer Search</label>
+              <input type="text" placeholder="Search farmer name..." value={filterFarmer} onChange={(e) => setFilterFarmer(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Date</label>
-              <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Filter Date</label>
+              <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} style={{ width: '100%', padding: '0.45rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
             </div>
           </div>
 
-          <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem 1rem' }}>Farmer</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Booking ID</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Equipment</th>
@@ -923,38 +923,38 @@ export default function CoopPortal({ onLogout }) {
                     return true;
                   })
                   .map((f) => (
-                    <tr key={f._id || f.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
+                    <tr key={f._id || f.id} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
                       <td style={{ padding: '0.75rem 1rem' }}>
-                        <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{f.farmer?.name}</span>
-                        <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>ID: {f.farmer?.farmerId || 'N/A'}</span>
+                        <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{f.farmer?.name}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>ID: {f.farmer?.farmerId || 'N/A'}</span>
                       </td>
                       <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace' }}>{f.booking?._id?.toString()?.substr(-6) || f.booking?.id?.toString()?.substr(-6)}</td>
                       <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{f.booking?.equipment?.name}</td>
                       <td style={{ padding: '0.75rem 1rem' }}>{f.operatorName || 'N/A'}</td>
                       <td style={{ padding: '0.75rem 1rem' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 700 }}>Overall: {f.rating}★</span>
-                          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Equipment: {f.equipmentRating || f.rating}★</span>
-                          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Service: {f.serviceRating || f.rating}★</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--color-warning)', fontWeight: 700 }}>Overall: {f.rating}★</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Equipment: {f.equipmentRating || f.rating}★</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--color-muted)' }}>Service: {f.serviceRating || f.rating}★</span>
                         </div>
                       </td>
                       <td style={{ padding: '0.75rem 1rem', fontSize: '0.85rem' }}>
-                        <div style={{ color: '#ffffff', fontWeight: 500 }}>"{f.comments || 'No comment provided.'}"</div>
+                        <div style={{ color: 'var(--color-text)', fontWeight: 500 }}>"{f.comments || 'No comment provided.'}"</div>
                         {f.operatorFeedback && (
-                          <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '4px' }}>Farmer on Operator: "{f.operatorFeedback}"</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-info)', marginTop: '4px' }}>Farmer on Operator: "{f.operatorFeedback}"</div>
                         )}
                         {f.operatorRemarks && (
-                          <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '4px' }}>Operator's Remarks: "{f.operatorRemarks}"</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', marginTop: '4px' }}>Operator's Remarks: "{f.operatorRemarks}"</div>
                         )}
                       </td>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: '#94a3b8' }}>
+                      <td style={{ padding: '0.75rem 1rem', textAlign: 'right', color: 'var(--color-muted)' }}>
                         {new Date(f.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}
                 {feedbacks.length === 0 && (
                   <tr>
-                    <td colSpan="7" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                    <td colSpan="7" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
                       No feedback submissions found.
                     </td>
                   </tr>
@@ -966,21 +966,21 @@ export default function CoopPortal({ onLogout }) {
       )}
 
       {activeTab === 'reports' && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', color: '#cbd5e1' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', color: 'var(--color-muted)' }}>
           <span className="section-tag">COOPERATIVE LEDGER</span>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
             Billing & Invoices Financial Reports
           </h1>
 
-          <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '2rem' }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)', marginBottom: '2rem' }}>
             <form onSubmit={handleGenerateReport} style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem' }}>
               <div style={{ flexGrow: 1 }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 700 }}>From Date</label>
-                <input type="date" required value={reportFromDate} onChange={(e) => setReportFromDate(e.target.value)} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                <input type="date" required value={reportFromDate} onChange={(e) => setReportFromDate(e.target.value)} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
               </div>
               <div style={{ flexGrow: 1 }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 700 }}>To Date</label>
-                <input type="date" required value={reportToDate} onChange={(e) => setReportToDate(e.target.value)} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                <input type="date" required value={reportToDate} onChange={(e) => setReportToDate(e.target.value)} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
               </div>
               <button type="submit" disabled={reportLoading} className="btn-green" style={{ padding: '0.65rem 1.8rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', height: '42px', fontSize: '0.9rem' }}>
                 {reportLoading ? 'Generating...' : 'Generate Report'}
@@ -991,54 +991,54 @@ export default function CoopPortal({ onLogout }) {
           {billingReport ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <button onClick={handleDownloadPDF} style={{ backgroundColor: '#0284c7', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button onClick={handleDownloadPDF} style={{ backgroundColor: '#0284c7', color: 'var(--color-text)', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Printer size={16} />
                   <span>Download PDF</span>
                 </button>
-                <button onClick={handleDownloadExcel} style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button onClick={handleDownloadExcel} style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Download size={16} />
                   <span>Download Excel</span>
                 </button>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
-                <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Total Bookings / Completed / Cancelled</span>
-                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ffffff' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Total Bookings / Completed / Cancelled</span>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-text)' }}>
                     {billingReport.summary.totalBookings} / {billingReport.summary.completedJobs} / {billingReport.summary.cancelledBookings}
                   </span>
                 </div>
-                <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Total Rental Revenue</span>
-                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>₹{billingReport.summary.totalRentalRevenue.toLocaleString()}</span>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Total Rental Revenue</span>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)' }}>₹{billingReport.summary.totalRentalRevenue.toLocaleString()}</span>
                 </div>
-                <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Total Staff Payroll</span>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Total Staff Payroll</span>
                   <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f87171' }}>₹{billingReport.summary.totalOperatorCost.toLocaleString()}</span>
                 </div>
-                <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Total Maintenance Cost</span>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Total Maintenance Cost</span>
                   <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f87171' }}>₹{billingReport.summary.totalMaintenanceCost.toLocaleString()}</span>
                 </div>
-                <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', borderLeft: '4px solid #10b981' }}>
-                  <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Net Cooperative Revenue</span>
-                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>₹{billingReport.summary.netRevenue.toLocaleString()}</span>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)', borderLeft: '4px solid var(--color-primary)' }}>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Net Cooperative Revenue</span>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)' }}>₹{billingReport.summary.netRevenue.toLocaleString()}</span>
                 </div>
-                <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Collected vs Pending</span>
-                  <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff' }}>
-                    <span style={{ color: '#10b981' }}>₹{billingReport.summary.totalAmountCollected.toLocaleString()}</span> / <span style={{ color: '#f87171' }}>₹{billingReport.summary.pendingAmount.toLocaleString()}</span>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Collected vs Pending</span>
+                  <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text)' }}>
+                    <span style={{ color: 'var(--color-primary)' }}>₹{billingReport.summary.totalAmountCollected.toLocaleString()}</span> / <span style={{ color: '#f87171' }}>₹{billingReport.summary.pendingAmount.toLocaleString()}</span>
                   </span>
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.25rem' }}>Booking & Billing History</h3>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.25rem' }}>Booking & Billing History</h3>
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th>Booking ID</th>
                           <th>Farmer Details</th>
                           <th>Equipment Details</th>
@@ -1051,32 +1051,32 @@ export default function CoopPortal({ onLogout }) {
                       </thead>
                       <tbody>
                         {billingReport.bookings.map((b) => (
-                          <tr key={b.bookingId} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
+                          <tr key={b.bookingId} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
                             <td style={{ padding: '0.65rem 0.5rem', fontFamily: 'monospace' }}>{b.bookingId?.substr(-6)}</td>
                             <td style={{ padding: '0.65rem 0.5rem' }}>
-                              <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{b.farmerName}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>ID: {b.farmerId}</span>
+                              <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{b.farmerName}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>ID: {b.farmerId}</span>
                             </td>
                             <td style={{ padding: '0.65rem 0.5rem' }}>
                               <span style={{ display: 'block', fontWeight: 600 }}>{b.equipmentName}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Reg: {b.equipmentReg}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Reg: {b.equipmentReg}</span>
                             </td>
                             <td style={{ padding: '0.65rem 0.5rem' }}>{b.operatorName}</td>
                             <td style={{ padding: '0.65rem 0.5rem' }}>
                               <span style={{ display: 'block' }}>Work: {new Date(b.workDate).toLocaleDateString()}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Booked: {new Date(b.bookingDate).toLocaleDateString()}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Booked: {new Date(b.bookingDate).toLocaleDateString()}</span>
                             </td>
                             <td style={{ padding: '0.65rem 0.5rem' }}>
                               <span style={{ display: 'block', fontWeight: 600 }}>{b.invoiceNumber}</span>
-                              <span style={{ fontSize: '0.75rem', color: b.paymentStatus === 'Paid' ? '#10b981' : '#f87171' }}>{b.paymentStatus}</span>
+                              <span style={{ fontSize: '0.75rem', color: b.paymentStatus === 'Paid' ? 'var(--color-primary)' : '#f87171' }}>{b.paymentStatus}</span>
                             </td>
-                            <td style={{ padding: '0.65rem 0.5rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+                            <td style={{ padding: '0.65rem 0.5rem', fontSize: '0.75rem', color: 'var(--color-muted)' }}>
                               <div>Rate: ₹{b.equipmentRentalCost}/day</div>
                               <div>Base: ₹{b.baseRentalAmount}</div>
                               {b.penalty > 0 && <div style={{ color: '#f87171' }}>Penalty: +₹{b.penalty}</div>}
                               <div>Tax: +₹{b.tax}</div>
                             </td>
-                            <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontWeight: 800, color: '#10b981' }}>₹{b.totalAmount}</td>
+                            <td style={{ padding: '0.65rem 0.5rem', textAlign: 'right', fontWeight: 800, color: 'var(--color-primary)' }}>₹{b.totalAmount}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1084,12 +1084,12 @@ export default function CoopPortal({ onLogout }) {
                   </div>
                 </div>
 
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.25rem' }}>Salaried Staff Payroll Statement</h3>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.25rem' }}>Salaried Staff Payroll Statement</h3>
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th>Staff Name</th>
                           <th>Role</th>
                           <th>Monthly Salary</th>
@@ -1099,8 +1099,8 @@ export default function CoopPortal({ onLogout }) {
                       </thead>
                       <tbody>
                         {billingReport.operatorCosts.map((oc, index) => (
-                          <tr key={'op-' + index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
-                            <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#ffffff' }}>{oc.operatorName}</td>
+                          <tr key={'op-' + index} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
+                            <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--color-text)' }}>{oc.operatorName}</td>
                             <td style={{ padding: '0.75rem 1rem' }}>Equipment Operator</td>
                             <td style={{ padding: '0.75rem 1rem' }}>₹{oc.monthlySalary.toLocaleString()}/mo</td>
                             <td style={{ padding: '0.75rem 1rem' }}>{billingReport.period?.days || 30} days</td>
@@ -1108,8 +1108,8 @@ export default function CoopPortal({ onLogout }) {
                           </tr>
                         ))}
                         {(billingReport.specialistCosts || []).map((sc, index) => (
-                          <tr key={'sp-' + index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
-                            <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#ffffff' }}>{sc.specialistName}</td>
+                          <tr key={'sp-' + index} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
+                            <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--color-text)' }}>{sc.specialistName}</td>
                             <td style={{ padding: '0.75rem 1rem' }}>Maintenance Specialist</td>
                             <td style={{ padding: '0.75rem 1rem' }}>₹{sc.monthlySalary.toLocaleString()}/mo</td>
                             <td style={{ padding: '0.75rem 1rem' }}>{billingReport.period?.days || 30} days</td>
@@ -1121,12 +1121,12 @@ export default function CoopPortal({ onLogout }) {
                   </div>
                 </div>
 
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.25rem' }}>Equipment Maintenance Log Details</h3>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.25rem' }}>Equipment Maintenance Log Details</h3>
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th>Equipment Details</th>
                           <th>Reg Number</th>
                           <th>Service Date</th>
@@ -1139,16 +1139,16 @@ export default function CoopPortal({ onLogout }) {
                       </thead>
                       <tbody>
                         {billingReport.maintenanceCosts.map((m, index) => (
-                          <tr key={index} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
+                          <tr key={index} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
                             <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{m.equipmentName}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>ID: {m.equipmentId}</span>
+                              <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{m.equipmentName}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>ID: {m.equipmentId}</span>
                             </td>
                             <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{m.equipmentReg}</td>
                             <td style={{ padding: '0.75rem 1rem' }}>{new Date(m.maintenanceDate).toLocaleDateString()}</td>
                             <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{ display: 'block', fontWeight: 600, color: '#38bdf8' }}>{m.maintenanceType}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{m.maintenanceDescription}</span>
+                              <span style={{ display: 'block', fontWeight: 600, color: 'var(--color-info)' }}>{m.maintenanceType}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{m.maintenanceDescription}</span>
                             </td>
                             <td style={{ padding: '0.75rem 1rem' }}>{m.specialist}</td>
                             <td style={{ padding: '0.75rem 1rem' }}>₹{m.partsCost}</td>
@@ -1158,7 +1158,7 @@ export default function CoopPortal({ onLogout }) {
                         ))}
                         {billingReport.maintenanceCosts.length === 0 && (
                           <tr>
-                            <td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                            <td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
                               No maintenance records registered in this period.
                             </td>
                           </tr>
@@ -1170,7 +1170,7 @@ export default function CoopPortal({ onLogout }) {
               </div>
             </div>
           ) : (
-            <div style={{ backgroundColor: '#131d35', padding: '4rem 2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', color: '#94a3b8' }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', padding: '4rem 2rem', borderRadius: '20px', border: '1px solid var(--color-border)', textAlign: 'center', color: 'var(--color-muted)' }}>
               Please select a custom reporting period from the fields above and click "Generate Report".
             </div>
           )}
@@ -1212,18 +1212,18 @@ export default function CoopPortal({ onLogout }) {
         const units = maintItem.units && maintItem.units.length > 0 ? maintItem.units : generateUnits(maintItem);
         const availableUnits = units.filter(u => u.status === 'Available');
         return (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-            <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '16px', maxWidth: '600px', width: '100%', border: '1px solid rgba(255,255,255,0.1)', maxHeight: '90vh', overflowY: 'auto' }}>
-              <h3 style={{ marginBottom: '0.5rem', color: '#ef4444', fontSize: '1.25rem', fontWeight: 800 }}>Send to Maintenance</h3>
-              <div style={{ marginBottom: '0.75rem', fontSize: '0.9rem', color: '#94a3b8', fontWeight: 700 }}>
-                Equipment: <span style={{ color: '#fff' }}>{maintItem.name}</span> &bull; Type: <span style={{ color: '#38bdf8' }}>{maintItem.category}</span>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '16px', maxWidth: '600px', width: '100%', border: '1px solid var(--color-border)', maxHeight: '90vh', overflowY: 'auto' }}>
+              <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-danger)', fontSize: '1.25rem', fontWeight: 800 }}>Send to Maintenance</h3>
+              <div style={{ marginBottom: '0.75rem', fontSize: '0.9rem', color: 'var(--color-muted)', fontWeight: 700 }}>
+                Equipment: <span style={{ color: 'var(--color-text)' }}>{maintItem.name}</span> &bull; Type: <span style={{ color: 'var(--color-info)' }}>{maintItem.category}</span>
               </div>
 
               {/* Unit Selection */}
               <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: '#cbd5e1', fontWeight: 700 }}>Select a Unit to Send for Maintenance *</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: 'var(--color-muted)', fontWeight: 700 }}>Select a Unit to Send for Maintenance *</label>
                 {availableUnits.length === 0 ? (
-                  <div style={{ padding: '1rem', backgroundColor: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', color: '#f87171', textAlign: 'center', fontSize: '0.88rem' }}>
+                  <div style={{ padding: '1rem', backgroundColor: 'rgba(239,68,68,0.08)', border: '1px solid var(--color-border)', borderRadius: '10px', color: '#f87171', textAlign: 'center', fontSize: '0.88rem' }}>
                     No available units for this equipment type. All units are currently rented, reserved, or already under maintenance.
                   </div>
                 ) : (
@@ -1238,14 +1238,14 @@ export default function CoopPortal({ onLogout }) {
                             padding: '0.7rem',
                             borderRadius: '10px',
                             cursor: 'pointer',
-                            border: isSelected ? '2px solid #10b981' : '1px solid rgba(255,255,255,0.1)',
-                            backgroundColor: isSelected ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.03)',
+                            border: isSelected ? '2px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.1)',
+                            backgroundColor: isSelected ? 'var(--color-success-bg)' : 'var(--color-border)',
                             transition: 'all 0.2s ease'
                           }}
                         >
-                          <div style={{ fontWeight: 700, color: isSelected ? '#10b981' : '#fff', fontSize: '0.82rem' }}>Unit #{unit.unitNum}</div>
-                          <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>{unit.serial}</div>
-                          <div style={{ fontSize: '0.72rem', color: '#38bdf8', marginTop: '2px', fontWeight: 600 }}>{unit.hours} hrs</div>
+                          <div style={{ fontWeight: 700, color: isSelected ? 'var(--color-primary)' : '#fff', fontSize: '0.82rem' }}>Unit #{unit.unitNum}</div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '2px' }}>{unit.serial}</div>
+                          <div style={{ fontSize: '0.72rem', color: 'var(--color-info)', marginTop: '2px', fontWeight: 600 }}>{unit.hours} hrs</div>
                         </div>
                       );
                     })}
@@ -1256,16 +1256,16 @@ export default function CoopPortal({ onLogout }) {
               {/* Reason textarea (only show if a unit is selected) */}
               {selectedUnit && (
                 <form onSubmit={handleScheduleMaintSubmit}>
-                  <div style={{ marginBottom: '0.5rem', padding: '0.6rem 0.8rem', backgroundColor: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '8px', fontSize: '0.82rem', color: '#10b981', fontWeight: 600 }}>
+                  <div style={{ marginBottom: '0.5rem', padding: '0.6rem 0.8rem', backgroundColor: 'rgba(21, 128, 61,0.08)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '0.82rem', color: 'var(--color-primary)', fontWeight: 600 }}>
                     Selected: Unit #{selectedUnit.unitNum} — {selectedUnit.serial} ({selectedUnit.hours} hrs)
                   </div>
                   <div style={{ marginBottom: '1.25rem' }}>
-                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: '#cbd5e1', fontWeight: 600 }}>Reason / Service Details (Explain the issue) *</label>
-                    <textarea required placeholder="Describe the fault or service needed..." value={maintDesc} onChange={(e) => setMaintDesc(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', minHeight: '80px', outline: 'none' }} />
+                    <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', color: 'var(--color-muted)', fontWeight: 600 }}>Reason / Service Details (Explain the issue) *</label>
+                    <textarea required placeholder="Describe the fault or service needed..." value={maintDesc} onChange={(e) => setMaintDesc(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)', minHeight: '80px', outline: 'none' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                    <button type="submit" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Confirm Maintenance</button>
-                    <button type="button" onClick={() => { setMaintItem(null); setSelectedUnit(null); }} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                    <button type="submit" style={{ backgroundcolor: 'var(--color-danger)', color: 'var(--color-text)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Confirm Maintenance</button>
+                    <button type="button" onClick={() => { setMaintItem(null); setSelectedUnit(null); }} style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
                   </div>
                 </form>
               )}
@@ -1273,7 +1273,7 @@ export default function CoopPortal({ onLogout }) {
               {/* Cancel button when no unit selected */}
               {!selectedUnit && (
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                  <button type="button" onClick={() => { setMaintItem(null); setSelectedUnit(null); }} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                  <button type="button" onClick={() => { setMaintItem(null); setSelectedUnit(null); }} style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
                 </div>
               )}
             </div>
@@ -1282,22 +1282,22 @@ export default function CoopPortal({ onLogout }) {
       })()}
       {/* Job Report Modal */}
       {jobReportItem && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(8,14,28,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '500px', backgroundColor: '#131d35', borderRadius: '16px', padding: '2rem', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '1.5rem' }}>Operator Job Report</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.9rem', color: '#cbd5e1' }}>
-              <div><strong style={{ display: 'block', color: '#94a3b8' }}>Fuel Used:</strong> {jobReportItem.fuelUsed || 0} L</div>
-              <div><strong style={{ display: 'block', color: '#94a3b8' }}>Equipment Condition:</strong> {jobReportItem.equipmentCondition || 'Good'}</div>
-              <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: '#94a3b8' }}>Work Completed:</strong> {jobReportItem.workCompleted || 'N/A'}</div>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'var(--color-surface)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '500px', backgroundColor: 'var(--color-surface)', borderRadius: '16px', padding: '2rem', border: '1px solid var(--color-border)', position: 'relative' }}>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>Operator Job Report</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
+              <div><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Fuel Used:</strong> {jobReportItem.fuelUsed || 0} L</div>
+              <div><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Equipment Condition:</strong> {jobReportItem.equipmentCondition || 'Good'}</div>
+              <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Work Completed:</strong> {jobReportItem.workCompleted || 'N/A'}</div>
               {jobReportItem.damageInfo && (
-                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: '#ef4444' }}>Damage Info:</strong> {jobReportItem.damageInfo}</div>
+                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: 'var(--color-danger)' }}>Damage Info:</strong> {jobReportItem.damageInfo}</div>
               )}
               {jobReportItem.remarks && (
-                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: '#94a3b8' }}>Remarks:</strong> {jobReportItem.remarks}</div>
+                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Remarks:</strong> {jobReportItem.remarks}</div>
               )}
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setJobReportItem(null)} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Close</button>
+              <button onClick={() => setJobReportItem(null)} style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Close</button>
             </div>
           </div>
         </div>

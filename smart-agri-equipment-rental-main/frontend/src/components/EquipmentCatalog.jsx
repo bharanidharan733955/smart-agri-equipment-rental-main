@@ -28,7 +28,7 @@ export default function EquipmentCatalog({ onSelectEquipment, onOpenFullCatalog 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
           <div>
             <span className="section-tag">EQUIPMENT CATALOG</span>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
               Everything your farm needs.
             </h2>
           </div>
@@ -62,23 +62,23 @@ export default function EquipmentCatalog({ onSelectEquipment, onOpenFullCatalog 
                   onSelectEquipment(item);
                 }}
                 style={{
-                  backgroundColor: '#131d35',
-                  border: isActive ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'var(--color-surface)',
+                  border: isActive ? '1px solid var(--color-primary)' : '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: '16px',
                   padding: '1.8rem 1.5rem',
                   cursor: 'pointer',
                   transition: 'all 0.25s ease',
-                  boxShadow: isActive ? '0 0 20px rgba(16, 185, 129, 0.15)' : 'none'
+                  boxShadow: isActive ? '0 0 20px rgba(21, 128, 61, 0.15)' : 'none'
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.borderColor = 'var(--color-border)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }
                 }}
@@ -89,24 +89,24 @@ export default function EquipmentCatalog({ onSelectEquipment, onOpenFullCatalog 
                     width: '42px',
                     height: '42px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    backgroundColor: 'var(--color-success-bg)',
+                    border: '1px solid var(--color-border)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: '1.5rem'
                   }}
                 >
-                  <IconComp size={22} color="#10b981" />
+                  <IconComp size={22} color="var(--color-primary)" />
                 </div>
 
                 {/* Title */}
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.35rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.35rem' }}>
                   {item.name}
                 </h3>
 
                 {/* Price */}
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500 }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', fontWeight: 500 }}>
                   From ₹{item.price}/day
                 </p>
               </div>

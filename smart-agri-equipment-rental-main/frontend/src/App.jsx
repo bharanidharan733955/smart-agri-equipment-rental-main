@@ -17,15 +17,14 @@ const FarmerPortal = lazy(() => import('./components/farmer/FarmerPortal'));
 const CoopPortal = lazy(() => import('./components/cooperative/CoopPortal'));
 const OperatorPortal = lazy(() => import('./components/operator/OperatorPortal'));
 const AdminPortal = lazy(() => import('./components/admin/AdminPortal'));
-const MaintenancePortal = lazy(() => import('./components/maintenance/MaintenancePortal'));
 
 // Minimal loading spinner shown while a lazy portal chunk loads
 function PortalLoader() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-dark)' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(16,185,129,0.2)', borderTop: '3px solid #10b981', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 1rem' }} />
-        <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Loading portal…</p>
+        <div style={{ width: '40px', height: '40px', border: '3px solid rgba(21, 128, 61,0.2)', borderTop: '3px solid var(--color-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 1rem' }} />
+        <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>Loading portal…</p>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
@@ -49,13 +48,13 @@ class ErrorBoundary extends React.Component {
       return (
         <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-dark)', flexDirection: 'column', gap: '1rem', padding: '2rem' }}>
           <div style={{ fontSize: '2.5rem' }}>⚠️</div>
-          <h2 style={{ color: '#ffffff', fontWeight: 800, fontSize: '1.4rem', textAlign: 'center' }}>Something went wrong</h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', maxWidth: '480px', textAlign: 'center', lineHeight: 1.5 }}>
+          <h2 style={{ color: 'var(--color-text)', fontWeight: 800, fontSize: '1.4rem', textAlign: 'center' }}>Something went wrong</h2>
+          <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', maxWidth: '480px', textAlign: 'center', lineHeight: 1.5 }}>
             {this.state.error?.message || 'An unexpected error occurred.'}
           </p>
           <button
             onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
-            style={{ marginTop: '1rem', backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.75rem 2rem', borderRadius: '30px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}
+            style={{ marginTop: '1rem', backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.75rem 2rem', borderRadius: '30px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}
           >
             Reload App
           </button>
@@ -122,9 +121,6 @@ export default function App() {
     }
     if (user.role === 'Staff') {
       return <Suspense fallback={<PortalLoader />}><CoopPortal onLogout={handleLogout} user={user} /></Suspense>;
-    }
-    if (user.role === 'Equipmaintance') {
-      return <Suspense fallback={<PortalLoader />}><MaintenancePortal onLogout={handleLogout} user={user} /></Suspense>;
     }
     if (user.role === 'Admin' || user.role === 'Manager') {
       return <Suspense fallback={<PortalLoader />}><AdminPortal onLogout={handleLogout} user={user} /></Suspense>;

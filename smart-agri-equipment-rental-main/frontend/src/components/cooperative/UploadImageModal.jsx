@@ -21,7 +21,7 @@ export default function UploadImageModal({ equipment, isOpen, onClose, onUploadI
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'rgba(8, 14, 28, 0.85)',
+        backgroundColor: 'var(--color-surface)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -33,11 +33,11 @@ export default function UploadImageModal({ equipment, isOpen, onClose, onUploadI
         style={{
           width: '100%',
           maxWidth: '480px',
-          backgroundColor: '#131d35',
+          backgroundColor: 'var(--color-surface)',
           borderRadius: '24px',
           padding: '2.2rem',
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
         }}
       >
@@ -47,9 +47,9 @@ export default function UploadImageModal({ equipment, isOpen, onClose, onUploadI
             position: 'absolute',
             top: '1.5rem',
             right: '1.5rem',
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-border)',
             border: 'none',
-            color: '#ffffff',
+            color: 'var(--color-text)',
             width: '34px',
             height: '34px',
             borderRadius: '50%',
@@ -63,13 +63,13 @@ export default function UploadImageModal({ equipment, isOpen, onClose, onUploadI
         </button>
 
         <span className="section-tag">UPLOAD IMAGE</span>
-        <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.2rem' }}>
+        <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.2rem' }}>
           Upload Image for {equipment.name}
         </h2>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.4rem', fontWeight: 600 }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 600 }}>
               Image URL / File Path *
             </label>
             <input
@@ -82,9 +82,9 @@ export default function UploadImageModal({ equipment, isOpen, onClose, onUploadI
                 width: '100%',
                 padding: '0.75rem 1rem',
                 borderRadius: '12px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#ffffff',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
                 fontSize: '0.92rem',
                 outline: 'none'
               }}
@@ -92,7 +92,7 @@ export default function UploadImageModal({ equipment, isOpen, onClose, onUploadI
           </div>
 
           {imageUrl && (
-            <div style={{ borderRadius: '12px', overflow: 'hidden', height: '180px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <div style={{ borderRadius: '12px', overflow: 'hidden', height: '180px', border: '1px solid var(--color-border)' }}>
               <img src={imageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           )}

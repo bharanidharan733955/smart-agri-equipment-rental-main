@@ -53,7 +53,7 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
           <style>
             body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; background-color: #ffffff; }
             .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-            h1 { color: #10b981; font-size: 28px; margin: 0 0 10px 0; }
+            h1 { color: var(--color-primary); font-size: 28px; margin: 0 0 10px 0; }
             .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
             .meta-table td { padding: 5px 0; font-size: 13px; color: #64748b; }
             .meta-table td.strong { font-weight: bold; color: #0f172a; text-align: right; }
@@ -65,8 +65,8 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
             th.amount { text-align: right; }
             .totals-table { width: 250px; margin-left: auto; margin-top: 20px; border-collapse: collapse; }
             .totals-table td { padding: 8px 5px; font-size: 13px; color: #64748b; }
-            .totals-table tr.grand-total td { font-size: 16px; font-weight: 800; color: #10b981; border-top: 2px solid #e2e8f0; padding-top: 12px; }
-            .btn-print { background-color: #10b981; color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; display: block; margin: 0 auto 20px auto; }
+            .totals-table tr.grand-total td { font-size: 16px; font-weight: 800; color: var(--color-primary); border-top: 2px solid #e2e8f0; padding-top: 12px; }
+            .btn-print { background-color: var(--color-primary); color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; display: block; margin: 0 auto 20px auto; }
             @media print {
               .btn-print { display: none; }
               body { padding: 0; }
@@ -174,7 +174,7 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
         style={{
           fontSize: '2.5rem',
           fontWeight: 800,
-          color: '#ffffff',
+          color: 'var(--color-text)',
           marginBottom: '2rem',
           letterSpacing: '-0.02em'
         }}
@@ -185,8 +185,8 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
       {/* Filter Tabs Box */}
       <div
         style={{
-          backgroundColor: '#131d35',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: '16px',
           padding: '0.8rem 1rem',
           display: 'flex',
@@ -204,9 +204,9 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
               style={{
                 padding: '0.55rem 1.3rem',
                 borderRadius: 'var(--radius-pill)',
-                backgroundColor: isActive ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                border: isActive ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
-                color: isActive ? '#10b981' : '#94a3b8',
+                backgroundColor: isActive ? 'var(--color-success-bg)' : 'transparent',
+                border: isActive ? '1px solid rgba(21, 128, 61, 0.3)' : '1px solid transparent',
+                color: isActive ? 'var(--color-primary)' : '#94a3b8',
                 fontWeight: isActive ? 700 : 500,
                 fontSize: '0.88rem',
                 cursor: 'pointer',
@@ -222,8 +222,8 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
       {/* Bookings Table Container */}
       <div
         style={{
-          backgroundColor: '#131d35',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: '20px',
           overflow: 'hidden'
         }}
@@ -234,11 +234,11 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
             display: 'grid',
             gridTemplateColumns: '2fr 1.5fr 1fr 1fr 1fr',
             padding: '1.2rem 1.8rem',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            borderBottom: '1px solid var(--color-border)',
             fontSize: '0.78rem',
             fontWeight: 700,
             letterSpacing: '0.08em',
-            color: '#64748b',
+            color: 'var(--color-muted)',
             textTransform: 'uppercase'
           }}
         >
@@ -264,19 +264,19 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                     gridTemplateColumns: '2fr 1.5fr 1fr 1fr 1fr',
                     padding: '1.4rem 1.8rem',
                     alignItems: 'center',
-                    borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                    borderBottom: '1px solid var(--color-border)',
                     fontSize: '0.9rem'
                   }}
                 >
                   <div>
-                    <div style={{ fontWeight: 700, color: '#ffffff' }}>{eqName}</div>
-                    <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '2px' }}>{b.location || b.equipment?.cooperativeHub}</div>
+                    <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>{eqName}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)', marginTop: '2px' }}>{b.location || b.equipment?.cooperativeHub}</div>
                   </div>
                   <div>
-                    <div style={{ color: '#ffffff' }}>{new Date(b.startDate).toLocaleDateString()}</div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>{b.durationDays || b.days} Days</div>
+                    <div style={{ color: 'var(--color-text)' }}>{new Date(b.startDate).toLocaleDateString()}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)' }}>{b.durationDays || b.days} Days</div>
                   </div>
-                  <div style={{ fontWeight: 700, color: '#10b981' }}>
+                  <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
                     ₹{b.totalAmount}
                   </div>
                   <div>
@@ -286,9 +286,9 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                         fontWeight: 700,
                         padding: '0.25rem 0.75rem',
                         borderRadius: 'var(--radius-pill)',
-                        backgroundColor: b.status === 'Returned' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-                        color: b.status === 'Returned' ? '#10b981' : '#38bdf8',
-                        border: b.status === 'Returned' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)'
+                        backgroundColor: b.status === 'Returned' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
+                        color: b.status === 'Returned' ? 'var(--color-primary)' : '#38bdf8',
+                        border: b.status === 'Returned' ? '1px solid rgba(21, 128, 61, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)'
                       }}
                     >
                       {b.status}
@@ -300,8 +300,8 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                         onClick={() => onCancelBooking(b._id || b.id)}
                         style={{
                           background: 'none',
-                          border: '1px solid rgba(239, 68, 68, 0.3)',
-                          color: '#ef4444',
+                          border: '1px solid var(--color-border)',
+                          color: 'var(--color-danger)',
                           padding: '0.35rem 0.85rem',
                           borderRadius: '8px',
                           fontSize: '0.8rem',
@@ -316,9 +316,9 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                         <button
                           onClick={() => handleViewInvoice(b)}
                           style={{
-                            background: 'rgba(56, 189, 248, 0.15)',
-                            border: '1px solid rgba(56, 189, 248, 0.3)',
-                            color: '#38bdf8',
+                            background: 'var(--color-info-bg)',
+                            border: '1px solid var(--color-border)',
+                            color: 'var(--color-info)',
                             padding: '0.35rem 0.65rem',
                             borderRadius: '8px',
                             fontSize: '0.8rem',
@@ -344,9 +344,9 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                             setOperatorFeedback('');
                           }}
                           style={{
-                            background: '#10b981',
+                            background: 'var(--color-primary)',
                             border: 'none',
-                            color: '#ffffff',
+                            color: 'var(--color-text)',
                             padding: '0.35rem 0.65rem',
                             borderRadius: '8px',
                             fontSize: '0.8rem',
@@ -373,7 +373,7 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
             style={{
               padding: '6rem 2rem',
               textAlign: 'center',
-              color: '#94a3b8',
+              color: 'var(--color-muted)',
               fontSize: '0.95rem'
             }}
           >
@@ -384,20 +384,20 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
 
       {/* Modern High-Fidelity Feedback Modal */}
       {feedbackBooking && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(8, 14, 28, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifycontent: 'center', padding: '1.5rem' }}>
-          <div style={{ margin: 'auto', width: '100%', maxWidth: '500px', backgroundColor: '#131d35', borderRadius: '24px', padding: '2rem', border: '1px solid rgba(255, 255, 255, 0.12)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', position: 'relative' }}>
-            <button onClick={() => setFeedbackBooking(null)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'rgba(255,255,255,0.06)', border: 'none', color: '#fff', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'var(--color-surface)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifycontent: 'center', padding: '1.5rem' }}>
+          <div style={{ margin: 'auto', width: '100%', maxWidth: '500px', backgroundColor: 'var(--color-surface)', borderRadius: '24px', padding: '2rem', border: '1px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', position: 'relative' }}>
+            <button onClick={() => setFeedbackBooking(null)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'var(--color-border)', border: 'none', color: 'var(--color-text)', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <X size={16} />
             </button>
             
-            <span className="section-tag" style={{ color: '#10b981' }}>SUBMIT RENTAL FEEDBACK</span>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', marginBottom: '1.5rem' }}>
+            <span className="section-tag" style={{ color: 'var(--color-primary)' }}>SUBMIT RENTAL FEEDBACK</span>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
               Share Your Experience
             </h3>
             
             <form onSubmit={handleSubmitFeedback} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 700 }}>Overall Rating</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.5rem', fontWeight: 700 }}>Overall Rating</label>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                   {[1, 2, 3, 4, 5].map(stars => (
                     <button type="button" key={stars} onClick={() => setOverallRating(stars)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -408,7 +408,7 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 700 }}>Machinery Condition & Performance</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.5rem', fontWeight: 700 }}>Machinery Condition & Performance</label>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                   {[1, 2, 3, 4, 5].map(stars => (
                     <button type="button" key={stars} onClick={() => setEquipRating(stars)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -419,7 +419,7 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.5rem', fontWeight: 700 }}>Booking & Delivery Service</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.5rem', fontWeight: 700 }}>Booking & Delivery Service</label>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                   {[1, 2, 3, 4, 5].map(stars => (
                     <button type="button" key={stars} onClick={() => setServRating(stars)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
@@ -430,20 +430,20 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Comments / Remarks</label>
-                <textarea required placeholder="Write your review comments here..." value={feedbackComments} onChange={(e) => setFeedbackComments(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', minHeight: '60px' }} />
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Comments / Remarks</label>
+                <textarea required placeholder="Write your review comments here..." value={feedbackComments} onChange={(e) => setFeedbackComments(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)', minHeight: '60px' }} />
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem', fontWeight: 700 }}>Feedback about assigned Operator (optional)</label>
-                <textarea placeholder="How was the operator's service and behavior?" value={operatorFeedback} onChange={(e) => setOperatorFeedback(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', minHeight: '50px' }} />
+                <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem', fontWeight: 700 }}>Feedback about assigned Operator (optional)</label>
+                <textarea placeholder="How was the operator's service and behavior?" value={operatorFeedback} onChange={(e) => setOperatorFeedback(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)', minHeight: '50px' }} />
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
                 <button type="submit" className="btn-green" style={{ flexGrow: 1, padding: '0.75rem', justifyContent: 'center', fontWeight: 700 }}>
                   Submit Feedback
                 </button>
-                <button type="button" onClick={() => setFeedbackBooking(null)} style={{ flexGrow: 1, backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.75rem', borderRadius: '8px', cursor: 'pointer' }}>
+                <button type="button" onClick={() => setFeedbackBooking(null)} style={{ flexGrow: 1, backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.75rem', borderRadius: '8px', cursor: 'pointer' }}>
                   Cancel
                 </button>
               </div>

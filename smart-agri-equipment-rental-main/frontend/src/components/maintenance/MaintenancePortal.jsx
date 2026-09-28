@@ -28,7 +28,7 @@ import {
   Loader2
 } from 'lucide-react';
 
-export default function MaintenancePortal({ user, onLogout }) {
+export default function MaintenancePortal({ user, onLogout, embedded = false }) {
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'reports'
   const [equipmentList, setEquipmentList] = useState([]);
   const [operators, setOperators] = useState([]);
@@ -212,7 +212,7 @@ export default function MaintenancePortal({ user, onLogout }) {
           <td>${op.email || 'N/A'}</td>
           <td>${op.mobile || 'N/A'}</td>
           <td>
-            <span style="color: ${isAvail ? '#10b981' : '#ef4444'}; font-weight: bold;">
+            <span style="color: ${isAvail ? 'var(--color-primary)' : '#ef4444'}; font-weight: bold;">
               ${status}
             </span>
           </td>
@@ -234,7 +234,7 @@ export default function MaintenancePortal({ user, onLogout }) {
             tr:nth-child(even) td { background-color: #f8fafc; }
             .header-info { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 40px; }
             .badge-maint { color: #ef4444; font-weight: bold; }
-            .btn-print { background-color: #10b981; color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }
+            .btn-print { background-color: var(--color-primary); color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; margin-bottom: 20px; }
             @media print {
               .btn-print { display: none; }
               body { padding: 0; }
@@ -323,113 +323,18 @@ export default function MaintenancePortal({ user, onLogout }) {
 
   const vehiclesUnderMaint = equipmentList.filter(e => e.status === 'Under Maintenance');
 
-  return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: '#0b1324', color: '#ffffff' }}>
+  // Render the main content (shared between standalone and embedded modes)
+  const renderContent = () => (
+    <>
       <Toaster position="top-right" />
-      
-      {/* Sidebar */}
-      <aside style={{ width: '270px', backgroundColor: '#0c162c', borderRight: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', flexDirection: 'column', flexShrink: 0, height: '100%' }}>
-        {/* Sidebar Brand Header */}
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <div style={{ width: '38px', height: '38px', borderRadius: '10px', backgroundColor: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Wrench size={22} color="#ffffff" strokeWidth={2.5} />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>AgriRentGov</div>
-            <div style={{ fontSize: '0.58rem', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.08em', marginTop: '2px', textTransform: 'uppercase' }}>Maintenance Portal</div>
-          </div>
-        </div>
-
-        {/* Sidebar Nav links */}
-        <nav style={{ padding: '1.25rem 1rem', flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-          <button 
-            onClick={() => setActiveTab('dashboard')}
-            style={{
-              width: '100%',
-              padding: '0.75rem 1.25rem',
-              borderRadius: '12px',
-              border: 'none',
-              backgroundColor: activeTab === 'dashboard' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-              color: activeTab === 'dashboard' ? '#10b981' : '#cbd5e1',
-              fontFamily: 'inherit',
-              fontWeight: 600,
-              fontSize: '0.92rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              textAlign: 'left'
-            }}
-          >
-            <Activity size={18} />
-            <span>Maintenance Hub</span>
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('reports')}
-            style={{
-              width: '100%',
-              padding: '0.75rem 1.25rem',
-              borderRadius: '12px',
-              border: 'none',
-              backgroundColor: activeTab === 'reports' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-              color: activeTab === 'reports' ? '#10b981' : '#cbd5e1',
-              fontFamily: 'inherit',
-              fontWeight: 600,
-              fontSize: '0.92rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              textAlign: 'left'
-            }}
-          >
-            <FileText size={18} />
-            <span>Export Reports</span>
-          </button>
-        </nav>
-
-        {/* Sidebar Footer / Logout */}
-        <div style={{ padding: '1.25rem 1rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
-          <button 
-            onClick={onLogout}
-            style={{
-              width: '100%',
-              padding: '0.75rem 1.25rem',
-              borderRadius: '12px',
-              border: '1px solid rgba(239, 68, 68, 0.25)',
-              backgroundColor: 'rgba(239, 68, 68, 0.08)',
-              color: '#f87171',
-              fontFamily: 'inherit',
-              fontWeight: 600,
-              fontSize: '0.92rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.9rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.15)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)'}
-          >
-            <LogOut size={18} />
-            <span>Sign Out</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <main style={{ flexGrow: 1, padding: '2.5rem', overflowY: 'auto' }}>
         {/* Top bar header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
               Welcome back, {user.name}
             </h2>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: '4px 0 0 0' }}>
-              Logged in as <span style={{ color: '#38bdf8', fontWeight: 600 }}>Maintenance Specialist</span> &bull; {user.cooperativeHub || 'Chennai Central Hub #1'}
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', margin: '4px 0 0 0' }}>
+              Logged in as <span style={{ color: 'var(--color-info)', fontWeight: 600 }}>Maintenance Specialist</span> &bull; {user.cooperativeHub || 'Chennai Central Hub #1'}
             </p>
           </div>
           <button
@@ -444,7 +349,7 @@ export default function MaintenancePortal({ user, onLogout }) {
 
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-            <div style={{ width: '40px', height: '40px', border: '4px solid rgba(255,255,255,0.1)', borderTopColor: '#10b981', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <div style={{ width: '40px', height: '40px', border: '4px solid rgba(255,255,255,0.1)', borderTopColor: 'var(--color-primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
           </div>
         ) : (
           <>
@@ -452,9 +357,9 @@ export default function MaintenancePortal({ user, onLogout }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 
                 {/* Vehicles Under Maintenance Section */}
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
                       <Wrench size={20} color="#38bdf8" />
                       <span>Active Maintenance Work Queue ({equipmentList.filter(e => ['Maintenance Required', 'Under Maintenance', 'Awaiting Maintenance Approval'].includes(e.status)).length})</span>
                     </h3>
@@ -463,7 +368,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th style={{ padding: '0.75rem 1rem' }}>Vehicle Model</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Registration</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Cycle Hours / Lifetime</th>
@@ -476,20 +381,20 @@ export default function MaintenancePortal({ user, onLogout }) {
                         {equipmentList
                           .filter(e => ['Maintenance Required', 'Under Maintenance', 'Awaiting Maintenance Approval'].includes(e.status))
                           .map((v) => (
-                            <tr key={v._id || v.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
+                            <tr key={v._id || v.id} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
                               <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{v.name}</span>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{v.category}</span>
+                                <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{v.name}</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{v.category}</span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{v.regNumber}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ display: 'block', fontWeight: 700, color: '#38bdf8' }}>{v.currentCycleHours || 0} / 360 hrs</span>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Total: {v.totalUsageHours || 0} hrs</span>
+                                <span style={{ display: 'block', fontWeight: 700, color: 'var(--color-info)' }}>{v.currentCycleHours || 0} / 360 hrs</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Total: {v.totalUsageHours || 0} hrs</span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem' }}>
                                 <span style={{
                                   fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
-                                  backgroundColor: v.condition === 'Damaged' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                                  backgroundColor: v.condition === 'Damaged' ? 'var(--color-danger-bg)' : 'var(--color-warning-bg)',
                                   color: v.condition === 'Damaged' ? '#ef4444' : '#f59e0b', fontWeight: 700
                                 }}>
                                   {v.condition || 'Needs Service'}
@@ -498,8 +403,8 @@ export default function MaintenancePortal({ user, onLogout }) {
                               <td style={{ padding: '0.75rem 1rem' }}>
                                 <span style={{
                                   fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '6px',
-                                  backgroundColor: v.status === 'Maintenance Required' ? 'rgba(245, 158, 11, 0.1)' : v.status === 'Under Maintenance' ? 'rgba(56, 189, 248, 0.1)' : 'rgba(16, 185, 129, 0.1)',
-                                  color: v.status === 'Maintenance Required' ? '#f59e0b' : v.status === 'Under Maintenance' ? '#38bdf8' : '#10b981',
+                                  backgroundColor: v.status === 'Maintenance Required' ? 'var(--color-warning-bg)' : v.status === 'Under Maintenance' ? 'var(--color-info-bg)' : 'var(--color-success-bg)',
+                                  color: v.status === 'Maintenance Required' ? '#f59e0b' : v.status === 'Under Maintenance' ? '#38bdf8' : 'var(--color-primary)',
                                   fontWeight: 700
                                 }}>
                                   {v.status}
@@ -510,7 +415,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                                   <button
                                     onClick={() => handleStartMaintenance(v._id || v.id)}
                                     disabled={actionLoading}
-                                    style={{ backgroundColor: '#f59e0b', color: '#fff', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                                    style={{ backgroundcolor: 'var(--color-warning)', color: 'var(--color-text)', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                                   >
                                     <Play size={14} />
                                     <span>Start Maintenance</span>
@@ -527,22 +432,22 @@ export default function MaintenancePortal({ user, onLogout }) {
                                       setReportRemarks('');
                                       setReportSpecialist(user.name);
                                     }}
-                                    style={{ backgroundColor: '#38bdf8', color: '#fff', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                                    style={{ backgroundcolor: 'var(--color-info)', color: 'var(--color-text)', border: 'none', padding: '0.45rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                                   >
                                     <Clipboard size={14} />
                                     <span>Submit Report</span>
                                   </button>
                                 )}
                                 {v.status === 'Awaiting Maintenance Approval' && (
-                                  <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>Pending Manager Signature</span>
+                                  <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontStyle: 'italic' }}>Pending Manager Signature</span>
                                 )}
                               </td>
                             </tr>
                           ))}
                         {equipmentList.filter(e => ['Maintenance Required', 'Under Maintenance', 'Awaiting Maintenance Approval'].includes(e.status)).length === 0 && (
                           <tr>
-                            <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
-                              <AlertTriangle size={24} style={{ display: 'block', margin: '0 auto 0.5rem auto', color: '#10b981' }} />
+                            <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
+                              <AlertTriangle size={24} style={{ display: 'block', margin: '0 auto 0.5rem auto', color: 'var(--color-primary)' }} />
                               All cooperative equipment is in healthy operating condition. No pending tasks.
                             </td>
                           </tr>
@@ -556,15 +461,15 @@ export default function MaintenancePortal({ user, onLogout }) {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
                   
                   {/* Available Operators List */}
-                  <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', margin: 0 }}>
-                      <UserCheck size={20} color="#10b981" />
+                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', margin: 0 }}>
+                      <UserCheck size={20} color="var(--color-primary)" />
                       <span>Available Operators ({operators.filter(op => getOperatorStatus(op._id || op.id) === 'Available').length})</span>
                     </h3>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                         <thead>
-                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                          <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                             <th style={{ padding: '0.75rem 1rem' }}>Name</th>
                             <th style={{ padding: '0.75rem 1rem' }}>Contact Details</th>
                             <th style={{ padding: '0.75rem 1rem' }}>Allocated Equipment</th>
@@ -572,20 +477,20 @@ export default function MaintenancePortal({ user, onLogout }) {
                         </thead>
                         <tbody>
                           {operators.filter(op => getOperatorStatus(op._id || op.id) === 'Available').map((op) => (
-                            <tr key={op._id || op.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
-                              <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#ffffff' }}>{op.name}</td>
+                            <tr key={op._id || op.id} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
+                              <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--color-text)' }}>{op.name}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>
                                 <span style={{ display: 'block' }}>{op.email}</span>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>📞 {op.mobile || 'N/A'}</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>📞 {op.mobile || 'N/A'}</span>
                               </td>
-                              <td style={{ padding: '0.75rem 1rem', color: '#38bdf8', fontSize: '0.85rem' }}>
+                              <td style={{ padding: '0.75rem 1rem', color: 'var(--color-info)', fontSize: '0.85rem' }}>
                                 {getOperatorAllocatedEquipment(op._id || op.id)}
                               </td>
                             </tr>
                           ))}
                           {operators.filter(op => getOperatorStatus(op._id || op.id) === 'Available').length === 0 && (
                             <tr>
-                              <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                              <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
                                 No available operators.
                               </td>
                             </tr>
@@ -596,15 +501,15 @@ export default function MaintenancePortal({ user, onLogout }) {
                   </div>
 
                   {/* Not Available / Busy Operators List */}
-                  <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', margin: 0 }}>
+                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-danger)', display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', margin: 0 }}>
                       <UserX size={20} color="#ef4444" />
                       <span>Not Available Operators ({operators.filter(op => getOperatorStatus(op._id || op.id) === 'Not Available').length})</span>
                     </h3>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                         <thead>
-                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                          <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                             <th style={{ padding: '0.75rem 1rem' }}>Name</th>
                             <th style={{ padding: '0.75rem 1rem' }}>Contact Details</th>
                             <th style={{ padding: '0.75rem 1rem' }}>Assigned To</th>
@@ -612,14 +517,14 @@ export default function MaintenancePortal({ user, onLogout }) {
                         </thead>
                         <tbody>
                           {operators.filter(op => getOperatorStatus(op._id || op.id) === 'Not Available').map((op) => (
-                            <tr key={op._id || op.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
-                              <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: '#ffffff' }}>{op.name}</td>
+                            <tr key={op._id || op.id} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
+                              <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--color-text)' }}>{op.name}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>
                                 <span style={{ display: 'block' }}>{op.email}</span>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>📞 {op.mobile || 'N/A'}</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>📞 {op.mobile || 'N/A'}</span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600 }}>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--color-warning)', fontWeight: 600 }}>
                                   {getBusyOperatorDetails(op._id || op.id)}
                                 </span>
                               </td>
@@ -627,7 +532,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                           ))}
                           {operators.filter(op => getOperatorStatus(op._id || op.id) === 'Not Available').length === 0 && (
                             <tr>
-                              <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                              <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
                                 No busy operators.
                               </td>
                             </tr>
@@ -640,9 +545,9 @@ export default function MaintenancePortal({ user, onLogout }) {
                 </div>
 
                 {/* Maintenance History Section */}
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.6rem', margin: 0 }}>
                       <FileText size={20} color="#a78bfa" />
                       <span>Maintenance Service History ({maintHistory.length})</span>
                     </h3>
@@ -651,7 +556,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th style={{ padding: '0.75rem 1rem' }}>Date</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Equipment</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Description / Reason</th>
@@ -666,24 +571,24 @@ export default function MaintenancePortal({ user, onLogout }) {
                           const eqReg = log.equipment?.regNumber || '';
                           const dateStr = log.serviceDate || log.createdAt || '';
                           const statusLabel = log.status || (log.completedDate ? 'Completed' : 'Open');
-                          const statusColor = statusLabel === 'Completed' ? '#10b981' : statusLabel === 'Approved' ? '#10b981' : '#f59e0b';
+                          const statusColor = statusLabel === 'Completed' ? 'var(--color-primary)' : statusLabel === 'Approved' ? 'var(--color-primary)' : '#f59e0b';
                           return (
-                            <tr key={log._id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>
+                            <tr key={log._id || idx} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
                               <td style={{ padding: '0.75rem 1rem', whiteSpace: 'nowrap' }}>{dateStr ? new Date(dateStr).toLocaleDateString() : 'N/A'}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ fontWeight: 700, color: '#ffffff', display: 'block' }}>{eqName}</span>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{eqReg}</span>
+                                <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{eqName}</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{eqReg}</span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem', maxWidth: '250px' }}>
-                                <span style={{ display: 'block', fontWeight: 600, color: '#38bdf8' }}>{log.maintenanceReason || 'Service'}</span>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{log.description || ''}</span>
+                                <span style={{ display: 'block', fontWeight: 600, color: 'var(--color-info)' }}>{log.maintenanceReason || 'Service'}</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{log.description || ''}</span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem', fontWeight: 600, color: '#f87171' }}>₹{(log.cost || 0).toLocaleString()}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>{log.specialist || 'N/A'}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>
                                 <span style={{
                                   fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '6px',
-                                  backgroundColor: statusColor === '#10b981' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)',
+                                  backgroundColor: statusColor === 'var(--color-primary)' ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
                                   color: statusColor, fontWeight: 700
                                 }}>
                                   {statusLabel}
@@ -694,7 +599,7 @@ export default function MaintenancePortal({ user, onLogout }) {
                         })}
                         {maintHistory.length === 0 && (
                           <tr>
-                            <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8' }}>
+                            <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
                               No maintenance history records found.
                             </td>
                           </tr>
@@ -708,12 +613,12 @@ export default function MaintenancePortal({ user, onLogout }) {
             )}
 
             {activeTab === 'reports' && (
-              <div style={{ backgroundColor: '#131d35', padding: '2.5rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)', maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
-                <FileText size={48} color="#10b981" style={{ marginBottom: '1.5rem' }} />
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.75rem' }}>
+              <div style={{ backgroundColor: 'var(--color-surface)', padding: '2.5rem', borderRadius: '20px', border: '1px solid var(--color-border)', maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+                <FileText size={48} color="var(--color-primary)" style={{ marginBottom: '1.5rem' }} />
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.75rem' }}>
                   Generate Maintenance Operations Report
                 </h3>
-                <p style={{ color: '#94a3b8', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '2rem' }}>
+                <p style={{ color: 'var(--color-muted)', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '2rem' }}>
                   Export a clean, government-compliant print layout displaying all vehicles currently in service, their corresponding technicians, and the live availability log of cooperative operators.
                 </p>
                 <button
@@ -731,48 +636,48 @@ export default function MaintenancePortal({ user, onLogout }) {
 
         {/* Submit Maintenance Report Modal */}
         {reportModalItem && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-            <div style={{ backgroundColor: '#131d35', padding: '2.5rem', borderRadius: '20px', maxWidth: '600px', width: '100%', border: '1px solid rgba(255,255,255,0.1)', overflowY: 'auto', maxHeight: '90vh' }}>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', padding: '2.5rem', borderRadius: '20px', maxWidth: '600px', width: '100%', border: '1px solid var(--color-border)', overflowY: 'auto', maxHeight: '90vh' }}>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--color-info)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Wrench size={22} />
                 <span>Submit Service Report: {reportModalItem.name}</span>
               </h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+              <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
                 Registration: {reportModalItem.regNumber} | Current Usage: {reportModalItem.totalUsageHours} hrs
               </p>
               
               <form onSubmit={handleSubmitReport} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Problem Description</label>
-                  <textarea required value={problemDescription} onChange={(e) => setProblemDescription(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <textarea required value={problemDescription} onChange={(e) => setProblemDescription(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Performed / Repairs Undertaken</label>
-                  <textarea required placeholder="e.g. Engine oil replaced, fuel filter serviced" value={workPerformed} onChange={(e) => setWorkPerformed(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <textarea required placeholder="e.g. Engine oil replaced, fuel filter serviced" value={workPerformed} onChange={(e) => setWorkPerformed(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Parts Replaced</label>
-                  <input type="text" placeholder="e.g. Air filter, Spark plug" value={partsReplaced} onChange={(e) => setPartsReplaced(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <input type="text" placeholder="e.g. Air filter, Spark plug" value={partsReplaced} onChange={(e) => setPartsReplaced(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Parts Cost (₹)</label>
-                  <input type="number" required placeholder="0" value={partsCost} onChange={(e) => setPartsCost(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <input type="number" required placeholder="0" value={partsCost} onChange={(e) => setPartsCost(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Technician Name</label>
-                  <input type="text" required value={reportSpecialist} onChange={(e) => setReportSpecialist(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <input type="text" required value={reportSpecialist} onChange={(e) => setReportSpecialist(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Remarks</label>
-                  <textarea value={reportRemarks} onChange={(e) => setReportRemarks(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <textarea value={reportRemarks} onChange={(e) => setReportRemarks(e.target.value)} style={{ width: '100%', padding: '0.6rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
                 </div>
                 
                 <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
-                  <button type="submit" disabled={actionLoading} style={{ backgroundColor: '#38bdf8', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button type="submit" disabled={actionLoading} style={{ backgroundcolor: 'var(--color-info)', color: 'var(--color-text)', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {actionLoading && <Loader2 className="animate-spin" size={16} />}
                     <span>Submit Report</span>
                   </button>
-                  <button type="button" onClick={() => setReportModalItem(null)} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+                  <button type="button" onClick={() => setReportModalItem(null)} style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
                 </div>
               </form>
             </div>

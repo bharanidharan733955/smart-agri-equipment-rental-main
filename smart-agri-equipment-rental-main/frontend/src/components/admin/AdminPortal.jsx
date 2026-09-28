@@ -263,7 +263,7 @@ export default function AdminPortal({ user, onLogout }) {
       </tr>
     `).join('');
 
-    const colors = ['#10b981', '#38bdf8', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6'];
+    const colors = ['var(--color-primary)', '#38bdf8', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#f43f5e', '#14b8a6'];
 
     // Generate simple SVG Pie Chart for Equipment Revenue
     const totalEqVal = Object.values(rentPerEq).reduce((a, b) => a + b, 0) || 1;
@@ -323,14 +323,14 @@ export default function AdminPortal({ user, onLogout }) {
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
             body { font-family: 'Outfit', sans-serif; padding: 2.5rem; color: #1e293b; background-color: #ffffff; line-height: 1.5; }
-            .header-container { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #10b981; padding-bottom: 1rem; margin-bottom: 2rem; }
+            .header-container { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid var(--color-primary); padding-bottom: 1rem; margin-bottom: 2rem; }
             h1 { color: #0f172a; margin: 0; font-size: 1.75rem; font-weight: 800; }
-            h2 { color: #10b981; margin: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; }
+            h2 { color: var(--color-primary); margin: 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; }
             .meta { font-size: 0.85rem; color: #64748b; text-align: right; }
             .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2.5rem; }
             .metric-card { padding: 1.5rem; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #f8fafc; }
             .metric-title { font-size: 0.8rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-            .metric-value { font-size: 2rem; font-weight: 800; color: #10b981; margin-top: 0.5rem; }
+            .metric-value { font-size: 2rem; font-weight: 800; color: var(--color-primary); margin-top: 0.5rem; }
             .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem; }
             .card { border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.5rem; }
             .card-title { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 1.25rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; }
@@ -341,7 +341,7 @@ export default function AdminPortal({ user, onLogout }) {
             .chart-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; }
             .pie-container { display: flex; align-items: center; gap: 1.5rem; justify-content: center; width: 100%; }
             .pie-legend { display: flex; flex-direction: column; gap: 0.4rem; max-width: 200px; }
-            .btn-print { background-color: #10b981; color: white; border: none; padding: 0.8rem 1.75rem; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(16,185,129,0.2); }
+            .btn-print { background-color: var(--color-primary); color: white; border: none; padding: 0.8rem 1.75rem; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(21, 128, 61,0.2); }
             @media print { .btn-print { display: none; } }
           </style>
         </head>
@@ -459,7 +459,7 @@ export default function AdminPortal({ user, onLogout }) {
       {
         label: 'Bookings',
         data: [42, 28, 31, 19, 15],
-        backgroundColor: '#10b981'
+        backgroundColor: 'var(--color-primary)'
       }
     ]
   };
@@ -475,22 +475,22 @@ export default function AdminPortal({ user, onLogout }) {
   });
 
   return (
-    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--bg-dark)', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--bg-dark)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" />
       {/* Top Brand Header */}
-      <header style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem 2rem', flexShrink: 0 }}>
+      <header style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem', flexShrink: 0 }}>
         <div style={{ maxWidth: '1500px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <ShieldCheck size={28} color="#10b981" />
+            <ShieldCheck size={28} color="var(--color-primary)" />
             <div>
               <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>AgriRent Consolidated Administration Portal</span>
-              <span style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8' }}>COOPERATIVE SOCIETY & GOV OVERSIGHT SYSTEM CONTROL</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-muted)' }}>COOPERATIVE SOCIETY & GOV OVERSIGHT SYSTEM CONTROL</span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <div style={{ textAlign: 'right' }}>
               <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700 }}>{user?.name}</span>
-              <span style={{ display: 'block', fontSize: '0.75rem', color: '#10b981' }}>Super Administrator</span>
+              <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-primary)' }}>Super Administrator</span>
             </div>
           </div>
         </div>
@@ -500,14 +500,14 @@ export default function AdminPortal({ user, onLogout }) {
       <div style={{ display: 'flex', flexGrow: 1, width: '100%', overflow: 'hidden', margin: '0 auto' }}>
         
         {/* Sidebar Nav */}
-        <aside style={{ width: '280px', backgroundColor: '#0f172a', padding: '2rem 1.5rem', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+        <aside style={{ width: '280px', backgroundColor: 'var(--color-surface)', padding: '2rem 1.5rem', borderRight: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', flexGrow: 1, overflowY: 'auto' }}>
             <button
               onClick={() => setActiveTab('inventory')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'inventory' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'inventory' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'inventory' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'inventory' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -519,8 +519,8 @@ export default function AdminPortal({ user, onLogout }) {
               onClick={() => setActiveTab('requests')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'requests' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'requests' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'requests' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'requests' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -532,8 +532,8 @@ export default function AdminPortal({ user, onLogout }) {
               onClick={() => setActiveTab('farmers')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'farmers' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'farmers' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'farmers' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'farmers' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -545,8 +545,8 @@ export default function AdminPortal({ user, onLogout }) {
               onClick={() => setActiveTab('invoices')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'invoices' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'invoices' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'invoices' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'invoices' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -558,8 +558,8 @@ export default function AdminPortal({ user, onLogout }) {
               onClick={() => setActiveTab('maintenance')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'maintenance' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'maintenance' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'maintenance' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'maintenance' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -571,8 +571,8 @@ export default function AdminPortal({ user, onLogout }) {
               onClick={() => setActiveTab('analytics')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'analytics' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'analytics' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'analytics' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'analytics' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -584,8 +584,8 @@ export default function AdminPortal({ user, onLogout }) {
               onClick={() => setActiveTab('users')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'users' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'users' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'users' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'users' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -597,8 +597,8 @@ export default function AdminPortal({ user, onLogout }) {
               onClick={() => setActiveTab('audits')}
               style={{
                 textAlign: 'left', padding: '0.75rem 1rem', borderRadius: '10px', border: 'none',
-                backgroundColor: activeTab === 'audits' ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
-                color: activeTab === 'audits' ? '#10b981' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
+                backgroundColor: activeTab === 'audits' ? 'var(--color-success-bg)' : 'transparent',
+                color: activeTab === 'audits' ? 'var(--color-primary)' : '#cbd5e1', fontWeight: 600, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '0.75rem'
               }}
             >
@@ -615,9 +615,9 @@ export default function AdminPortal({ user, onLogout }) {
               }}
               style={{
                 width: '100%',
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
-                color: '#ef4444',
+                backgroundColor: 'var(--color-danger-bg)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-danger)',
                 padding: '0.75rem 1.25rem',
                 borderRadius: '12px',
                 cursor: 'pointer',
@@ -673,10 +673,10 @@ export default function AdminPortal({ user, onLogout }) {
               )}
 
               {activeTab === 'requests' && (
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                      <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                         <th style={{ padding: '0.75rem 1rem' }}>Farmer</th>
                         <th style={{ padding: '0.75rem 1rem' }}>Equipment</th>
                         <th style={{ padding: '0.75rem 1rem' }}>Dates</th>
@@ -687,26 +687,26 @@ export default function AdminPortal({ user, onLogout }) {
                     </thead>
                     <tbody>
                       {bookings.map((bk) => (
-                        <tr key={bk._id || bk.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <tr key={bk._id || bk.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                           <td style={{ padding: '0.75rem 1rem' }}>
                             <span style={{ fontWeight: 700, display: 'block' }}>{bk.farmer?.name || 'Farmer'}</span>
-                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{bk.farmer?.mobile}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{bk.farmer?.mobile}</span>
                           </td>
                           <td style={{ padding: '0.75rem 1rem' }}>{bk.equipment?.name}</td>
                           <td style={{ padding: '0.75rem 1rem' }}>{new Date(bk.startDate).toLocaleDateString()}</td>
-                          <td style={{ padding: '0.75rem 1rem', color: '#10b981', fontWeight: 700 }}>₹{bk.totalAmount}</td>
+                          <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 700 }}>₹{bk.totalAmount}</td>
                           <td style={{ padding: '0.75rem 1rem' }}>
                             <span style={{
                               fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
-                              backgroundColor: bk.status === 'Pending' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)',
-                              color: bk.status === 'Pending' ? '#f59e0b' : '#10b981', fontWeight: 700
+                              backgroundColor: bk.status === 'Pending' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
+                              color: bk.status === 'Pending' ? '#f59e0b' : 'var(--color-primary)', fontWeight: 700
                             }}>{bk.status}</span>
                           </td>
                           <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                             {bk.status === 'Pending' && (
                               <>
-                                <button onClick={() => handleApproveBooking(bk._id || bk.id)} style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', marginRight: '0.5rem', fontWeight: 700 }}>Approve</button>
-                                <button onClick={() => handleRejectBooking(bk._id || bk.id)} style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Reject</button>
+                                <button onClick={() => handleApproveBooking(bk._id || bk.id)} style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', marginRight: '0.5rem', fontWeight: 700 }}>Approve</button>
+                                <button onClick={() => handleRejectBooking(bk._id || bk.id)} style={{ backgroundcolor: 'var(--color-danger)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Reject</button>
                               </>
                             )}
                           </td>
@@ -718,10 +718,10 @@ export default function AdminPortal({ user, onLogout }) {
               )}
 
               {activeTab === 'farmers' && (
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                     <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                      <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                         <th style={{ padding: '0.75rem 1rem' }}>Name</th>
                         <th style={{ padding: '0.75rem 1rem' }}>Email</th>
                         <th style={{ padding: '0.75rem 1rem' }}>Mobile</th>
@@ -731,20 +731,20 @@ export default function AdminPortal({ user, onLogout }) {
                     </thead>
                     <tbody>
                       {farmers.map((f) => (
-                        <tr key={f._id || f.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <tr key={f._id || f.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                           <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{f.name}</td>
                           <td style={{ padding: '0.75rem 1rem' }}>{f.email}</td>
                           <td style={{ padding: '0.75rem 1rem' }}>{f.mobile}</td>
                           <td style={{ padding: '0.75rem 1rem' }}>
                             <span style={{
                               fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
-                              backgroundColor: f.isApproved ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                              color: f.isApproved ? '#10b981' : '#ef4444', fontWeight: 700
+                              backgroundColor: f.isApproved ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+                              color: f.isApproved ? 'var(--color-primary)' : '#ef4444', fontWeight: 700
                             }}>{f.isApproved ? 'Approved' : 'Pending Approval'}</span>
                           </td>
                           <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                             {!f.isApproved && (
-                              <button onClick={() => handleApproveFarmer(f._id || f.id)} style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Approve Farmer</button>
+                              <button onClick={() => handleApproveFarmer(f._id || f.id)} style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Approve Farmer</button>
                             )}
                           </td>
                         </tr>
@@ -769,34 +769,34 @@ export default function AdminPortal({ user, onLogout }) {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     {/* Top Widgets Bar */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1.5rem' }}>
-                      <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <span style={{ display: 'block', fontSize: '0.82rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Total State Cooperative Rent</span>
-                          <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#10b981', display: 'block', marginTop: '0.3rem' }}>₹{totalRentAmount}</span>
+                          <span style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Total State Cooperative Rent</span>
+                          <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-primary)', display: 'block', marginTop: '0.3rem' }}>₹{totalRentAmount}</span>
                         </div>
                         <button
                           onClick={handleDownloadReport}
-                          style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', cursor: 'pointer', fontWeight: 700, transition: 'background 0.2s' }}
+                          style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', cursor: 'pointer', fontWeight: 700, transition: 'background 0.2s' }}
                           onMouseEnter={(e) => e.target.style.backgroundColor = '#059669'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = '#10b981'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--color-primary)'}
                         >
                           Download PDF Report
                         </button>
                       </div>
-                      <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                        <span style={{ display: 'block', fontSize: '0.82rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>Total Billing Invoices</span>
-                        <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8', display: 'block', marginTop: '0.3rem' }}>{invoices.length} Invoices</span>
+                      <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                        <span style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Total Billing Invoices</span>
+                        <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-info)', display: 'block', marginTop: '0.3rem' }}>{invoices.length} Invoices</span>
                       </div>
                     </div>
 
                     {/* Side-by-Side: Invoices Table & Per Equipment Rent Summary */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '2rem' }}>
                       {/* Left: Invoices list */}
-                      <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                         <h4 style={{ marginBottom: '1.25rem', fontSize: '1.05rem', fontWeight: 700 }}>Cooperative Billing Ledger</h4>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                           <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                            <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                               <th style={{ padding: '0.75rem 1rem' }}>Invoice</th>
                               <th style={{ padding: '0.75rem 1rem' }}>Farmer</th>
                               <th style={{ padding: '0.75rem 1rem' }}>Total</th>
@@ -805,15 +805,15 @@ export default function AdminPortal({ user, onLogout }) {
                           </thead>
                           <tbody>
                             {invoices.map((inv) => (
-                              <tr key={inv._id || inv.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                              <tr key={inv._id || inv.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                                 <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{inv.invoiceNumber}</td>
                                 <td style={{ padding: '0.75rem 1rem' }}>{inv.booking?.farmer?.name || 'Farmer'}</td>
-                                <td style={{ padding: '0.75rem 1rem', color: '#10b981', fontWeight: 800 }}>₹{inv.totalAmount}</td>
+                                <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 800 }}>₹{inv.totalAmount}</td>
                                 <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                                   <span style={{
                                     fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
-                                    backgroundColor: 'rgba(16,185,129,0.1)',
-                                    color: '#10b981', fontWeight: 700
+                                    backgroundColor: 'var(--color-success-bg)',
+                                    color: 'var(--color-primary)', fontWeight: 700
                                   }}>Paid</span>
                                 </td>
                               </tr>
@@ -823,25 +823,25 @@ export default function AdminPortal({ user, onLogout }) {
                       </div>
 
                       {/* Right: Rent Breakdown per Equipment */}
-                      <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                         <h4 style={{ marginBottom: '1.25rem', fontSize: '1.05rem', fontWeight: 700 }}>Rent collected per Equipment</h4>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                           <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                            <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                               <th style={{ padding: '0.75rem 1rem' }}>Equipment Model</th>
                               <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Rent Earned</th>
                             </tr>
                           </thead>
                           <tbody>
                             {Object.entries(rentPerEquipment).map(([name, sum]) => (
-                              <tr key={name} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                              <tr key={name} style={{ borderBottom: '1px solid var(--color-border)' }}>
                                 <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{name}</td>
-                                <td style={{ padding: '0.75rem 1rem', color: '#10b981', fontWeight: 800, textAlign: 'right' }}>₹{sum}</td>
+                                <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 800, textAlign: 'right' }}>₹{sum}</td>
                               </tr>
                             ))}
                             {Object.keys(rentPerEquipment).length === 0 && (
                               <tr>
-                                <td colspan="2" style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>No rent data available yet.</td>
+                                <td colspan="2" style={{ padding: '1rem', textAlign: 'center', color: 'var(--color-muted)' }}>No rent data available yet.</td>
                               </tr>
                             )}
                           </tbody>
@@ -856,34 +856,34 @@ export default function AdminPortal({ user, onLogout }) {
                 <div>
                   {/* Maintenance Metrics cards */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#10b981', marginBottom: '0.4rem', fontWeight: 600 }}>AVAILABLE VEHICLES</span>
-                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#10b981' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-primary)', marginBottom: '0.4rem', fontWeight: 600 }}>AVAILABLE VEHICLES</span>
+                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-primary)' }}>
                         {equipmentList.filter(e => e.status === 'Available').length} Vehicles
                       </span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#ef4444', marginBottom: '0.4rem', fontWeight: 600 }}>IN MAINTENANCE</span>
-                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ef4444' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-danger)', marginBottom: '0.4rem', fontWeight: 600 }}>IN MAINTENANCE</span>
+                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-danger)' }}>
                         {equipmentList.filter(e => e.status === 'Under Maintenance').length} Vehicles
                       </span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#38bdf8', marginBottom: '0.4rem', fontWeight: 600 }}>GOOD CONDITION</span>
-                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: '#38bdf8' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-info)', marginBottom: '0.4rem', fontWeight: 600 }}>GOOD CONDITION</span>
+                      <span style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-info)' }}>
                         {equipmentList.filter(e => !e.condition || e.condition.toLowerCase() === 'good' || e.condition.toLowerCase() === 'excellent').length} Vehicles
                       </span>
                     </div>
                   </div>
 
                   {/* Maintenance Assignment Table */}
-                  <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', color: '#ffffff' }}>
+                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1.25rem', color: 'var(--color-text)' }}>
                       Machinery Maintenance & Assigned Operators
                     </h3>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th style={{ padding: '0.75rem 1rem' }}>Vehicle / Machinery</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Registration No.</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Status</th>
@@ -914,10 +914,10 @@ export default function AdminPortal({ user, onLogout }) {
                           }
 
                           return (
-                            <tr key={item._id || item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <tr key={item._id || item.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                               <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ fontWeight: 700, display: 'block', color: '#ffffff' }}>{item.name}</span>
-                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{item.category}</span>
+                                <span style={{ fontWeight: 700, display: 'block', color: 'var(--color-text)' }}>{item.name}</span>
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{item.category}</span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{item.regNumber}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>
@@ -925,8 +925,8 @@ export default function AdminPortal({ user, onLogout }) {
                                   fontSize: '0.72rem',
                                   padding: '0.2rem 0.5rem',
                                   borderRadius: '6px',
-                                  backgroundColor: isAvailable ? 'rgba(16, 185, 129, 0.1)' : isMaintenance ? 'rgba(239, 68, 68, 0.1)' : 'rgba(56, 189, 248, 0.1)',
-                                  color: isAvailable ? '#10b981' : isMaintenance ? '#ef4444' : '#38bdf8',
+                                  backgroundColor: isAvailable ? 'var(--color-success-bg)' : isMaintenance ? 'var(--color-danger-bg)' : 'var(--color-info-bg)',
+                                  color: isAvailable ? 'var(--color-primary)' : isMaintenance ? '#ef4444' : '#38bdf8',
                                   fontWeight: 700
                                 }}>
                                   {item.status}
@@ -937,8 +937,8 @@ export default function AdminPortal({ user, onLogout }) {
                                   fontSize: '0.72rem',
                                   padding: '0.2rem 0.5rem',
                                   borderRadius: '6px',
-                                  backgroundColor: (!item.condition || item.condition.toLowerCase() === 'good' || item.condition.toLowerCase() === 'excellent') ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)',
-                                  color: (!item.condition || item.condition.toLowerCase() === 'good' || item.condition.toLowerCase() === 'excellent') ? '#10b981' : '#f59e0b',
+                                  backgroundColor: (!item.condition || item.condition.toLowerCase() === 'good' || item.condition.toLowerCase() === 'excellent') ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
+                                  color: (!item.condition || item.condition.toLowerCase() === 'good' || item.condition.toLowerCase() === 'excellent') ? 'var(--color-primary)' : '#f59e0b',
                                   fontWeight: 700,
                                   textTransform: 'capitalize'
                                 }}>
@@ -946,14 +946,14 @@ export default function AdminPortal({ user, onLogout }) {
                                 </span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ display: 'block', fontWeight: 600, color: '#ffffff' }}>{operatorName}</span>
-                                {operatorMobile && <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>📞 {operatorMobile}</span>}
+                                <span style={{ display: 'block', fontWeight: 600, color: 'var(--color-text)' }}>{operatorName}</span>
+                                {operatorMobile && <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>📞 {operatorMobile}</span>}
                               </td>
                               <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
                                 {isMaintenance ? (
                                   <button
                                     onClick={() => handleCompleteMaint(item._id || item.id)}
-                                    style={{ backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                                    style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
                                   >
                                     Complete Service
                                   </button>
@@ -966,7 +966,7 @@ export default function AdminPortal({ user, onLogout }) {
                                     }}
                                     disabled={!isAvailable}
                                     style={{
-                                      backgroundColor: isAvailable ? '#ef4444' : 'rgba(255, 255, 255, 0.08)',
+                                      backgroundColor: isAvailable ? '#ef4444' : 'var(--color-border)',
                                       color: isAvailable ? '#fff' : '#64748b',
                                       border: 'none',
                                       padding: '0.4rem 0.8rem',
@@ -991,32 +991,32 @@ export default function AdminPortal({ user, onLogout }) {
               {activeTab === 'analytics' && (
                 <div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>State Districts</span>
-                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: '#38bdf8' }}>5 Districts</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>State Districts</span>
+                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: 'var(--color-info)' }}>5 Districts</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Cooperative Hubs</span>
-                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: '#10b981' }}>12 Hubs</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Cooperative Hubs</span>
+                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: 'var(--color-primary)' }}>12 Hubs</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>State Revenue</span>
-                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: '#10b981' }}>₹{invoices.filter(i => i.paymentStatus === 'Paid').reduce((sum, i) => sum + i.totalAmount, 0)}</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>State Revenue</span>
+                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: 'var(--color-primary)' }}>₹{invoices.filter(i => i.paymentStatus === 'Paid').reduce((sum, i) => sum + i.totalAmount, 0)}</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Active Orders</span>
-                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: '#38bdf8' }}>{bookings.filter(b => b.status === 'Approved' || b.status === 'Issued').length}</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Active Orders</span>
+                      <span style={{ fontSize: '2.0rem', fontWeight: 800, color: 'var(--color-info)' }}>{bookings.filter(b => b.status === 'Approved' || b.status === 'Issued').length}</span>
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2rem' }}>
-                    <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                       <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 700 }}>Total Bookings by District</h4>
                       <div style={{ height: '300px' }}>
                         <Bar data={districtChartData} options={{ responsive: true, maintainAspectRatio: false }} />
                       </div>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                       <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 700 }}>State Machinery Status Ratio</h4>
                       <div style={{ height: '260px', display: 'flex', justifyContent: 'center' }}>
                         <Pie data={utilizationChartData} options={{ responsive: true, maintainAspectRatio: false }} />
@@ -1029,7 +1029,7 @@ export default function AdminPortal({ user, onLogout }) {
               {activeTab === 'users' && (
                 <div>
                   {/* User Search Bar */}
-                  <div style={{ backgroundColor: '#131d35', padding: '1.25rem', borderRadius: '16px', display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.25rem', borderRadius: '16px', display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', border: '1px solid var(--color-border)' }}>
                     <div style={{ flexGrow: 1, position: 'relative' }}>
                       <Search size={18} color="#64748b" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
@@ -1037,15 +1037,15 @@ export default function AdminPortal({ user, onLogout }) {
                         placeholder="Search accounts by name, email, role, or cooperative..."
                         value={userSearch}
                         onChange={(e) => setUserSearch(e.target.value)}
-                        style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.8rem', borderRadius: '10px', backgroundColor: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#fff', fontSize: '0.88rem', outline: 'none' }}
+                        style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.8rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.88rem', outline: 'none' }}
                       />
                     </div>
                   </div>
 
-                  <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th style={{ padding: '0.75rem 1rem' }}>User Info</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Role</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Cooperative Hub</th>
@@ -1055,25 +1055,25 @@ export default function AdminPortal({ user, onLogout }) {
                       </thead>
                       <tbody>
                         {filteredUsers.map((u) => (
-                          <tr key={u._id || u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <tr key={u._id || u.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
                             <td style={{ padding: '0.75rem 1rem' }}>
                               <span style={{ fontWeight: 700, display: 'block' }}>{u.name}</span>
-                              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{u.email}</span>
+                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{u.email}</span>
                             </td>
                             <td style={{ padding: '0.75rem 1rem' }}>{u.role}</td>
                             <td style={{ padding: '0.75rem 1rem' }}>{u.cooperativeHub}</td>
                             <td style={{ padding: '0.75rem 1rem' }}>
                               <span style={{
                                 fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px',
-                                backgroundColor: u.isApproved ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                                color: u.isApproved ? '#10b981' : '#ef4444', fontWeight: 700
+                                backgroundColor: u.isApproved ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
+                                color: u.isApproved ? 'var(--color-primary)' : '#ef4444', fontWeight: 700
                               }}>{u.isApproved ? 'Active' : 'Suspended'}</span>
                             </td>
                             <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                              <button onClick={() => handleApproveUser(u._id || u.id, u.isApproved)} style={{ backgroundColor: 'rgba(56,189,248,0.15)', color: '#38bdf8', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', marginRight: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
+                              <button onClick={() => handleApproveUser(u._id || u.id, u.isApproved)} style={{ backgroundColor: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', marginRight: '0.5rem', cursor: 'pointer', fontWeight: 600 }}>
                                 {u.isApproved ? 'Suspend' : 'Activate'}
                               </button>
-                              <button onClick={() => handleDeleteUser(u._id || u.id)} style={{ backgroundColor: 'rgba(239,68,68,0.15)', color: '#ef4444', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer' }}>Delete</button>
+                              <button onClick={() => handleDeleteUser(u._id || u.id)} style={{ backgroundColor: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer' }}>Delete</button>
                             </td>
                           </tr>
                         ))}
@@ -1087,30 +1087,30 @@ export default function AdminPortal({ user, onLogout }) {
                 <div>
                   {/* Automated calculations widgets bar */}
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
-                    <div style={{ backgroundColor: '#131d35', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8' }}>Total Logs Tracked</span>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#38bdf8' }}>{auditStats.total}</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Total Logs Tracked</span>
+                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-info)' }}>{auditStats.total}</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8' }}>Logins (Telemetry)</span>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>{auditStats.loginCount}</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Logins (Telemetry)</span>
+                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)' }}>{auditStats.loginCount}</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8' }}>Bookings Requested</span>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f59e0b' }}>{auditStats.bookingCount}</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Bookings Requested</span>
+                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-warning)' }}>{auditStats.bookingCount}</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8' }}>Work Completed</span>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>{auditStats.workCompleted}</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Work Completed</span>
+                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)' }}>{auditStats.workCompleted}</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8' }}>Unique IP Telemetry</span>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#38bdf8' }}>{uniqueIPs}</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Unique IP Telemetry</span>
+                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-info)' }}>{uniqueIPs}</span>
                     </div>
                   </div>
 
                   {/* Audit filtering toolbar */}
-                  <div style={{ backgroundColor: '#131d35', padding: '1.25rem', borderRadius: '16px', display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.25rem', borderRadius: '16px', display: 'flex', gap: '1.5rem', marginBottom: '1.5rem', border: '1px solid var(--color-border)' }}>
                     <div style={{ flexGrow: 1, position: 'relative' }}>
                       <Search size={18} color="#64748b" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
                       <input
@@ -1118,45 +1118,45 @@ export default function AdminPortal({ user, onLogout }) {
                         placeholder="Search logs by IP, User, Description..."
                         value={auditSearch}
                         onChange={(e) => setAuditSearch(e.target.value)}
-                        style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.8rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.88rem' }}
+                        style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.8rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.88rem' }}
                       />
                     </div>
                     <div>
                       <select
                         value={auditRoleFilter}
                         onChange={(e) => setAuditRoleFilter(e.target.value)}
-                        style={{ padding: '0.65rem 1rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.88rem' }}
+                        style={{ padding: '0.65rem 1rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.88rem' }}
                       >
-                        <option value="All" style={{ backgroundColor: '#131d35' }}>All Roles</option>
-                        <option value="Farmer" style={{ backgroundColor: '#131d35' }}>Farmer</option>
-                        <option value="Operator" style={{ backgroundColor: '#131d35' }}>Operator</option>
-                        <option value="Admin" style={{ backgroundColor: '#131d35' }}>Admin</option>
+                        <option value="All" style={{ backgroundColor: 'var(--color-surface)' }}>All Roles</option>
+                        <option value="Farmer" style={{ backgroundColor: 'var(--color-surface)' }}>Farmer</option>
+                        <option value="Operator" style={{ backgroundColor: 'var(--color-surface)' }}>Operator</option>
+                        <option value="Admin" style={{ backgroundColor: 'var(--color-surface)' }}>Admin</option>
                       </select>
                     </div>
                     <div>
                       <select
                         value={auditActionFilter}
                         onChange={(e) => setAuditActionFilter(e.target.value)}
-                        style={{ padding: '0.65rem 1rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.88rem' }}
+                        style={{ padding: '0.65rem 1rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.88rem' }}
                       >
-                        <option value="All" style={{ backgroundColor: '#131d35' }}>All Actions</option>
-                        <option value="Login" style={{ backgroundColor: '#131d35' }}>Login</option>
-                        <option value="Registration" style={{ backgroundColor: '#131d35' }}>Registration</option>
-                        <option value="Booking Request" style={{ backgroundColor: '#131d35' }}>Booking Request</option>
-                        <option value="Booking Approval" style={{ backgroundColor: '#131d35' }}>Booking Approval</option>
-                        <option value="Work Started" style={{ backgroundColor: '#131d35' }}>Work Started</option>
-                        <option value="Work Completed" style={{ backgroundColor: '#131d35' }}>Work Completed</option>
-                        <option value="Payment Received" style={{ backgroundColor: '#131d35' }}>Payment Received</option>
+                        <option value="All" style={{ backgroundColor: 'var(--color-surface)' }}>All Actions</option>
+                        <option value="Login" style={{ backgroundColor: 'var(--color-surface)' }}>Login</option>
+                        <option value="Registration" style={{ backgroundColor: 'var(--color-surface)' }}>Registration</option>
+                        <option value="Booking Request" style={{ backgroundColor: 'var(--color-surface)' }}>Booking Request</option>
+                        <option value="Booking Approval" style={{ backgroundColor: 'var(--color-surface)' }}>Booking Approval</option>
+                        <option value="Work Started" style={{ backgroundColor: 'var(--color-surface)' }}>Work Started</option>
+                        <option value="Work Completed" style={{ backgroundColor: 'var(--color-surface)' }}>Work Completed</option>
+                        <option value="Payment Received" style={{ backgroundColor: 'var(--color-surface)' }}>Payment Received</option>
                       </select>
                     </div>
                   </div>
 
                   {/* Audit Logs Table */}
-                  <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                     <div style={{ overflowX: 'auto' }}>
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                         <thead>
-                          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                          <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                             <th style={{ padding: '0.75rem 1rem' }}>User / Role</th>
                             <th style={{ padding: '0.75rem 1rem' }}>Action</th>
                             <th style={{ padding: '0.75rem 1rem' }}>IP Address</th>
@@ -1166,16 +1166,16 @@ export default function AdminPortal({ user, onLogout }) {
                         </thead>
                         <tbody>
                           {filteredAudits.map((log, idx) => (
-                            <tr key={log._id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <tr key={log._id || idx} style={{ borderBottom: '1px solid var(--color-border)' }}>
                               <td style={{ padding: '0.75rem 1rem' }}>
                                 <span style={{ fontWeight: 700 }}>{log.user}</span>
-                                <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8' }}>{log.role}</span>
+                                <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>{log.role}</span>
                               </td>
                               <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ color: '#10b981', fontWeight: 600 }}>{log.action}</span>
+                                <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{log.action}</span>
                               </td>
-                              <td style={{ padding: '0.75rem 1rem', color: '#94a3b8' }}>{log.ipAddress}</td>
-                              <td style={{ padding: '0.75rem 1rem', color: '#94a3b8' }}>{new Date(log.timestamp).toLocaleString()}</td>
+                              <td style={{ padding: '0.75rem 1rem', color: 'var(--color-muted)' }}>{log.ipAddress}</td>
+                              <td style={{ padding: '0.75rem 1rem', color: 'var(--color-muted)' }}>{new Date(log.timestamp).toLocaleString()}</td>
                               <td style={{ padding: '0.75rem 1rem' }}>{log.description}</td>
                             </tr>
                           ))}
@@ -1223,21 +1223,21 @@ export default function AdminPortal({ user, onLogout }) {
 
       {/* Maintenance modal */}
       {maintItem && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-          <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '16px', maxWidth: '450px', width: '100%', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <h3 style={{ marginBottom: '1rem', color: '#ef4444' }}>Send {maintItem.name} to Maintenance</h3>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '16px', maxWidth: '450px', width: '100%', border: '1px solid var(--color-border)' }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-danger)' }}>Send {maintItem.name} to Maintenance</h3>
             <form onSubmit={handleScheduleMaintSubmit}>
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem' }}>Reason / Service Details</label>
-                <textarea required value={maintDesc} onChange={(e) => setMaintDesc(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                <textarea required value={maintDesc} onChange={(e) => setMaintDesc(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
               </div>
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem' }}>Estimated Cost (₹)</label>
-                <input type="number" required value={maintCost} onChange={(e) => setMaintCost(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }} />
+                <input type="number" required value={maintCost} onChange={(e) => setMaintCost(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button type="submit" style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Confirm Maintenance</button>
-                <button type="button" onClick={() => setMaintItem(null)} style={{ backgroundColor: 'rgba(255,255,255,0.08)', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" style={{ backgroundcolor: 'var(--color-danger)', color: 'var(--color-text)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}>Confirm Maintenance</button>
+                <button type="button" onClick={() => setMaintItem(null)} style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', cursor: 'pointer' }}>Cancel</button>
               </div>
             </form>
           </div>

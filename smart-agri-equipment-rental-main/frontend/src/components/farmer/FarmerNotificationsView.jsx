@@ -14,7 +14,7 @@ export default function FarmerNotificationsView({ notificationsList }) {
         style={{
           fontSize: '2.5rem',
           fontWeight: 800,
-          color: '#ffffff',
+          color: 'var(--color-text)',
           marginBottom: '2.5rem',
           letterSpacing: '-0.02em'
         }}
@@ -25,8 +25,8 @@ export default function FarmerNotificationsView({ notificationsList }) {
       {/* Container Box */}
       <div
         style={{
-          backgroundColor: '#131d35',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: '20px',
           overflow: 'hidden'
         }}
@@ -38,23 +38,23 @@ export default function FarmerNotificationsView({ notificationsList }) {
                 key={n._id || n.id || i}
                 style={{
                   padding: '1.4rem 2rem',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderBottom: '1px solid var(--color-border)',
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: '1rem'
                 }}
               >
                 <div style={{ marginTop: '2px' }}>
-                  <Bell size={20} color="#10b981" />
+                  <Bell size={20} color="var(--color-primary)" />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#ffffff', marginBottom: '4px' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '4px' }}>
                     {n.title}
                   </h4>
-                  <p style={{ fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', lineHeight: 1.5 }}>
                     {n.message}
                   </p>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '6px' }}>
                     {new Date(n.timestamp).toLocaleString()}
                   </div>
                 </div>
@@ -67,7 +67,7 @@ export default function FarmerNotificationsView({ notificationsList }) {
             style={{
               padding: '7rem 2rem',
               textAlign: 'center',
-              color: '#94a3b8',
+              color: 'var(--color-muted)',
               fontSize: '0.95rem'
             }}
           >

@@ -11,6 +11,12 @@ AgriRentGov is a premium, state-of-the-art web application designed to help farm
 *   **Smart Profiles:** Eliminates redundant data input. Farmer ID, Mobile Number, District, and Address are automatically populated from the user session.
 *   **District Filters:** Tailored for the state of **Tamil Nadu** (supporting Chennai, Coimbatore, Madurai, Salem, Vellore, Thanjavur, and more).
 
+### ✨ Recent Updates
+*   **Fully Responsive UI:** Seamless experience across desktop, tablet, and mobile devices.
+*   **Enhanced Stability:** Integrated App-level error boundaries to gracefully handle rendering issues.
+*   **Improved Booking & Payments:** Refined logic for edge cases in equipment bookings and upfront payments.
+*   **API Proxy Integration:** Zero-CORS overhead with local proxying to the Express backend.
+
 ### 👥 Role-Based Access Portals
 *   **Farmer Portal:** Manage active rentals, view order dispatches, and check upfront invoices.
 *   **Equipment Operator Portal:** Log daily engine working hours, view route maps, and accept auto-dispatched job tasks.
@@ -59,7 +65,7 @@ cd frontend
 npm install
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:5174](http://localhost:5174) in your browser. (Note: The frontend server now runs on port 5174 and automatically proxies `/api` requests to the backend).
 
 ---
 

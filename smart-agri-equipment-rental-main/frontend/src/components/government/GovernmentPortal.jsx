@@ -41,7 +41,7 @@ export default function GovernmentPortal({ user, onLogout }) {
       {
         label: 'Total Bookings',
         data: stats?.districtWiseUsage?.map(d => d.bookings) || [35, 20, 25],
-        backgroundColor: '#10b981',
+        backgroundColor: 'var(--color-primary)',
         borderColor: '#059669',
         borderWidth: 1
       }
@@ -53,29 +53,29 @@ export default function GovernmentPortal({ user, onLogout }) {
     datasets: [
       {
         data: stats ? [stats.equipmentUtilization.inUse, stats.equipmentUtilization.reserved, stats.equipmentUtilization.available, stats.equipmentUtilization.maintenance] : [3, 2, 5, 1],
-        backgroundColor: ['#f59e0b', '#38bdf8', '#10b981', '#ef4444'],
+        backgroundColor: ['#f59e0b', '#38bdf8', 'var(--color-primary)', '#ef4444'],
         hoverOffset: 4
       }
     ]
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-dark)', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-dark)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" />
       {/* Top Header */}
-      <header style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem 2rem' }}>
+      <header style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem' }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
             <Landmark size={28} color="#38bdf8" />
             <div>
               <span style={{ fontSize: '1.25rem', fontWeight: 800 }}>AgriRent Government Monitoring Platform</span>
-              <span style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8' }}>OFFICIAL STATE DASHBOARD</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-muted)' }}>OFFICIAL STATE DASHBOARD</span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <div style={{ textAlign: 'right' }}>
               <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700 }}>{user?.name}</span>
-              <span style={{ display: 'block', fontSize: '0.75rem', color: '#38bdf8' }}>State Auditor / Officer</span>
+              <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-info)' }}>State Auditor / Officer</span>
             </div>
             <button
               onClick={() => {
@@ -83,9 +83,9 @@ export default function GovernmentPortal({ user, onLogout }) {
                 onLogout();
               }}
               style={{
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
-                color: '#ef4444',
+                backgroundColor: 'var(--color-danger-bg)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-danger)',
                 padding: '0.5rem 1rem',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -105,7 +105,7 @@ export default function GovernmentPortal({ user, onLogout }) {
       <div style={{ display: 'flex', flexGrow: 1, maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
         
         {/* Sidebar Navigation */}
-        <aside style={{ width: '260px', backgroundColor: '#0f172a', padding: '2rem 1.5rem', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+        <aside style={{ width: '260px', backgroundColor: 'var(--color-surface)', padding: '2rem 1.5rem', borderRight: '1px solid var(--color-border)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             <button
               onClick={() => setActiveTab('dashboard')}
@@ -114,7 +114,7 @@ export default function GovernmentPortal({ user, onLogout }) {
                 padding: '0.75rem 1rem',
                 borderRadius: '10px',
                 border: 'none',
-                backgroundColor: activeTab === 'dashboard' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                backgroundColor: activeTab === 'dashboard' ? 'var(--color-info-bg)' : 'transparent',
                 color: activeTab === 'dashboard' ? '#38bdf8' : '#cbd5e1',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -133,7 +133,7 @@ export default function GovernmentPortal({ user, onLogout }) {
                 padding: '0.75rem 1rem',
                 borderRadius: '10px',
                 border: 'none',
-                backgroundColor: activeTab === 'utilization' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                backgroundColor: activeTab === 'utilization' ? 'var(--color-info-bg)' : 'transparent',
                 color: activeTab === 'utilization' ? '#38bdf8' : '#cbd5e1',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -152,7 +152,7 @@ export default function GovernmentPortal({ user, onLogout }) {
                 padding: '0.75rem 1rem',
                 borderRadius: '10px',
                 border: 'none',
-                backgroundColor: activeTab === 'revenue' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                backgroundColor: activeTab === 'revenue' ? 'var(--color-info-bg)' : 'transparent',
                 color: activeTab === 'revenue' ? '#38bdf8' : '#cbd5e1',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -171,7 +171,7 @@ export default function GovernmentPortal({ user, onLogout }) {
                 padding: '0.75rem 1rem',
                 borderRadius: '10px',
                 border: 'none',
-                backgroundColor: activeTab === 'audits' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                backgroundColor: activeTab === 'audits' ? 'var(--color-info-bg)' : 'transparent',
                 color: activeTab === 'audits' ? '#38bdf8' : '#cbd5e1',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -199,8 +199,8 @@ export default function GovernmentPortal({ user, onLogout }) {
             <button
               onClick={handleExportExcel}
               style={{
-                backgroundColor: '#10b981',
-                color: '#fff',
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text)',
                 border: 'none',
                 padding: '0.6rem 1.2rem',
                 borderRadius: '8px',
@@ -225,37 +225,37 @@ export default function GovernmentPortal({ user, onLogout }) {
               {activeTab === 'dashboard' && (
                 <div>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>State Districts</span>
-                      <span style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8' }}>5 Districts</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>State Districts</span>
+                      <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-info)' }}>5 Districts</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Active Cooperatives</span>
-                      <span style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981' }}>12 Hubs</span>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Active Cooperatives</span>
+                      <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary)' }}>12 Hubs</span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>State Machinery Count</span>
-                      <span style={{ fontSize: '2rem', fontWeight: 800, color: '#f59e0b' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>State Machinery Count</span>
+                      <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>
                         {stats?.equipmentUtilization?.total || 0} units
                       </span>
                     </div>
-                    <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Utilization Percentage</span>
-                      <span style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                      <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Utilization Percentage</span>
+                      <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-info)' }}>
                         {stats?.equipmentUtilization?.utilizationRate || 0}%
                       </span>
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.7fr', gap: '2rem' }}>
-                    <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                       <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 700 }}>Total Bookings by District</h4>
                       <div style={{ height: '300px' }}>
                         <Bar data={districtChartData} options={{ responsive: true, maintainAspectRatio: false }} />
                       </div>
                     </div>
 
-                    <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                       <h4 style={{ marginBottom: '1.5rem', fontSize: '1.1rem', fontWeight: 700 }}>State Machinery Status Ratio</h4>
                       <div style={{ height: '260px', display: 'flex', justifyContent: 'center' }}>
                         <Pie data={utilizationChartData} options={{ responsive: true, maintainAspectRatio: false }} />
@@ -266,55 +266,55 @@ export default function GovernmentPortal({ user, onLogout }) {
               )}
 
               {activeTab === 'utilization' && (
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                   <h3 style={{ marginBottom: '1.5rem' }}>Active Equipment Utilization Summary</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '2rem' }}>
-                    <div style={{ padding: '1rem', backgroundColor: '#0f172a', borderRadius: '12px' }}>
-                      <span style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem' }}>In Use Count</span>
-                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f59e0b' }}>{stats?.equipmentUtilization?.inUse}</span>
+                    <div style={{ padding: '1rem', backgroundColor: 'var(--color-surface)', borderRadius: '12px' }}>
+                      <span style={{ display: 'block', color: 'var(--color-muted)', fontSize: '0.8rem' }}>In Use Count</span>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-warning)' }}>{stats?.equipmentUtilization?.inUse}</span>
                     </div>
-                    <div style={{ padding: '1rem', backgroundColor: '#0f172a', borderRadius: '12px' }}>
-                      <span style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem' }}>Reserved Count</span>
-                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#38bdf8' }}>{stats?.equipmentUtilization?.reserved}</span>
+                    <div style={{ padding: '1rem', backgroundColor: 'var(--color-surface)', borderRadius: '12px' }}>
+                      <span style={{ display: 'block', color: 'var(--color-muted)', fontSize: '0.8rem' }}>Reserved Count</span>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-info)' }}>{stats?.equipmentUtilization?.reserved}</span>
                     </div>
-                    <div style={{ padding: '1rem', backgroundColor: '#0f172a', borderRadius: '12px' }}>
-                      <span style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem' }}>Available Count</span>
-                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#10b981' }}>{stats?.equipmentUtilization?.available}</span>
+                    <div style={{ padding: '1rem', backgroundColor: 'var(--color-surface)', borderRadius: '12px' }}>
+                      <span style={{ display: 'block', color: 'var(--color-muted)', fontSize: '0.8rem' }}>Available Count</span>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)' }}>{stats?.equipmentUtilization?.available}</span>
                     </div>
-                    <div style={{ padding: '1rem', backgroundColor: '#0f172a', borderRadius: '12px' }}>
-                      <span style={{ display: 'block', color: '#94a3b8', fontSize: '0.8rem' }}>Under Maintenance</span>
-                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ef4444' }}>{stats?.equipmentUtilization?.maintenance}</span>
+                    <div style={{ padding: '1rem', backgroundColor: 'var(--color-surface)', borderRadius: '12px' }}>
+                      <span style={{ display: 'block', color: 'var(--color-muted)', fontSize: '0.8rem' }}>Under Maintenance</span>
+                      <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-danger)' }}>{stats?.equipmentUtilization?.maintenance}</span>
                     </div>
                   </div>
                 </div>
               )}
 
               {activeTab === 'revenue' && (
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                    <h3>Financial Ledger Summary</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginTop: '1.5rem', marginBottom: '2rem' }}>
-                    <div style={{ padding: '1.5rem', backgroundColor: '#0f172a', borderRadius: '16px' }}>
-                      <span style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem' }}>Total Platform Invoiced</span>
-                      <span style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8' }}>₹{stats?.revenue?.totalRevenue || 0}</span>
+                    <div style={{ padding: '1.5rem', backgroundColor: 'var(--color-surface)', borderRadius: '16px' }}>
+                      <span style={{ display: 'block', color: 'var(--color-muted)', fontSize: '0.85rem' }}>Total Platform Invoiced</span>
+                      <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-info)' }}>₹{stats?.revenue?.totalRevenue || 0}</span>
                     </div>
-                    <div style={{ padding: '1.5rem', backgroundColor: '#0f172a', borderRadius: '16px' }}>
-                      <span style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem' }}>Total Paid (Disbursed)</span>
-                      <span style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981' }}>₹{stats?.revenue?.paid || 0}</span>
+                    <div style={{ padding: '1.5rem', backgroundColor: 'var(--color-surface)', borderRadius: '16px' }}>
+                      <span style={{ display: 'block', color: 'var(--color-muted)', fontSize: '0.85rem' }}>Total Paid (Disbursed)</span>
+                      <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary)' }}>₹{stats?.revenue?.paid || 0}</span>
                     </div>
-                    <div style={{ padding: '1.5rem', backgroundColor: '#0f172a', borderRadius: '16px' }}>
-                      <span style={{ display: 'block', color: '#94a3b8', fontSize: '0.85rem' }}>Pending Collectibles</span>
-                      <span style={{ fontSize: '2rem', fontWeight: 800, color: '#ef4444' }}>₹{stats?.revenue?.pending || 0}</span>
+                    <div style={{ padding: '1.5rem', backgroundColor: 'var(--color-surface)', borderRadius: '16px' }}>
+                      <span style={{ display: 'block', color: 'var(--color-muted)', fontSize: '0.85rem' }}>Pending Collectibles</span>
+                      <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-danger)' }}>₹{stats?.revenue?.pending || 0}</span>
                     </div>
                   </div>
                 </div>
               )}
 
               {activeTab === 'audits' && (
-                <div style={{ backgroundColor: '#131d35', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                       <thead>
-                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textAlign: 'left' }}>
+                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                           <th style={{ padding: '0.75rem 1rem' }}>User / Role</th>
                           <th style={{ padding: '0.75rem 1rem' }}>Action</th>
                           <th style={{ padding: '0.75rem 1rem' }}>IP Address</th>
@@ -324,16 +324,16 @@ export default function GovernmentPortal({ user, onLogout }) {
                       </thead>
                       <tbody>
                         {auditLogs.map((log, idx) => (
-                          <tr key={log._id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                          <tr key={log._id || idx} style={{ borderBottom: '1px solid var(--color-border)' }}>
                             <td style={{ padding: '0.75rem 1rem' }}>
                               <span style={{ fontWeight: 700 }}>{log.user}</span>
-                              <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8' }}>{log.role}</span>
+                              <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>{log.role}</span>
                             </td>
                             <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{ color: '#10b981', fontWeight: 600 }}>{log.action}</span>
+                              <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{log.action}</span>
                             </td>
-                            <td style={{ padding: '0.75rem 1rem', color: '#94a3b8' }}>{log.ipAddress}</td>
-                            <td style={{ padding: '0.75rem 1rem', color: '#94a3b8' }}>
+                            <td style={{ padding: '0.75rem 1rem', color: 'var(--color-muted)' }}>{log.ipAddress}</td>
+                            <td style={{ padding: '0.75rem 1rem', color: 'var(--color-muted)' }}>
                               {new Date(log.timestamp).toLocaleString()}
                             </td>
                             <td style={{ padding: '0.75rem 1rem' }}>{log.description}</td>

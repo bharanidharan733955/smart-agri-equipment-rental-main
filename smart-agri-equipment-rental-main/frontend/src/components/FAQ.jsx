@@ -37,7 +37,7 @@ export default function FAQ() {
           style={{
             fontSize: '2.4rem',
             fontWeight: 800,
-            color: '#ffffff',
+            color: 'var(--color-text)',
             marginBottom: '2.5rem',
             letterSpacing: '-0.02em'
           }}
@@ -54,8 +54,8 @@ export default function FAQ() {
               <div
                 key={idx}
                 style={{
-                  backgroundColor: '#131d35',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '16px',
                   overflow: 'hidden',
                   transition: 'all 0.2s ease'
@@ -79,7 +79,7 @@ export default function FAQ() {
                     style={{
                       fontSize: '1.05rem',
                       fontWeight: 700,
-                      color: '#ffffff',
+                      color: 'var(--color-text)',
                       fontFamily: 'var(--font-family)'
                     }}
                   >
@@ -90,7 +90,7 @@ export default function FAQ() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#10b981',
+                      color: 'var(--color-primary)',
                       flexShrink: 0,
                       marginLeft: '1rem'
                     }}
@@ -104,7 +104,7 @@ export default function FAQ() {
                     style={{
                       padding: '0 1.8rem 1.5rem 1.8rem',
                       fontSize: '0.92rem',
-                      color: '#94a3b8',
+                      color: 'var(--color-muted)',
                       lineHeight: 1.6,
                       borderTop: '1px solid rgba(255, 255, 255, 0.04)',
                       paddingTop: '1rem'

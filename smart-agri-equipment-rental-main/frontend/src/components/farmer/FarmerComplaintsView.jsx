@@ -27,7 +27,7 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
             style={{
               fontSize: '2.5rem',
               fontWeight: 800,
-              color: '#ffffff',
+              color: 'var(--color-text)',
               letterSpacing: '-0.02em'
             }}
           >
@@ -49,8 +49,8 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
       {/* Complaints Table Container */}
       <div
         style={{
-          backgroundColor: '#131d35',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: '20px',
           overflow: 'hidden'
         }}
@@ -61,11 +61,11 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
             display: 'grid',
             gridTemplateColumns: '2fr 1.5fr 1.5fr 1.2fr 1fr 1fr',
             padding: '1.2rem 1.8rem',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            borderBottom: '1px solid var(--color-border)',
             fontSize: '0.78rem',
             fontWeight: 700,
             letterSpacing: '0.08em',
-            color: '#64748b',
+            color: 'var(--color-muted)',
             textTransform: 'uppercase'
           }}
         >
@@ -88,14 +88,14 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
                   gridTemplateColumns: '2fr 1.5fr 1.5fr 1.2fr 1fr 1fr',
                   padding: '1.4rem 1.8rem',
                   alignItems: 'center',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                  borderBottom: '1px solid var(--color-border)',
                   fontSize: '0.9rem'
                 }}
               >
-                <div style={{ fontWeight: 700, color: '#ffffff' }}>{c.subject}</div>
-                <div style={{ color: '#94a3b8' }}>{c.category}</div>
-                <div style={{ color: '#cbd5e1' }}>{c.farmerName}</div>
-                <div style={{ color: '#94a3b8' }}>{c.filedAt}</div>
+                <div style={{ fontWeight: 700, color: 'var(--color-text)' }}>{c.subject}</div>
+                <div style={{ color: 'var(--color-muted)' }}>{c.category}</div>
+                <div style={{ color: 'var(--color-muted)' }}>{c.farmerName}</div>
+                <div style={{ color: 'var(--color-muted)' }}>{c.filedAt}</div>
                 <div>
                   <span
                     style={{
@@ -103,15 +103,15 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
                       fontWeight: 700,
                       padding: '0.25rem 0.75rem',
                       borderRadius: 'var(--radius-pill)',
-                      backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                      color: '#10b981',
-                      border: '1px solid rgba(16, 185, 129, 0.3)'
+                      backgroundColor: 'var(--color-success-bg)',
+                      color: 'var(--color-primary)',
+                      border: '1px solid var(--color-border)'
                     }}
                   >
                     {c.status}
                   </span>
                 </div>
-                <div style={{ color: '#38bdf8', cursor: 'pointer', fontSize: '0.85rem' }}>View</div>
+                <div style={{ color: 'var(--color-info)', cursor: 'pointer', fontSize: '0.85rem' }}>View</div>
               </div>
             ))}
           </div>
@@ -121,7 +121,7 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
             style={{
               padding: '6rem 2rem',
               textAlign: 'center',
-              color: '#94a3b8',
+              color: 'var(--color-muted)',
               fontSize: '0.95rem'
             }}
           >
@@ -137,7 +137,7 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
             position: 'fixed',
             inset: 0,
             zIndex: 200,
-            backgroundColor: 'rgba(8, 14, 28, 0.85)',
+            backgroundColor: 'var(--color-surface)',
             backdropFilter: 'blur(12px)',
             display: 'flex',
             alignItems: 'center',
@@ -149,11 +149,11 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
             style={{
               width: '100%',
               maxWidth: '520px',
-              backgroundColor: '#131d35',
+              backgroundColor: 'var(--color-surface)',
               borderRadius: '20px',
               padding: '2.2rem',
               position: 'relative',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
+              border: '1px solid var(--color-border)',
               boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
             }}
           >
@@ -163,9 +163,9 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
                 position: 'absolute',
                 top: '1.5rem',
                 right: '1.5rem',
-                background: 'rgba(255, 255, 255, 0.08)',
+                background: 'var(--color-border)',
                 border: 'none',
-                color: '#ffffff',
+                color: 'var(--color-text)',
                 width: '34px',
                 height: '34px',
                 borderRadius: '50%',
@@ -179,13 +179,13 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
             </button>
 
             <span className="section-tag">SUPPORT & HELP DESK</span>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.2rem' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.2rem' }}>
               File a Complaint / Issue
             </h2>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                   Subject *
                 </label>
                 <input
@@ -198,9 +198,9 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
                     width: '100%',
                     padding: '0.7rem 0.9rem',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    color: '#ffffff',
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
                     fontSize: '0.9rem',
                     outline: 'none'
                   }}
@@ -208,7 +208,7 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                   Category *
                 </label>
                 <select
@@ -218,23 +218,23 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
                     width: '100%',
                     padding: '0.7rem 0.9rem',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    color: '#ffffff',
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
                     fontSize: '0.9rem',
                     outline: 'none',
                     cursor: 'pointer'
                   }}
                 >
-                  <option value="Machine Breakdown" style={{ backgroundColor: '#131d35' }}>Machine Breakdown</option>
-                  <option value="Delivery Delay" style={{ backgroundColor: '#131d35' }}>Delivery Delay</option>
-                  <option value="Billing / Payment Issue" style={{ backgroundColor: '#131d35' }}>Billing / Payment Issue</option>
-                  <option value="Cooperative Hub Support" style={{ backgroundColor: '#131d35' }}>Cooperative Hub Support</option>
+                  <option value="Machine Breakdown" style={{ backgroundColor: 'var(--color-surface)' }}>Machine Breakdown</option>
+                  <option value="Delivery Delay" style={{ backgroundColor: 'var(--color-surface)' }}>Delivery Delay</option>
+                  <option value="Billing / Payment Issue" style={{ backgroundColor: 'var(--color-surface)' }}>Billing / Payment Issue</option>
+                  <option value="Cooperative Hub Support" style={{ backgroundColor: 'var(--color-surface)' }}>Cooperative Hub Support</option>
                 </select>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                   Detailed Description *
                 </label>
                 <textarea
@@ -247,9 +247,9 @@ export default function FarmerComplaintsView({ complaintsList, onFileComplaint }
                     width: '100%',
                     padding: '0.7rem 0.9rem',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    color: '#ffffff',
+                    backgroundColor: 'transparent',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
                     fontSize: '0.9rem',
                     outline: 'none',
                     resize: 'vertical'

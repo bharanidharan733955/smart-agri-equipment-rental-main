@@ -20,7 +20,7 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
         style={{
           fontSize: '2.5rem',
           fontWeight: 800,
-          color: '#ffffff',
+          color: 'var(--color-text)',
           marginBottom: '2.5rem',
           letterSpacing: '-0.02em'
         }}
@@ -40,8 +40,8 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
         {/* Card 1: Total Bookings */}
         <div
           style={{
-            backgroundColor: '#131d35',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: '20px',
             padding: '1.8rem 1.5rem'
           }}
@@ -51,20 +51,20 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              backgroundColor: 'var(--color-success-bg)',
+              border: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '1.4rem'
             }}
           >
-            <Calendar size={22} color="#10b981" />
+            <Calendar size={22} color="var(--color-primary)" />
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.1 }}>
             {totalBookings}
           </div>
-          <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.4rem', fontWeight: 500 }}>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: '0.4rem', fontWeight: 500 }}>
             Total Bookings
           </div>
         </div>
@@ -72,8 +72,8 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
         {/* Card 2: Active Rentals */}
         <div
           style={{
-            backgroundColor: '#131d35',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: '20px',
             padding: '1.8rem 1.5rem'
           }}
@@ -83,20 +83,20 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              backgroundColor: 'var(--color-success-bg)',
+              border: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '1.4rem'
             }}
           >
-            <Tractor size={22} color="#10b981" />
+            <Tractor size={22} color="var(--color-primary)" />
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.1 }}>
             {activeRentals}
           </div>
-          <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.4rem', fontWeight: 500 }}>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: '0.4rem', fontWeight: 500 }}>
             Active Rentals
           </div>
         </div>
@@ -104,8 +104,8 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
         {/* Card 3: Completed */}
         <div
           style={{
-            backgroundColor: '#131d35',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: '20px',
             padding: '1.8rem 1.5rem'
           }}
@@ -115,20 +115,20 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              backgroundColor: 'var(--color-success-bg)',
+              border: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '1.4rem'
             }}
           >
-            <TrendingUp size={22} color="#10b981" />
+            <TrendingUp size={22} color="var(--color-primary)" />
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.1 }}>
             {completed}
           </div>
-          <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.4rem', fontWeight: 500 }}>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: '0.4rem', fontWeight: 500 }}>
             Completed
           </div>
         </div>
@@ -136,8 +136,8 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
         {/* Card 4: Total Spent */}
         <div
           style={{
-            backgroundColor: '#131d35',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: '20px',
             padding: '1.8rem 1.5rem'
           }}
@@ -147,20 +147,20 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
               width: '42px',
               height: '42px',
               borderRadius: '12px',
-              backgroundColor: 'rgba(16, 185, 129, 0.15)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
+              backgroundColor: 'var(--color-success-bg)',
+              border: '1px solid var(--color-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               marginBottom: '1.4rem'
             }}
           >
-            <IndianRupee size={22} color="#10b981" />
+            <IndianRupee size={22} color="var(--color-primary)" />
           </div>
-          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
+          <div style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.1 }}>
             ₹{totalSpent}
           </div>
-          <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginTop: '0.4rem', fontWeight: 500 }}>
+          <div style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: '0.4rem', fontWeight: 500 }}>
             Total Spent
           </div>
         </div>
@@ -170,24 +170,24 @@ export default function FarmerDashboardView({ overviewData, onNavigate }) {
       {/* Unread Notifications Panel */}
       <div
         style={{
-          backgroundColor: '#131d35',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: '20px',
           padding: '2rem 2.5rem'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.2rem' }}>
           <Bell size={20} color="#38bdf8" />
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#ffffff' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text)' }}>
             Unread notifications
           </h3>
         </div>
 
-        <div style={{ fontSize: '2.5rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.6rem' }}>
+        <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.6rem' }}>
           {unreadNotifications}
         </div>
 
-        <p style={{ fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.5 }}>
+        <p style={{ fontSize: '0.9rem', color: 'var(--color-muted)', lineHeight: 1.5 }}>
           Head to Notifications to see the latest updates about your bookings.
         </p>
       </div>

@@ -38,7 +38,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'rgba(8, 14, 28, 0.85)',
+        backgroundColor: 'var(--color-surface)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -52,11 +52,11 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
           maxWidth: '600px',
           maxHeight: '90vh',
           overflowY: 'auto',
-          backgroundColor: '#131d35',
+          backgroundColor: 'var(--color-surface)',
           borderRadius: '24px',
           padding: '2.5rem',
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
         }}
       >
@@ -66,9 +66,9 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
             position: 'absolute',
             top: '1.5rem',
             right: '1.5rem',
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-border)',
             border: 'none',
-            color: '#ffffff',
+            color: 'var(--color-text)',
             width: '34px',
             height: '34px',
             borderRadius: '50%',
@@ -82,7 +82,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
         </button>
 
         <span className="section-tag">COOPERATIVE INVENTORY MANAGEMENT</span>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
           Add New Equipment
         </h2>
 
@@ -91,7 +91,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
           {/* Name & Manufacturer */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Equipment Name *
               </label>
               <input
@@ -104,9 +104,9 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -114,7 +114,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Manufacturer / Brand *
               </label>
               <input
@@ -127,9 +127,9 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -140,7 +140,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
           {/* Category & Daily Price */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Category *
               </label>
               <select
@@ -150,27 +150,27 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none',
                   cursor: 'pointer'
                 }}
               >
-                <option value="Tractor" style={{ backgroundColor: '#131d35' }}>Tractor</option>
-                <option value="Cultivator" style={{ backgroundColor: '#131d35' }}>Cultivator</option>
-                <option value="Rotavator" style={{ backgroundColor: '#131d35' }}>Rotavator</option>
-                <option value="Thresher" style={{ backgroundColor: '#131d35' }}>Thresher</option>
-                <option value="Seed Drill" style={{ backgroundColor: '#131d35' }}>Seed Drill</option>
-                <option value="Sprayer" style={{ backgroundColor: '#131d35' }}>Sprayer</option>
-                <option value="Harvester" style={{ backgroundColor: '#131d35' }}>Harvester</option>
-                <option value="Power Tiller" style={{ backgroundColor: '#131d35' }}>Power Tiller</option>
+                <option value="Tractor" style={{ backgroundColor: 'var(--color-surface)' }}>Tractor</option>
+                <option value="Cultivator" style={{ backgroundColor: 'var(--color-surface)' }}>Cultivator</option>
+                <option value="Rotavator" style={{ backgroundColor: 'var(--color-surface)' }}>Rotavator</option>
+                <option value="Thresher" style={{ backgroundColor: 'var(--color-surface)' }}>Thresher</option>
+                <option value="Seed Drill" style={{ backgroundColor: 'var(--color-surface)' }}>Seed Drill</option>
+                <option value="Sprayer" style={{ backgroundColor: 'var(--color-surface)' }}>Sprayer</option>
+                <option value="Harvester" style={{ backgroundColor: 'var(--color-surface)' }}>Harvester</option>
+                <option value="Power Tiller" style={{ backgroundColor: 'var(--color-surface)' }}>Power Tiller</option>
               </select>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Daily Cooperative Rate (₹) *
               </label>
               <input
@@ -184,9 +184,9 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -197,7 +197,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
           {/* Condition & Initial Status */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Equipment Condition *
               </label>
               <select
@@ -207,23 +207,23 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none',
                   cursor: 'pointer'
                 }}
               >
-                <option value="excellent" style={{ backgroundColor: '#131d35' }}>Excellent</option>
-                <option value="good" style={{ backgroundColor: '#131d35' }}>Good</option>
-                <option value="fair" style={{ backgroundColor: '#131d35' }}>Fair</option>
-                <option value="needs_service" style={{ backgroundColor: '#131d35' }}>Needs Service</option>
+                <option value="excellent" style={{ backgroundColor: 'var(--color-surface)' }}>Excellent</option>
+                <option value="good" style={{ backgroundColor: 'var(--color-surface)' }}>Good</option>
+                <option value="fair" style={{ backgroundColor: 'var(--color-surface)' }}>Fair</option>
+                <option value="needs_service" style={{ backgroundColor: 'var(--color-surface)' }}>Needs Service</option>
               </select>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Initial Status *
               </label>
               <select
@@ -233,23 +233,23 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none',
                   cursor: 'pointer'
                 }}
               >
-                <option value="Available" style={{ backgroundColor: '#131d35' }}>Available</option>
-                <option value="Under Maintenance" style={{ backgroundColor: '#131d35' }}>Under Maintenance</option>
+                <option value="Available" style={{ backgroundColor: 'var(--color-surface)' }}>Available</option>
+                <option value="Under Maintenance" style={{ backgroundColor: 'var(--color-surface)' }}>Under Maintenance</option>
               </select>
             </div>
           </div>
 
           {/* Hub Location */}
           <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+            <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
               Hub Location *
             </label>
             <input
@@ -261,9 +261,9 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                 width: '100%',
                 padding: '0.7rem 0.9rem',
                 borderRadius: '10px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#ffffff',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
                 fontSize: '0.9rem',
                 outline: 'none'
               }}

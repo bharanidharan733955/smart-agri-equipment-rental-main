@@ -107,22 +107,22 @@ export default function OperatorPortal({ user, onLogout }) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--bg-dark)', color: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" />
       {/* Header */}
-      <header style={{ backgroundColor: 'var(--bg-header)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem 2rem' }}>
+      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem' }}>
         <div style={{ maxWidth: '1350px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <Tractor size={28} color="var(--green-primary)" />
+            <Tractor size={28} color="var(--color-primary)" />
             <div>
-              <span style={{ fontSize: '1.2rem', fontWeight: 800 }}>AgriRent Operator Portal</span>
-              <span style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8' }}>COOPERATIVE FIELD STAFF</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-secondary)' }}>AgriRent Operator Portal</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-muted)' }}>COOPERATIVE FIELD STAFF</span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
             <div style={{ textAlign: 'right' }}>
-              <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700 }}>{user?.name}</span>
-              <span style={{ display: 'block', fontSize: '0.75rem', color: '#10b981' }}>Operator Connected</span>
+              <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-secondary)' }}>{user?.name}</span>
+              <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-success)' }}>Operator Connected</span>
             </div>
             <button
               onClick={() => {
@@ -130,9 +130,9 @@ export default function OperatorPortal({ user, onLogout }) {
                 onLogout();
               }}
               style={{
-                backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.25)',
-                color: '#ef4444',
+                backgroundColor: 'var(--color-danger-bg)',
+                border: '1px solid var(--color-danger)',
+                color: 'var(--color-danger)',
                 padding: '0.5rem 1rem',
                 borderRadius: '8px',
                 cursor: 'pointer',
@@ -154,30 +154,30 @@ export default function OperatorPortal({ user, onLogout }) {
         
         {/* Stats bar */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
-          <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Assigned Jobs</span>
-            <span style={{ fontSize: '2rem', fontWeight: 800, color: '#f59e0b' }}>{stats.today}</span>
+          <div className="agri-card">
+            <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Assigned Jobs</span>
+            <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>{stats.today}</span>
           </div>
-          <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Active Work Session</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: stats.active ? '#10b981' : '#94a3b8' }}>
+          <div className="agri-card">
+            <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Active Work Session</span>
+            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: stats.active ? 'var(--color-success)' : 'var(--color-muted)' }}>
               {stats.active ? '1 In Progress' : 'No Active Job'}
             </span>
           </div>
-          <div style={{ backgroundColor: '#131d35', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <span style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.4rem' }}>Completed Work Orders</span>
-            <span style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981' }}>{stats.completed}</span>
+          <div className="agri-card">
+            <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Completed Work Orders</span>
+            <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-success)' }}>{stats.completed}</span>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', backgroundColor: '#0f172a', padding: '0.4rem', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.07)', width: 'fit-content' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '2rem', backgroundColor: 'var(--color-surface)', padding: '0.4rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', width: 'fit-content' }}>
           <button
             onClick={() => setActiveTab('jobs')}
             style={{
-              padding: '0.6rem 1.4rem', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem',
-              backgroundColor: activeTab === 'jobs' ? '#10b981' : 'transparent',
-              color: activeTab === 'jobs' ? '#fff' : '#94a3b8',
+              padding: '0.6rem 1.4rem', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
+              backgroundColor: activeTab === 'jobs' ? 'var(--color-primary)' : 'transparent',
+              color: activeTab === 'jobs' ? '#fff' : 'var(--color-muted)',
               display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s'
             }}
           >
@@ -187,9 +187,9 @@ export default function OperatorPortal({ user, onLogout }) {
           <button
             onClick={() => setActiveTab('team')}
             style={{
-              padding: '0.6rem 1.4rem', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem',
-              backgroundColor: activeTab === 'team' ? '#10b981' : 'transparent',
-              color: activeTab === 'team' ? '#fff' : '#94a3b8',
+              padding: '0.6rem 1.4rem', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.875rem',
+              backgroundColor: activeTab === 'team' ? 'var(--color-primary)' : 'transparent',
+              color: activeTab === 'team' ? '#fff' : 'var(--color-muted)',
               display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'all 0.2s'
             }}
           >
@@ -200,9 +200,9 @@ export default function OperatorPortal({ user, onLogout }) {
 
         {activeTab === 'jobs' && activeJob ? (
           /* Active job complete report form */
-          <div style={{ backgroundColor: '#131d35', borderRadius: '20px', padding: '2rem', border: '1px solid var(--green-primary)', marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', color: '#10b981' }}>Submit Work Completion Report</h2>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+          <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--green-primary)', marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--color-primary)' }}>Submit Work Completion Report</h2>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
               Job ID: {activeJob._id || activeJob.id} | Booking Date: {activeJob.booking?.startDate || 'Today'}
             </p>
             <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
@@ -215,7 +215,7 @@ export default function OperatorPortal({ user, onLogout }) {
                   placeholder="e.g. 15.5"
                   value={fuelUsed}
                   onChange={(e) => setFuelUsed(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                 />
               </div>
               <div>
@@ -223,7 +223,7 @@ export default function OperatorPortal({ user, onLogout }) {
                 <select
                   value={workCompleted}
                   onChange={(e) => setWorkCompleted(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: '#131d35', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                 >
                   <option value="Fully Completed">Fully Completed</option>
                   <option value="Partially Completed">Partially Completed</option>
@@ -235,7 +235,7 @@ export default function OperatorPortal({ user, onLogout }) {
                 <select
                   value={equipmentCondition}
                   onChange={(e) => setEquipmentCondition(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: '#131d35', border: '1px solid rgba(255,255,255,0.12)', color: '#fff' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                 >
                   <option value="Good">Good / Ready</option>
                   <option value="Needs Maintenance">Needs Preventive Maintenance</option>
@@ -248,7 +248,7 @@ export default function OperatorPortal({ user, onLogout }) {
                   placeholder="Describe damage, component failures, or technical faults if any..."
                   value={damageInfo}
                   onChange={(e) => setDamageInfo(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', minHeight: '60px' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', minHeight: '60px' }}
                 />
               </div>
               <div style={{ gridColumn: 'span 2' }}>
@@ -257,7 +257,7 @@ export default function OperatorPortal({ user, onLogout }) {
                   placeholder="Explain work done, land coverage, or machinery status..."
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', minHeight: '80px' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', minHeight: '80px' }}
                 />
               </div>
               <div style={{ gridColumn: 'span 2', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
@@ -265,8 +265,8 @@ export default function OperatorPortal({ user, onLogout }) {
                   type="submit"
                   disabled={actionLoading}
                   style={{
-                    backgroundColor: '#10b981',
-                    color: '#fff',
+                    backgroundColor: 'var(--color-primary)',
+                    color: 'var(--color-text)',
                     padding: '0.8rem 2rem',
                     borderRadius: '30px',
                     border: 'none',
@@ -284,8 +284,8 @@ export default function OperatorPortal({ user, onLogout }) {
                   type="button"
                   onClick={() => setActiveJob(null)}
                   style={{
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    color: '#fff',
+                    backgroundColor: 'var(--color-border)',
+                    color: 'var(--color-text)',
                     padding: '0.8rem 2rem',
                     borderRadius: '30px',
                     border: 'none',
@@ -305,10 +305,10 @@ export default function OperatorPortal({ user, onLogout }) {
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>Assigned Work Orders</h3>
             {loading ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
-                <Loader2 className="animate-spin" size={40} color="#10b981" />
+                <Loader2 className="animate-spin" size={40} color="var(--color-primary)" />
               </div>
             ) : jobs.length === 0 ? (
-              <p style={{ color: '#94a3b8' }}>No work assignments assigned to you at the moment.</p>
+              <p style={{ color: 'var(--color-muted)' }}>No work assignments assigned to you at the moment.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {jobs.map((job) => {
@@ -320,10 +320,10 @@ export default function OperatorPortal({ user, onLogout }) {
                 <div
                   key={job._id || job.id}
                   style={{
-                    backgroundColor: '#131d35',
+                    backgroundColor: 'var(--color-surface)',
                     borderRadius: '16px',
                     padding: '1.5rem',
-                    border: isActive ? '1px solid #10b981' : '1px solid rgba(255, 255, 255, 0.06)',
+                    border: isActive ? '1px solid var(--color-primary)' : '1px solid rgba(255, 255, 255, 0.06)',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
@@ -338,15 +338,15 @@ export default function OperatorPortal({ user, onLogout }) {
                           padding: '0.2rem 0.6rem',
                           borderRadius: '12px',
                           fontWeight: 700,
-                          backgroundColor: isCompleted ? 'rgba(16,185,129,0.1)' : isActive ? 'rgba(56,189,248,0.1)' : 'rgba(245,158,11,0.1)',
-                          color: isCompleted ? '#10b981' : isActive ? '#38bdf8' : '#f59e0b'
+                          backgroundColor: isCompleted ? 'var(--color-success-bg)' : isActive ? 'var(--color-info-bg)' : 'var(--color-warning-bg)',
+                          color: isCompleted ? 'var(--color-primary)' : isActive ? '#38bdf8' : '#f59e0b'
                         }}
                       >
                         {job.status}
                       </span>
                     </div>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem 2rem', fontSize: '0.85rem', color: '#94a3b8' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem 2rem', fontSize: '0.85rem', color: 'var(--color-muted)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <User size={14} />
                         <span>Farmer: {job.farmer?.name || 'Registered Farmer'}</span>
@@ -372,8 +372,8 @@ export default function OperatorPortal({ user, onLogout }) {
                         onClick={() => handleStartJob(job._id || job.id)}
                         disabled={actionLoading}
                         style={{
-                          backgroundColor: '#10b981',
-                          color: '#fff',
+                          backgroundColor: 'var(--color-primary)',
+                          color: 'var(--color-text)',
                           border: 'none',
                           padding: '0.65rem 1.5rem',
                           borderRadius: '8px',
@@ -393,8 +393,8 @@ export default function OperatorPortal({ user, onLogout }) {
                       <button
                         onClick={() => setActiveJob(job)}
                         style={{
-                          backgroundColor: '#38bdf8',
-                          color: '#fff',
+                          backgroundcolor: 'var(--color-info)',
+                          color: 'var(--color-text)',
                           border: 'none',
                           padding: '0.65rem 1.5rem',
                           borderRadius: '8px',
@@ -411,7 +411,7 @@ export default function OperatorPortal({ user, onLogout }) {
                     )}
 
                     {isCompleted && (
-                      <div style={{ textAlign: 'right', fontSize: '0.8rem', color: '#10b981', fontWeight: 600 }}>
+                      <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600 }}>
                         <CheckCircle2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
                         <span>Report Filed</span>
                       </div>
@@ -430,50 +430,50 @@ export default function OperatorPortal({ user, onLogout }) {
           <div>
             <div style={{ marginBottom: '1.5rem' }}>
               <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.3rem' }}>Field Operator Directory</h3>
-              <p style={{ color: '#64748b', fontSize: '0.9rem' }}>All registered equipment operators and their assigned agricultural vehicles.</p>
+              <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>All registered equipment operators and their assigned agricultural vehicles.</p>
             </div>
 
             {teamLoading ? (
               <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-                <Loader2 className="animate-spin" size={40} color="#10b981" />
+                <Loader2 className="animate-spin" size={40} color="var(--color-primary)" />
               </div>
             ) : operatorsTeam.length === 0 ? (
-              <p style={{ color: '#94a3b8', padding: '2rem 0' }}>No operators found in the system.</p>
+              <p style={{ color: 'var(--color-muted)', padding: '2rem 0' }}>No operators found in the system.</p>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '1.5rem' }}>
                 {operatorsTeam.map((op) => (
                   <div
                     key={op._id}
                     style={{
-                      backgroundColor: '#131d35',
+                      backgroundColor: 'var(--color-surface)',
                       borderRadius: '20px',
-                      border: op._id === (user?._id || user?.id) ? '1.5px solid #10b981' : '1px solid rgba(255,255,255,0.07)',
+                      border: op._id === (user?._id || user?.id) ? '1.5px solid var(--color-primary)' : '1px solid rgba(255,255,255,0.07)',
                       overflow: 'hidden',
-                      boxShadow: op._id === (user?._id || user?.id) ? '0 0 20px rgba(16,185,129,0.12)' : 'none',
+                      boxShadow: op._id === (user?._id || user?.id) ? '0 0 20px rgba(21, 128, 61,0.12)' : 'none',
                       transition: 'transform 0.2s, box-shadow 0.2s'
                     }}
                   >
                     {/* Operator Card Header */}
-                    <div style={{ padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(56,189,248,0.05) 100%)', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ padding: '1.25rem 1.5rem', background: 'linear-gradient(135deg, rgba(21, 128, 61,0.08) 0%, rgba(56,189,248,0.05) 100%)', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       {/* Avatar */}
-                      <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.3rem', fontWeight: 800, color: '#fff' }}>
+                      <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary), #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-text)' }}>
                         {op.name.charAt(0)}
                       </div>
                       <div style={{ flexGrow: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '1.05rem', fontWeight: 800 }}>{op.name}</span>
                           {op._id === (user?._id || user?.id) && (
-                            <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '8px', backgroundColor: 'rgba(16,185,129,0.2)', color: '#10b981', fontWeight: 700 }}>You</span>
+                            <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '8px', backgroundColor: 'rgba(21, 128, 61,0.2)', color: 'var(--color-primary)', fontWeight: 700 }}>You</span>
                           )}
-                          <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '8px', backgroundColor: op.isApproved ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: op.isApproved ? '#10b981' : '#ef4444', fontWeight: 700 }}>
+                          <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '8px', backgroundColor: op.isApproved ? 'var(--color-success-bg)' : 'var(--color-danger-bg)', color: op.isApproved ? 'var(--color-primary)' : '#ef4444', fontWeight: 700 }}>
                             {op.isApproved ? 'Active' : 'Pending'}
                           </span>
                         </div>
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '0.3rem', flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--color-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                             <Phone size={11} /> {op.mobile || 'N/A'}
                           </span>
-                          <span style={{ fontSize: '0.78rem', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          <span style={{ fontSize: '0.78rem', color: 'var(--color-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                             <MapPin size={11} /> {op.district || 'N/A'}
                           </span>
                         </div>
@@ -481,14 +481,14 @@ export default function OperatorPortal({ user, onLogout }) {
                       {/* Vehicle count badge */}
                       <div style={{ textAlign: 'center', flexShrink: 0 }}>
                         <div style={{ fontSize: '1.6rem', fontWeight: 900, color: op.assignedVehicles.length > 0 ? '#f59e0b' : '#475569', lineHeight: 1 }}>{op.assignedVehicles.length}</div>
-                        <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>VEHICLES</div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--color-muted)', fontWeight: 600, marginTop: '2px' }}>VEHICLES</div>
                       </div>
                     </div>
 
                     {/* Assigned Vehicles */}
                     <div style={{ padding: '1rem 1.5rem 1.25rem' }}>
                       {op.assignedVehicles.length === 0 ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1rem', borderRadius: '10px', backgroundColor: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.75rem 1rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px dashed rgba(255,255,255,0.1)' }}>
                           <Tractor size={16} color="#475569" />
                           <span style={{ fontSize: '0.82rem', color: '#475569', fontStyle: 'italic' }}>No vehicles assigned yet</span>
                         </div>
@@ -500,18 +500,18 @@ export default function OperatorPortal({ user, onLogout }) {
                               style={{
                                 display: 'flex', alignItems: 'center', gap: '0.85rem',
                                 padding: '0.75rem 1rem', borderRadius: '12px',
-                                backgroundColor: 'rgba(255,255,255,0.03)',
-                                border: '1px solid rgba(255,255,255,0.07)',
+                                backgroundColor: 'var(--color-border)',
+                                border: '1px solid var(--color-border)',
                                 transition: 'background 0.15s'
                               }}
                             >
                               {/* Vehicle icon */}
-                              <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                <Tractor size={18} color="#10b981" />
+                              <div style={{ width: '36px', height: '36px', borderRadius: '10px', backgroundColor: 'var(--color-success-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                <Tractor size={18} color="var(--color-primary)" />
                               </div>
                               <div style={{ flexGrow: 1, minWidth: 0 }}>
                                 <div style={{ fontWeight: 700, fontSize: '0.88rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{vehicle.name}</div>
-                                <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '1px' }}>
+                                <div style={{ fontSize: '0.74rem', color: 'var(--color-muted)', marginTop: '1px' }}>
                                   {vehicle.brand} {vehicle.model} &bull; {vehicle.regNumber}
                                 </div>
                               </div>
@@ -519,17 +519,17 @@ export default function OperatorPortal({ user, onLogout }) {
                                 <span style={{
                                   fontSize: '0.65rem', padding: '0.18rem 0.55rem', borderRadius: '8px', fontWeight: 700,
                                   backgroundColor:
-                                    vehicle.status === 'Available' ? 'rgba(16,185,129,0.12)' :
-                                    vehicle.status === 'In Use' ? 'rgba(56,189,248,0.12)' :
-                                    vehicle.status === 'Under Maintenance' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
+                                    vehicle.status === 'Available' ? 'var(--color-success-bg)' :
+                                    vehicle.status === 'In Use' ? 'var(--color-info-bg)' :
+                                    vehicle.status === 'Under Maintenance' ? 'var(--color-danger-bg)' : 'var(--color-warning-bg)',
                                   color:
-                                    vehicle.status === 'Available' ? '#10b981' :
+                                    vehicle.status === 'Available' ? 'var(--color-primary)' :
                                     vehicle.status === 'In Use' ? '#38bdf8' :
                                     vehicle.status === 'Under Maintenance' ? '#ef4444' : '#f59e0b'
                                 }}>
                                   {vehicle.status}
                                 </span>
-                                <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>₹{vehicle.rentalRate}/day</span>
+                                <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)' }}>₹{vehicle.rentalRate}/day</span>
                                 <span style={{ fontSize: '0.65rem', color: '#475569', display: 'flex', alignItems: 'center', gap: '2px' }}>
                                   <Clock size={10} /> {vehicle.totalUsageHours}h used
                                 </span>

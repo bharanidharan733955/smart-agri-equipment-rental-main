@@ -26,7 +26,7 @@ export default function ContactForm() {
             <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#34d399', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
               WE ARE HERE TO HELP
             </span>
-            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#ffffff', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--color-text)', marginTop: '0.5rem', marginBottom: '1.5rem' }}>
               Talk with an AgriRent Specialist
             </h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.6 }}>
@@ -35,32 +35,32 @@ export default function ContactForm() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(52, 211, 153, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--color-success-bg)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Phone size={22} color="#34d399" />
                 </div>
                 <div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase' }}>Direct Support Line</div>
-                  <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>+1 (800) 555-AGRI</div>
+                  <div style={{ fontSize: '1.1rem', color: 'var(--color-text)', fontWeight: 700 }}>+1 (800) 555-AGRI</div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(6, 182, 212, 0.15)', border: '1px solid rgba(56, 189, 248, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(6, 182, 212, 0.15)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Mail size={22} color="#38bdf8" />
                 </div>
                 <div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase' }}>Email Dispatch</div>
-                  <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>support@agrirent-smart.com</div>
+                  <div style={{ fontSize: '1.1rem', color: 'var(--color-text)', fontWeight: 700 }}>support@agrirent-smart.com</div>
                 </div>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(52, 211, 153, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--color-success-bg)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <MapPin size={22} color="#34d399" />
                 </div>
                 <div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontWeight: 700, textTransform: 'uppercase' }}>Regional Hub</div>
-                  <div style={{ fontSize: '1.1rem', color: '#fff', fontWeight: 700 }}>Midwest Logistics Center, Des Moines, IA</div>
+                  <div style={{ fontSize: '1.1rem', color: 'var(--color-text)', fontWeight: 700 }}>Midwest Logistics Center, Des Moines, IA</div>
                 </div>
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function ContactForm() {
             {submitted ? (
               <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
                 <CheckCircle2 size={54} color="#34d399" style={{ margin: '0 auto 1.5rem' }} />
-                <h3 style={{ fontSize: '1.6rem', color: '#fff', fontWeight: 700, marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1.6rem', color: 'var(--color-text)', fontWeight: 700, marginBottom: '0.5rem' }}>
                   Message Transmitted!
                 </h3>
                 <p style={{ color: 'var(--text-muted)' }}>
@@ -85,7 +85,7 @@ export default function ContactForm() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.5rem' }}>
                   Send a Field Message
                 </h3>
 
@@ -104,9 +104,9 @@ export default function ContactForm() {
                         width: '100%',
                         padding: '0.75rem',
                         borderRadius: 'var(--radius-md)',
-                        background: 'rgba(255,255,255,0.06)',
+                        background: 'var(--color-border)',
                         border: '1px solid var(--border-glass)',
-                        color: '#fff',
+                        color: 'var(--color-text)',
                         outline: 'none'
                       }}
                     />
@@ -125,9 +125,9 @@ export default function ContactForm() {
                         width: '100%',
                         padding: '0.75rem',
                         borderRadius: 'var(--radius-md)',
-                        background: 'rgba(255,255,255,0.06)',
+                        background: 'var(--color-border)',
                         border: '1px solid var(--border-glass)',
-                        color: '#fff',
+                        color: 'var(--color-text)',
                         outline: 'none'
                       }}
                     />
@@ -147,7 +147,7 @@ export default function ContactForm() {
                       borderRadius: 'var(--radius-md)',
                       background: '#0d241a',
                       border: '1px solid var(--border-glass)',
-                      color: '#fff',
+                      color: 'var(--color-text)',
                       outline: 'none'
                     }}
                   >
@@ -172,9 +172,9 @@ export default function ContactForm() {
                       width: '100%',
                       padding: '0.75rem',
                       borderRadius: 'var(--radius-md)',
-                      background: 'rgba(255,255,255,0.06)',
+                      background: 'var(--color-border)',
                       border: '1px solid var(--border-glass)',
-                      color: '#fff',
+                      color: 'var(--color-text)',
                       outline: 'none',
                       resize: 'vertical'
                     }}

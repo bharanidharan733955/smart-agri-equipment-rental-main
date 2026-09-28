@@ -31,7 +31,7 @@ export default function CoopEquipmentView({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  const statusTabs = ['All', 'Available', 'Under Maintenance', 'Rented'];
+  const statusTabs = ['All', 'Available', 'Rented'];
 
   const filteredItems = equipmentList.filter(item => {
     const matchesStatus = statusFilter === 'All' || item.status.toLowerCase() === statusFilter.toLowerCase();
@@ -48,7 +48,7 @@ export default function CoopEquipmentView({
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '2rem' }}>
         <div>
           <span className="section-tag">HUB EQUIPMENT MANAGEMENT</span>
-          <h1 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
             Equipment Inventory
           </h1>
         </div>
@@ -68,40 +68,30 @@ export default function CoopEquipmentView({
         const totalUnitsSum = equipmentList.reduce((sum, e) => sum + (e.totalUnits || 0), 0);
         const totalTypes = equipmentList.length;
         const availableCount = equipmentList.filter(e => e.status === 'Available').length;
-        const maintCount = equipmentList.filter(e => e.status === 'Under Maintenance').length;
         const rentedCount = equipmentList.filter(e => e.status === 'In Use' || e.status === 'Rented' || e.status === 'Reserved').length;
         return (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem', marginBottom: '2.5rem' }}>
             {/* Card 1: Types */}
-            <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600, textTransform: 'uppercase' }}>Equipment Types</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#ffffff', marginTop: '0.2rem' }}>{totalTypes}</div>
-              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>Unique categories</div>
+            <div style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '16px', padding: '1.4rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Equipment Types</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-text)', marginTop: '0.2rem' }}>{totalTypes}</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '4px' }}>Unique categories</div>
             </div>
 
             {/* Card 2: Total Units */}
-            <div style={{ backgroundColor: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '16px', padding: '1.4rem' }}>
-              <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600, textTransform: 'uppercase' }}>Total Units</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginTop: '0.2rem' }}>{totalUnitsSum}</div>
-              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>15 units × {totalTypes} types</div>
+            <div style={{ backgroundColor: 'rgba(21, 128, 61,0.07)', border: '1px solid var(--color-border)', borderRadius: '16px', padding: '1.4rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600, textTransform: 'uppercase' }}>Total Units</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary)', marginTop: '0.2rem' }}>{totalUnitsSum}</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '4px' }}>15 units × {totalTypes} types</div>
             </div>
 
-            {/* Card 3: Under Maintenance */}
-            <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
-              <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600, textTransform: 'uppercase' }}>Under Maintenance</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#f59e0b', marginTop: '0.2rem' }}>
-                {stats?.underMaintenance ?? maintCount}
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>Equipment types</div>
-            </div>
-
-            {/* Card 4: Active Rentals */}
-            <div style={{ backgroundColor: '#131d35', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.4rem' }}>
-              <div style={{ fontSize: '0.8rem', color: '#38bdf8', fontWeight: 600, textTransform: 'uppercase' }}>Active Rentals</div>
-              <div style={{ fontSize: '2rem', fontWeight: 800, color: '#38bdf8', marginTop: '0.2rem' }}>
+            {/* Card 3: Active Rentals */}
+            <div style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '16px', padding: '1.4rem' }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--color-info)', fontWeight: 600, textTransform: 'uppercase' }}>Active Rentals</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-info)', marginTop: '0.2rem' }}>
                 {stats?.activeRentals ?? rentedCount}
               </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '4px' }}>Currently in use</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '4px' }}>Currently in use</div>
             </div>
           </div>
         );
@@ -110,8 +100,8 @@ export default function CoopEquipmentView({
       {/* Filter & Search Bar */}
       <div
         style={{
-          backgroundColor: '#131d35',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: '16px',
           padding: '1rem 1.25rem',
           display: 'flex',
@@ -133,7 +123,7 @@ export default function CoopEquipmentView({
                 style={{
                   padding: '0.5rem 1.2rem',
                   borderRadius: 'var(--radius-pill)',
-                  backgroundColor: isActive ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                  backgroundColor: isActive ? 'var(--color-info-bg)' : 'transparent',
                   border: isActive ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
                   color: isActive ? '#38bdf8' : '#94a3b8',
                   fontWeight: isActive ? 700 : 500,
@@ -160,9 +150,9 @@ export default function CoopEquipmentView({
               width: '100%',
               padding: '0.65rem 1rem 0.65rem 2.8rem',
               borderRadius: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#ffffff',
+              backgroundColor: 'var(--color-border)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text)',
               fontSize: '0.88rem',
               outline: 'none'
             }}
@@ -180,8 +170,8 @@ export default function CoopEquipmentView({
             <div
               key={item._id || item.id}
               style={{
-                backgroundColor: '#131d35',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                backgroundColor: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
                 borderRadius: '20px',
                 padding: '1.5rem 1.8rem',
                 display: 'grid',
@@ -190,8 +180,8 @@ export default function CoopEquipmentView({
                 gap: '1.8rem',
                 transition: 'all 0.2s ease'
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)')}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)')}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
             >
               {/* Title & Hub info (Clickable to view details) */}
               <div>
@@ -200,18 +190,18 @@ export default function CoopEquipmentView({
                   style={{
                     fontSize: '1.15rem',
                     fontWeight: 800,
-                    color: '#ffffff',
+                    color: 'var(--color-text)',
                     marginBottom: '4px',
                     cursor: 'pointer',
                     transition: 'color 0.2s ease'
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#10b981')}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--color-primary)')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = '#ffffff')}
                 >
                   {item.name}
                 </h3>
-                <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-                  Category: <span style={{ color: '#ffffff', fontWeight: 600 }}>{item.category}</span>
+                <div style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>
+                  Category: <span style={{ color: 'var(--color-text)', fontWeight: 600 }}>{item.category}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '5px' }}>
                   <span style={{
@@ -219,72 +209,44 @@ export default function CoopEquipmentView({
                     fontWeight: 700,
                     padding: '2px 8px',
                     borderRadius: 'var(--radius-pill)',
-                    backgroundColor: 'rgba(16,185,129,0.12)',
-                    border: '1px solid rgba(16,185,129,0.25)',
-                    color: '#10b981'
+                    backgroundColor: 'var(--color-success-bg)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-primary)'
                   }}>
                     {item.units ? item.units.filter(u => u.status === 'Available').length : (item.totalUnits || 15)} units available
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>{item.cooperativeHub || item.location}</span>
+                  <span style={{ fontSize: '0.72rem', color: 'var(--color-muted)' }}>{item.cooperativeHub || item.location}</span>
                 </div>
               </div>
 
               {/* Rate & Serial */}
               <div>
-                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#10b981' }}>
-                  ₹{item.rentalRate || item.price || item.pricePerDay}<span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 400 }}>/day</span>
+                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-primary)' }}>
+                  ₹{item.rentalRate || item.price || item.pricePerDay}<span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 400 }}>/day</span>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '2px' }}>
                   Brand: {item.manufacturer || 'Standard'}
                 </div>
               </div>
 
-              {/* Status Badge + Usage Hours Progress */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                {/* Status Badge */}
-                <div>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: 'var(--radius-pill)',
-                      backgroundColor: isAvailable ? 'rgba(16, 185, 129, 0.15)' : isMaintenance ? 'rgba(245, 158, 11, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-                      color: isAvailable ? '#10b981' : isMaintenance ? '#f59e0b' : '#38bdf8',
-                      border: isAvailable ? '1px solid rgba(16, 185, 129, 0.3)' : isMaintenance ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)'
-                    }}
-                  >
-                    {item.status}
-                  </span>
-                </div>
-
-                {/* Usage Hours Progress toward 350hr threshold */}
-                {(() => {
-                  const THRESHOLD = 350;
-                  const hours = item.totalUsageHours || 0;
-                  const pct = Math.min((hours / THRESHOLD) * 100, 100);
-                  const nearLimit = pct >= 80;
-                  const barColor = pct >= 100 ? '#ef4444' : nearLimit ? '#f59e0b' : '#10b981';
-                  return (
-                    <div style={{ minWidth: '130px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
-                        <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Usage hrs</span>
-                        <span style={{ fontSize: '0.68rem', color: barColor, fontWeight: 700 }}>{hours} / {THRESHOLD}h</span>
-                      </div>
-                      <div style={{ height: '5px', borderRadius: '99px', backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${pct}%`, backgroundColor: barColor, borderRadius: '99px', transition: 'width 0.4s ease' }} />
-                      </div>
-                      {nearLimit && (
-                        <div style={{ fontSize: '0.65rem', color: '#f59e0b', marginTop: '3px', fontWeight: 600 }}>
-                          ⚠ {pct >= 100 ? 'Sent to Maintenance' : `${THRESHOLD - hours}h to maintenance`}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
+              {/* Status Badge */}
+              <div>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: 'var(--radius-pill)',
+                    backgroundColor: isAvailable ? 'var(--color-success-bg)' : isMaintenance ? 'var(--color-warning-bg)' : 'var(--color-info-bg)',
+                    color: isAvailable ? 'var(--color-primary)' : isMaintenance ? '#f59e0b' : '#38bdf8',
+                    border: isAvailable ? '1px solid rgba(21, 128, 61, 0.3)' : isMaintenance ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)'
+                  }}
+                >
+                  {item.status}
+                </span>
               </div>
 
-              {/* Action Buttons Toolbar (View, Edit, Image, Mark Available, Mark Maintenance, Delete) */}
+              {/* Action Buttons Toolbar (View, Edit, Mark Available, Delete) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
 
                 {/* 👁️ View Details */}
@@ -292,9 +254,9 @@ export default function CoopEquipmentView({
                   title="View Details"
                   onClick={() => onViewDetails(item)}
                   style={{
-                    backgroundColor: 'rgba(56, 189, 248, 0.12)',
-                    border: '1px solid rgba(56, 189, 248, 0.3)',
-                    color: '#38bdf8',
+                    backgroundColor: 'var(--color-info-bg)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-info)',
                     padding: '0.45rem 0.75rem',
                     borderRadius: '8px',
                     cursor: 'pointer',
@@ -314,9 +276,9 @@ export default function CoopEquipmentView({
                   title="Edit Equipment"
                   onClick={() => onEditEquipment(item)}
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    color: '#ffffff',
+                    backgroundColor: 'var(--color-border)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
                     padding: '0.45rem 0.75rem',
                     borderRadius: '8px',
                     cursor: 'pointer',
@@ -331,15 +293,15 @@ export default function CoopEquipmentView({
                   <span>Edit</span>
                 </button>
 
-                {/* Status Toggle Buttons */}
+                {/* Status Toggle Button */}
                 {item.status !== 'Available' && (
                   <button
                     title="Mark Available"
                     onClick={() => onUpdateStatus(item._id || item.id, 'Available')}
                     style={{
-                      backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                      color: '#10b981',
+                      backgroundColor: 'var(--color-success-bg)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-primary)',
                       padding: '0.45rem 0.75rem',
                       borderRadius: '8px',
                       cursor: 'pointer',
@@ -355,60 +317,14 @@ export default function CoopEquipmentView({
                   </button>
                 )}
 
-                {item.status !== 'Under Maintenance' && (
-                  <button
-                    title="Mark Under Maintenance"
-                    onClick={() => onScheduleMaint ? onScheduleMaint(item) : onUpdateStatus(item._id || item.id, 'Under Maintenance')}
-                    style={{
-                      backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                      border: '1px solid rgba(245, 158, 11, 0.3)',
-                      color: '#f59e0b',
-                      padding: '0.45rem 0.75rem',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.35rem',
-                      fontSize: '0.8rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <Wrench size={14} />
-                    <span>Maintenance</span>
-                  </button>
-                )}
-
-                {item.status === 'Under Maintenance' && (
-                  <button
-                    title="Complete Maintenance"
-                    onClick={() => onCompleteMaint ? onCompleteMaint(item._id || item.id) : onUpdateStatus(item._id || item.id, 'Available')}
-                    style={{
-                      backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                      border: '1px solid rgba(16, 185, 129, 0.3)',
-                      color: '#10b981',
-                      padding: '0.45rem 0.75rem',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.35rem',
-                      fontSize: '0.8rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <CheckCircle2 size={14} />
-                    <span>Complete Maint</span>
-                  </button>
-                )}
-
                 {/* 🗑️ Delete Equipment */}
                 <button
                   title="Delete Equipment"
                   onClick={() => onDeleteEquipment(item._id || item.id, item.name)}
                   style={{
-                    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    color: '#ef4444',
+                    backgroundColor: 'var(--color-danger-bg)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-danger)',
                     padding: '0.45rem 0.65rem',
                     borderRadius: '8px',
                     cursor: 'pointer',

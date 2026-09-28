@@ -33,7 +33,7 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
           style={{
             fontSize: '2.5rem',
             fontWeight: 800,
-            color: '#ffffff',
+            color: 'var(--color-text)',
             letterSpacing: '-0.02em',
             margin: 0
           }}
@@ -43,8 +43,8 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
 
         <div
           style={{
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            border: '1px solid rgba(16, 185, 129, 0.2)',
+            backgroundColor: 'var(--color-success-bg)',
+            border: '1px solid var(--color-border)',
             borderRadius: '12px',
             padding: '0.6rem 1.2rem',
             display: 'flex',
@@ -52,16 +52,16 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
             gap: '0.6rem'
           }}
         >
-          <span style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 600 }}>Total Vehicles Available:</span>
-          <span style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: 800 }}>{availableCount}</span>
+          <span style={{ color: 'var(--color-muted)', fontSize: '0.9rem', fontWeight: 600 }}>Total Vehicles Available:</span>
+          <span style={{ color: 'var(--color-primary)', fontSize: '1.25rem', fontWeight: 800 }}>{availableCount}</span>
         </div>
       </div>
 
       {/* Search & Category Filter Bar */}
       <div
         style={{
-          backgroundColor: '#131d35',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
           borderRadius: '16px',
           padding: '1rem 1.25rem',
           display: 'flex',
@@ -86,9 +86,9 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
               width: '100%',
               padding: '0.75rem 1rem 0.75rem 2.8rem',
               borderRadius: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#ffffff',
+              backgroundColor: 'var(--color-border)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text)',
               fontSize: '0.92rem',
               outline: 'none'
             }}
@@ -102,16 +102,16 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
           style={{
             padding: '0.75rem 1.5rem',
             borderRadius: '12px',
-            backgroundColor: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: '#ffffff',
+            backgroundColor: 'var(--color-border)',
+            border: '1px solid var(--color-border)',
+            color: 'var(--color-text)',
             fontSize: '0.92rem',
             outline: 'none',
             cursor: 'pointer'
           }}
         >
           {categories.map(cat => (
-            <option key={cat} value={cat} style={{ backgroundColor: '#131d35', color: '#ffffff' }}>
+            <option key={cat} value={cat} style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)' }}>
               {cat}
             </option>
           ))}
@@ -130,8 +130,8 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
           <div
             key={item.id || item._id}
             style={{
-              backgroundColor: '#131d35',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
               borderRadius: '20px',
               padding: '1.6rem 1.5rem',
               display: 'flex',
@@ -140,11 +140,11 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.borderColor = 'var(--color-border)';
               e.currentTarget.style.transform = 'translateY(-3px)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.borderColor = 'var(--color-border)';
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
@@ -156,35 +156,35 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
                     width: '42px',
                     height: '42px',
                     borderRadius: '12px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    backgroundColor: 'var(--color-success-bg)',
+                    border: '1px solid var(--color-border)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0
                   }}
                 >
-                  <Tractor size={22} color="#10b981" />
+                  <Tractor size={22} color="var(--color-primary)" />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.25 }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.25 }}>
                     {item.name}
                   </h3>
-                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginTop: '2px' }}>
                     {item.category}
                   </div>
                 </div>
               </div>
 
               {/* Location */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#94a3b8', marginBottom: '0.6rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.6rem' }}>
                 <MapPin size={14} color="#94a3b8" />
                 <span>{item.location || item.cooperativeHub || 'Ludhiana Hub'}</span>
               </div>
 
               {/* Price */}
-              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', marginBottom: '1rem' }}>
-                ₹ {item.pricePerDay || item.rentalRate || item.price || 0}<span style={{ fontSize: '0.82rem', fontWeight: 500, color: '#94a3b8' }}>/day</span>
+              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1rem' }}>
+                ₹ {item.pricePerDay || item.rentalRate || item.price || 0}<span style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--color-muted)' }}>/day</span>
               </div>
 
               {/* Badges */}
@@ -195,9 +195,9 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
                     fontWeight: 700,
                     padding: '0.2rem 0.65rem',
                     borderRadius: '20px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    color: '#10b981',
-                    border: '1px solid rgba(16, 185, 129, 0.3)'
+                    backgroundColor: 'var(--color-success-bg)',
+                    color: 'var(--color-primary)',
+                    border: '1px solid var(--color-border)'
                   }}
                 >
                   {item.status || 'Available'}
@@ -209,9 +209,9 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
                     fontWeight: 600,
                     padding: '0.2rem 0.65rem',
                     borderRadius: '20px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                    color: '#cbd5e1',
-                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                    backgroundColor: 'var(--color-border)',
+                    color: 'var(--color-muted)',
+                    border: '1px solid var(--color-border)'
                   }}
                 >
                   {item.condition || 'good'}
@@ -228,7 +228,7 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
                 paddingTop: '1rem'
               }}
             >
-              <span style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 500 }}>
                 {item.manufacturer || item.brand || 'Standard'}
               </span>
 

@@ -61,7 +61,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'rgba(8, 14, 28, 0.85)',
+        backgroundColor: 'var(--color-surface)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -73,11 +73,11 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
         style={{
           width: '100%',
           maxWidth: '580px',
-          backgroundColor: '#131d35',
+          backgroundColor: 'var(--color-surface)',
           borderRadius: '20px',
           padding: '2.2rem',
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
         }}
       >
@@ -88,9 +88,9 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
             position: 'absolute',
             top: '1.5rem',
             right: '1.5rem',
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-border)',
             border: 'none',
-            color: '#ffffff',
+            color: 'var(--color-text)',
             width: '34px',
             height: '34px',
             borderRadius: '50%',
@@ -107,33 +107,33 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
           <div>
             <div style={{ marginBottom: '1.5rem' }}>
               <span className="section-tag">STATE COOPERATIVE RENTAL</span>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ffffff', marginTop: '0.2rem' }}>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginTop: '0.2rem' }}>
                 {equipment ? `Book ${equipment.name}` : 'Book Machinery'}
               </h2>
-              <p style={{ fontSize: '0.88rem', color: '#94a3b8', marginTop: '4px' }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginTop: '4px' }}>
                 Cooperative Rate: ₹{dailyPrice}/day • Immutable Audit Logging
               </p>
             </div>
 
              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
               {/* Logged in Farmer Profile Preview Widget */}
-              <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ backgroundColor: 'var(--color-border)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
                   <div>
-                    <span style={{ color: '#94a3b8', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Farmer Name</span>
-                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{sessionUser?.name || 'Farmer Client'}</span>
+                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Farmer Name</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{sessionUser?.name || 'Farmer Client'}</span>
                   </div>
                   <div>
-                    <span style={{ color: '#94a3b8', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Mobile Number</span>
-                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{sessionUser?.mobile || 'N/A'}</span>
+                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Mobile Number</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{sessionUser?.mobile || 'N/A'}</span>
                   </div>
                   <div>
-                    <span style={{ color: '#94a3b8', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Farmer ID</span>
-                    <span style={{ fontWeight: 700, color: '#38bdf8', fontFamily: 'monospace' }}>{sessionUser?.id || 'N/A'}</span>
+                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Farmer ID</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-info)', fontFamily: 'monospace' }}>{sessionUser?.id || 'N/A'}</span>
                   </div>
                   <div>
-                    <span style={{ color: '#94a3b8', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>District</span>
-                    <span style={{ fontWeight: 700, color: '#ffffff' }}>{sessionUser?.district || 'N/A'}</span>
+                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>District</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{sessionUser?.district || 'N/A'}</span>
                   </div>
                 </div>
               </div>
@@ -141,7 +141,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
               {/* Date & Days */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                     Rental Start Date *
                   </label>
                   <input
@@ -154,9 +154,9 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                       width: '100%',
                       padding: '0.7rem 0.9rem',
                       borderRadius: '10px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: '#ffffff',
+                      backgroundColor: 'transparent',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)',
                       fontSize: '0.9rem',
                       outline: 'none'
                     }}
@@ -164,7 +164,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                     Duration (Days) *
                   </label>
                   <input
@@ -178,9 +178,9 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                       width: '100%',
                       padding: '0.7rem 0.9rem',
                       borderRadius: '10px',
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: '#ffffff',
+                      backgroundColor: 'transparent',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)',
                       fontSize: '0.9rem',
                       outline: 'none'
                     }}
@@ -191,8 +191,8 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
               {/* Summary */}
               <div
                 style={{
-                  backgroundColor: 'rgba(16, 185, 129, 0.08)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
+                  backgroundColor: 'rgba(21, 128, 61, 0.08)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '12px',
                   padding: '1rem 1.25rem',
                   display: 'flex',
@@ -202,12 +202,12 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Total Rental Amount</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#10b981' }}>
+                  <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)' }}>Total Rental Amount</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)' }}>
                     ₹{grandTotal}
                   </div>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-info)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                   <ShieldCheck size={16} />
                   <span>Logged via Express Backend API</span>
                 </div>
@@ -226,18 +226,18 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                 width: '60px',
                 height: '60px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                border: '2px solid #10b981',
+                backgroundColor: 'rgba(21, 128, 61, 0.2)',
+                border: '2px solid var(--color-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.2rem'
               }}
             >
-              <CheckCircle size={36} color="#10b981" />
+              <CheckCircle size={36} color="var(--color-primary)" />
             </div>
 
-            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.4rem' }}>
+            <h3 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.4rem' }}>
               Booking Logged in State Audit Ledger
             </h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.2rem' }}>
@@ -253,7 +253,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                 borderRadius: '10px',
                 fontSize: '1.2rem',
                 fontWeight: 800,
-                color: '#38bdf8',
+                color: 'var(--color-info)',
                 letterSpacing: '0.08em',
                 marginBottom: '1.5rem'
               }}
@@ -261,7 +261,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
               {bookingRef}
             </div>
 
-            <p style={{ fontSize: '0.88rem', color: '#94a3b8', maxWidth: '420px', margin: '0 auto 1.8rem', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', maxWidth: '420px', margin: '0 auto 1.8rem', lineHeight: 1.5 }}>
               Cooperative Hub officer in <strong>{sessionUser?.district || 'your district'}</strong> will dispatch the machine for <strong>{startDate}</strong>.
             </p>
 

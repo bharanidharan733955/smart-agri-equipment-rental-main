@@ -41,7 +41,7 @@ export default function HowItWorks() {
             style={{
               fontSize: '2.4rem',
               fontWeight: 800,
-              color: '#ffffff',
+              color: 'var(--color-text)',
               letterSpacing: '-0.02em',
               maxWidth: '800px'
             }}
@@ -65,8 +65,8 @@ export default function HowItWorks() {
               <div
                 key={item.step}
                 style={{
-                  backgroundColor: '#131d35',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
                   borderRadius: '16px',
                   padding: '2rem 1.6rem',
                   display: 'flex',
@@ -74,7 +74,7 @@ export default function HowItWorks() {
                 }}
               >
                 {/* Step Number */}
-                <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500, marginBottom: '1rem' }}>
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 500, marginBottom: '1rem' }}>
                   {item.step}
                 </div>
 
@@ -84,24 +84,24 @@ export default function HowItWorks() {
                     width: '42px',
                     height: '42px',
                     borderRadius: '10px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    backgroundColor: 'var(--color-success-bg)',
+                    border: '1px solid var(--color-border)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: '1.4rem'
                   }}
                 >
-                  <IconComp size={22} color="#10b981" />
+                  <IconComp size={22} color="var(--color-primary)" />
                 </div>
 
                 {/* Title */}
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#ffffff', marginBottom: '0.6rem' }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.6rem' }}>
                   {item.title}
                 </h3>
 
                 {/* Description */}
-                <p style={{ fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.5, fontWeight: 400 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', lineHeight: 1.5, fontWeight: 400 }}>
                   {item.description}
                 </p>
               </div>

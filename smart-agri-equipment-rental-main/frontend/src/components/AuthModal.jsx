@@ -30,7 +30,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'rgba(8, 14, 28, 0.85)',
+        backgroundColor: 'var(--color-surface)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -42,11 +42,11 @@ export default function AuthModal({ isOpen, mode, onClose }) {
         style={{
           width: '100%',
           maxWidth: '480px',
-          backgroundColor: '#131d35',
+          backgroundColor: 'var(--color-surface)',
           borderRadius: '20px',
           padding: '2.2rem',
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
         }}
       >
@@ -57,9 +57,9 @@ export default function AuthModal({ isOpen, mode, onClose }) {
             position: 'absolute',
             top: '1.5rem',
             right: '1.5rem',
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-border)',
             border: 'none',
-            color: '#ffffff',
+            color: 'var(--color-text)',
             width: '34px',
             height: '34px',
             borderRadius: '50%',
@@ -88,13 +88,13 @@ export default function AuthModal({ isOpen, mode, onClose }) {
               >
                 <Sprout size={20} color="#ffffff" strokeWidth={2.5} />
               </div>
-              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff' }}>AgriRentGov</span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>AgriRentGov</span>
             </div>
 
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.4rem' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.4rem' }}>
               {isFarmerReg ? 'Register as Farmer' : 'Staff / Admin Sign In'}
             </h2>
-            <p style={{ fontSize: '0.88rem', color: '#94a3b8', marginBottom: '1.6rem' }}>
+            <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginBottom: '1.6rem' }}>
               {isFarmerReg
                 ? 'Sign up with your verified profile to access cooperative machinery.'
                 : 'Cooperative Hub Staff and State Administrators Portal Sign In.'}
@@ -104,7 +104,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
               {isFarmerReg ? (
                 <>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                       Farmer Full Name *
                     </label>
                     <input
@@ -117,9 +117,9 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                         width: '100%',
                         padding: '0.7rem 0.9rem',
                         borderRadius: '10px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        color: '#ffffff',
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)',
                         fontSize: '0.9rem',
                         outline: 'none'
                       }}
@@ -127,7 +127,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                       12-Digit Farmer ID *
                     </label>
                     <input
@@ -140,9 +140,9 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                         width: '100%',
                         padding: '0.7rem 0.9rem',
                         borderRadius: '10px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        color: '#ffffff',
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)',
                         fontSize: '0.9rem',
                         outline: 'none'
                       }}
@@ -151,7 +151,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                      <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                         Mobile Number *
                       </label>
                       <input
@@ -164,9 +164,9 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                           width: '100%',
                           padding: '0.7rem 0.9rem',
                           borderRadius: '10px',
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                          border: '1px solid rgba(255, 255, 255, 0.12)',
-                          color: '#ffffff',
+                          backgroundColor: 'transparent',
+                          border: '1px solid var(--color-border)',
+                          color: 'var(--color-text)',
                           fontSize: '0.9rem',
                           outline: 'none'
                         }}
@@ -174,7 +174,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                      <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                         District *
                       </label>
                       <input
@@ -187,9 +187,9 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                           width: '100%',
                           padding: '0.7rem 0.9rem',
                           borderRadius: '10px',
-                          backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                          border: '1px solid rgba(255, 255, 255, 0.12)',
-                          color: '#ffffff',
+                          backgroundColor: 'transparent',
+                          border: '1px solid var(--color-border)',
+                          color: 'var(--color-text)',
                           fontSize: '0.9rem',
                           outline: 'none'
                         }}
@@ -200,7 +200,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
               ) : (
                 <>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                       Cooperative Staff / Officer ID *
                     </label>
                     <input
@@ -213,9 +213,9 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                         width: '100%',
                         padding: '0.7rem 0.9rem',
                         borderRadius: '10px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        color: '#ffffff',
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)',
                         fontSize: '0.9rem',
                         outline: 'none'
                       }}
@@ -223,7 +223,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                       Password *
                     </label>
                     <input
@@ -236,9 +236,9 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                         width: '100%',
                         padding: '0.7rem 0.9rem',
                         borderRadius: '10px',
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        border: '1px solid rgba(255, 255, 255, 0.12)',
-                        color: '#ffffff',
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--color-border)',
+                        color: 'var(--color-text)',
                         fontSize: '0.9rem',
                         outline: 'none'
                       }}
@@ -259,21 +259,21 @@ export default function AuthModal({ isOpen, mode, onClose }) {
                 width: '60px',
                 height: '60px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
-                border: '2px solid #10b981',
+                backgroundColor: 'rgba(21, 128, 61, 0.2)',
+                border: '2px solid var(--color-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.2rem'
               }}
             >
-              <CheckCircle size={36} color="#10b981" />
+              <CheckCircle size={36} color="var(--color-primary)" />
             </div>
 
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff', marginBottom: '0.5rem' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.5rem' }}>
               {isFarmerReg ? 'Farmer Account Verified!' : 'Authentication Successful!'}
             </h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.8rem' }}>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', marginBottom: '1.8rem' }}>
               {isFarmerReg
                 ? 'Your farmer profile is now active for cooperative machinery rentals.'
                 : 'Access granted to State Cooperative Audit & Equipment Monitoring.'}

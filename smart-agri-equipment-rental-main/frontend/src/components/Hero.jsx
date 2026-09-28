@@ -1,242 +1,65 @@
 // src/components/Hero.jsx
 import React from 'react';
-import { Sprout, ArrowRight, Users, Tractor, MapPin, TrendingUp, ShieldCheck } from 'lucide-react';
+import { Sprout, ArrowRight, ShieldCheck, FileText, Wrench } from 'lucide-react';
 
 export default function Hero({ onSelectRole }) {
   return (
-    <section className="hero-section-pad" style={{ padding: '3.5rem 2.5rem 4rem 2.5rem', position: 'relative' }}>
-      <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
-
-        {/* Main Grid: Left Text Content & Right Image Card */}
-        <div className="hero-grid">
-
-          {/* Left Column */}
-          <div>
-            {/* Top Pill Tag */}
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.35rem 1rem',
-                borderRadius: 'var(--radius-pill)',
-                border: '1px solid rgba(16, 185, 129, 0.35)',
-                backgroundColor: 'rgba(16, 185, 129, 0.08)',
-                marginBottom: '1.8rem'
-              }}
-            >
-              <Sprout size={14} color="#10b981" />
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  color: '#10b981',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase'
-                }}
-              >
-                GOVERNMENT OF STATE — DIGITAL AGRICULTURE
-              </span>
-            </div>
-
-            {/* Headline */}
-            <h1
-              className="hero-headline"
-              style={{
-                fontSize: '3.5rem',
-                fontWeight: 800,
-                lineHeight: 1.15,
-                color: '#ffffff',
-                marginBottom: '1.5rem',
-                letterSpacing: '-0.03em'
-              }}
-            >
-              Rent cooperative farm<br />
-              machinery.<br />
-              <span style={{ color: '#10b981' }}>Every action, transparently<br />audited.</span>
-            </h1>
-
-            {/* Paragraph Description */}
-            <p
-              style={{
-                fontSize: '1.05rem',
-                color: '#94a3b8',
-                lineHeight: 1.6,
-                maxWidth: '620px',
-                marginBottom: '2.2rem',
-                fontWeight: 400
-              }}
-            >
-              AgriRentGov digitizes the state cooperative equipment rental ecosystem — from tractors to threshers — with automated, immutable usage auditing so farmers, cooperatives and administrators can trust every transaction.
-            </p>
-
-            {/* CTA Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3.5rem', flexWrap: 'wrap' }}>
-              <button
-                onClick={onSelectRole}
-                className="btn-green"
-                style={{ padding: '0.85rem 2rem', fontSize: '0.98rem' }}
-              >
-                <span>Select Your Role</span>
-                <ArrowRight size={18} />
-              </button>
-              <a
-                href="#equipment"
-                className="btn-outline-dark"
-                style={{ padding: '0.85rem 1.8rem', fontSize: '0.98rem' }}
-              >
-                Explore Equipment
-              </a>
-            </div>
-
-            {/* Metrics Row (4 Cards) */}
-            <div className="hero-metrics-grid">
-              {/* Metric 1 */}
-              <div
-                style={{
-                  backgroundColor: '#131d35',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.1rem 1rem'
-                }}
-              >
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <Users size={20} color="#10b981" />
-                </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
-                  12,480+
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px', fontWeight: 500 }}>
-                  Registered Farmers
-                </div>
-              </div>
-
-              {/* Metric 2 */}
-              <div
-                style={{
-                  backgroundColor: '#131d35',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.1rem 1rem'
-                }}
-              >
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <Tractor size={20} color="#10b981" />
-                </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
-                  3,200+
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px', fontWeight: 500 }}>
-                  Machines Available
-                </div>
-              </div>
-
-              {/* Metric 3 */}
-              <div
-                style={{
-                  backgroundColor: '#131d35',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.1rem 1rem'
-                }}
-              >
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <MapPin size={20} color="#10b981" />
-                </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
-                  38
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px', fontWeight: 500 }}>
-                  Districts Covered
-                </div>
-              </div>
-
-              {/* Metric 4 */}
-              <div
-                style={{
-                  backgroundColor: '#131d35',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.1rem 1rem'
-                }}
-              >
-                <div style={{ marginBottom: '0.5rem' }}>
-                  <TrendingUp size={20} color="#10b981" />
-                </div>
-                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.2 }}>
-                  ₹142
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px', fontWeight: 500 }}>
-                  Cost Saved (Cr)
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Right Column: Large Image Container */}
-          <div style={{ position: 'relative' }}>
-            <div className="hero-image-wrap">
-              <img
-                src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1200&q=80"
-                alt="Cooperative Farm Machinery"
-                fetchPriority="high"
-                loading="eager"
-                decoding="async"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block'
-                }}
-              />
-
-              {/* Floating Audit Card at Bottom */}
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '1.5rem',
-                  left: '1.5rem',
-                  right: '1.5rem',
-                  backgroundColor: 'rgba(15, 25, 48, 0.88)',
-                  backdropFilter: 'blur(16px)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '16px',
-                  padding: '1rem 1.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem'
-                }}
-              >
-                <div
-                  style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '10px',
-                    backgroundColor: 'rgba(2, 132, 199, 0.25)',
-                    border: '1px solid rgba(56, 189, 248, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}
-                >
-                  <ShieldCheck size={22} color="#38bdf8" />
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, color: '#ffffff', marginBottom: '2px' }}>
-                    Automated Usage Auditing
-                  </h4>
-                  <p style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.3 }}>
-                    Immutable log of every rental &amp; maintenance action.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
+    <section style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '6rem 2rem' }}>
+      <div className="page-container" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto', padding: '0' }}>
+        
+        {/* Top Tag */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0.75rem', borderRadius: 'var(--radius-pill)', backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success)', color: 'var(--color-success)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.05em', marginBottom: '1.5rem', textTransform: 'uppercase' }}>
+          <Sprout size={14} />
+          <span>Government of State — Digital Agriculture</span>
         </div>
 
+        {/* Headline */}
+        <h1 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.2, marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>
+          Agricultural Equipment <br />
+          <span style={{ color: 'var(--color-primary)' }}>When Farmers Need It.</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p style={{ fontSize: '1.125rem', color: 'var(--color-muted)', lineHeight: 1.6, marginBottom: '2.5rem' }}>
+          Access reliable agricultural machinery through your local cooperative. A transparent, professionally audited ecosystem designed to empower farmers and streamline fleet management.
+        </p>
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <button onClick={onSelectRole} className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}>
+            <span>Login to Portal</span>
+            <ArrowRight size={18} />
+          </button>
+          <a href="#equipment" className="btn btn-secondary" style={{ padding: '0.75rem 2rem', fontSize: '1rem' }}>
+            Explore Equipment
+          </a>
+        </div>
+
+        {/* Info Highlights */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', marginTop: '4rem', borderTop: '1px solid var(--color-border)', paddingTop: '2.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-text)' }}>
+            <ShieldCheck size={24} color="var(--color-primary)" />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>Automated Auditing</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Immutable usage logs</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-text)' }}>
+            <FileText size={24} color="var(--color-primary)" />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>Transparent Billing</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Upfront invoicing</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-text)' }}>
+            <Wrench size={24} color="var(--color-primary)" />
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>Scheduled Maintenance</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>360-hour service cycles</div>
+            </div>
+          </div>
+        </div>
+        
       </div>
     </section>
   );

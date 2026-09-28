@@ -49,7 +49,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'rgba(8, 14, 28, 0.85)',
+        backgroundColor: 'var(--color-surface)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -63,11 +63,11 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
           maxWidth: '600px',
           maxHeight: '90vh',
           overflowY: 'auto',
-          backgroundColor: '#131d35',
+          backgroundColor: 'var(--color-surface)',
           borderRadius: '24px',
           padding: '2.5rem',
           position: 'relative',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1px solid var(--color-border)',
           boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
         }}
       >
@@ -77,9 +77,9 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
             position: 'absolute',
             top: '1.5rem',
             right: '1.5rem',
-            background: 'rgba(255, 255, 255, 0.08)',
+            background: 'var(--color-border)',
             border: 'none',
-            color: '#ffffff',
+            color: 'var(--color-text)',
             width: '34px',
             height: '34px',
             borderRadius: '50%',
@@ -93,7 +93,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
         </button>
 
         <span className="section-tag">EDIT MACHINERY DETAILS</span>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ffffff', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
           Edit {equipment.name}
         </h2>
 
@@ -101,7 +101,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Equipment Name *
               </label>
               <input
@@ -113,9 +113,9 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -123,7 +123,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Manufacturer *
               </label>
               <input
@@ -135,9 +135,9 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -147,7 +147,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Category *
               </label>
               <input
@@ -159,9 +159,9 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -169,7 +169,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Daily Price (₹) *
               </label>
               <input
@@ -183,9 +183,9 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
@@ -195,7 +195,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Condition *
               </label>
               <select
@@ -205,22 +205,22 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
               >
-                <option value="excellent" style={{ backgroundColor: '#131d35' }}>Excellent</option>
-                <option value="good" style={{ backgroundColor: '#131d35' }}>Good</option>
-                <option value="fair" style={{ backgroundColor: '#131d35' }}>Fair</option>
-                <option value="needs_service" style={{ backgroundColor: '#131d35' }}>Needs Service</option>
+                <option value="excellent" style={{ backgroundColor: 'var(--color-surface)' }}>Excellent</option>
+                <option value="good" style={{ backgroundColor: 'var(--color-surface)' }}>Good</option>
+                <option value="fair" style={{ backgroundColor: 'var(--color-surface)' }}>Fair</option>
+                <option value="needs_service" style={{ backgroundColor: 'var(--color-surface)' }}>Needs Service</option>
               </select>
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
                 Status *
               </label>
               <select
@@ -230,22 +230,22 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
                   width: '100%',
                   padding: '0.7rem 0.9rem',
                   borderRadius: '10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  color: '#ffffff',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
                   fontSize: '0.9rem',
                   outline: 'none'
                 }}
               >
-                <option value="Available" style={{ backgroundColor: '#131d35' }}>Available</option>
-                <option value="Under Maintenance" style={{ backgroundColor: '#131d35' }}>Under Maintenance</option>
-                <option value="Rented" style={{ backgroundColor: '#131d35' }}>Rented</option>
+                <option value="Available" style={{ backgroundColor: 'var(--color-surface)' }}>Available</option>
+                <option value="Under Maintenance" style={{ backgroundColor: 'var(--color-surface)' }}>Under Maintenance</option>
+                <option value="Rented" style={{ backgroundColor: 'var(--color-surface)' }}>Rented</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.82rem', color: '#cbd5e1', marginBottom: '0.35rem', fontWeight: 600 }}>
+            <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
               Hub Location *
             </label>
             <input
@@ -257,9 +257,9 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
                 width: '100%',
                 padding: '0.7rem 0.9rem',
                 borderRadius: '10px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                color: '#ffffff',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
                 fontSize: '0.9rem',
                 outline: 'none'
               }}

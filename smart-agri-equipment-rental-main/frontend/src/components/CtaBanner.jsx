@@ -8,8 +8,8 @@ export default function CtaBanner({ onSelectRole }) {
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <div
           style={{
-            backgroundColor: '#131d35',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            backgroundColor: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
             borderRadius: '24px',
             padding: '4.5rem 2rem',
             textAlign: 'center',
@@ -24,7 +24,7 @@ export default function CtaBanner({ onSelectRole }) {
             style={{
               fontSize: '2.5rem',
               fontWeight: 800,
-              color: '#ffffff',
+              color: 'var(--color-text)',
               marginBottom: '1.2rem',
               letterSpacing: '-0.02em',
               lineHeight: 1.25
@@ -37,7 +37,7 @@ export default function CtaBanner({ onSelectRole }) {
           <p
             style={{
               fontSize: '1rem',
-              color: '#94a3b8',
+              color: 'var(--color-muted)',
               maxWidth: '600px',
               lineHeight: 1.6,
               marginBottom: '2.5rem',

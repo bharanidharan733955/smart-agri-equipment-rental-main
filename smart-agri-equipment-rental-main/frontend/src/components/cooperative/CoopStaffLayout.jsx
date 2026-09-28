@@ -24,29 +24,30 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
   ];
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: '#0b1324', color: '#ffffff' }}>
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>
       
       {/* Sidebar */}
       <aside
         style={{
           width: '270px',
-          backgroundColor: '#0c162c',
-          borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+          backgroundColor: 'var(--color-surface)',
+          borderRight: '1px solid var(--color-border)',
           display: 'flex',
           flexDirection: 'column',
           flexShrink: 0,
-          height: '100%'
+          height: '100%',
+          boxShadow: 'var(--shadow-sm)'
         }}
       >
         {/* Sidebar Header Brand */}
-        <div style={{ padding: '1.5rem 1.5rem 1.8rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--color-border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
             <div
               style={{
                 width: '38px',
                 height: '38px',
-                borderRadius: '10px',
-                backgroundColor: 'var(--green-primary)',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'var(--color-primary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -55,11 +56,11 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
               <Sprout size={22} color="#ffffff" strokeWidth={2.5} />
             </div>
             <div>
-              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.1 }}>
-                AgriRentGov
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
+                AGRI RENT GOV
               </div>
-              <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#38bdf8', letterSpacing: '0.08em', marginTop: '1px' }}>
-                COOPERATIVE STAFF HUB
+              <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '0.05em', marginTop: '2px' }}>
+                COOPERATIVE STAFF
               </div>
             </div>
           </div>
@@ -78,17 +79,17 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
                   onClick={onOpenAddModal}
                   style={{
                     width: '100%',
-                    padding: '0.75rem 1.25rem',
-                    borderRadius: '12px',
-                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                    border: '1px solid rgba(16, 185, 129, 0.35)',
-                    color: '#10b981',
+                    padding: '0.75rem 1rem',
+                    borderRadius: 'var(--radius-md)',
+                    backgroundColor: 'var(--color-primary)',
+                    border: 'none',
+                    color: 'var(--color-text)',
                     fontFamily: 'var(--font-family)',
-                    fontWeight: 700,
-                    fontSize: '0.92rem',
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.9rem',
+                    gap: '0.75rem',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     textAlign: 'left',
@@ -96,13 +97,13 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
                     marginBottom: '0.5rem'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+                    e.currentTarget.style.backgroundColor = 'var(--color-primary)';
                   }}
                 >
-                  <IconComponent size={20} color="#10b981" />
+                  <IconComponent size={18} color="#ffffff" />
                   <span>{item.label}</span>
                 </button>
               );
@@ -114,35 +115,33 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
                 onClick={() => setActiveTab(item.id)}
                 style={{
                   width: '100%',
-                  padding: '0.75rem 1.25rem',
-                  borderRadius: '12px',
-                  backgroundColor: isActive ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
-                  border: isActive ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
-                  color: isActive ? '#38bdf8' : '#94a3b8',
+                  padding: '0.75rem 1rem',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: isActive ? 'rgba(21, 128, 61, 0.08)' : 'transparent',
+                  border: 'none',
+                  color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
                   fontFamily: 'var(--font-family)',
-                  fontWeight: isActive ? 700 : 500,
-                  fontSize: '0.92rem',
+                  fontWeight: isActive ? 600 : 500,
+                  fontSize: '0.875rem',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.9rem',
+                  gap: '0.75rem',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
                   textAlign: 'left'
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
-                    e.currentTarget.style.color = '#ffffff';
+                    e.currentTarget.style.backgroundColor = 'var(--color-background)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
                     e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#94a3b8';
                   }
                 }}
               >
-                <IconComponent size={20} color={isActive ? '#38bdf8' : '#94a3b8'} />
+                <IconComponent size={18} color={isActive ? 'var(--color-primary)' : 'var(--color-muted)'} />
                 <span>{item.label}</span>
               </button>
             );
@@ -150,32 +149,32 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
         </nav>
 
         {/* Bottom Logout Button */}
-        <div style={{ padding: '1.25rem 1rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+        <div style={{ padding: '1.25rem 1rem', borderTop: '1px solid var(--color-border)' }}>
           <button
             onClick={onLogout}
             style={{
               width: '100%',
-              padding: '0.75rem 1.25rem',
-              borderRadius: '12px',
+              padding: '0.75rem 1rem',
+              borderRadius: 'var(--radius-md)',
               backgroundColor: 'transparent',
-              border: '1px solid transparent',
-              color: '#94a3b8',
+              border: 'none',
+              color: 'var(--color-muted)',
               fontFamily: 'var(--font-family)',
-              fontWeight: 600,
-              fontSize: '0.9rem',
+              fontWeight: 500,
+              fontSize: '0.875rem',
               display: 'flex',
               alignItems: 'center',
-              gap: '0.8rem',
+              gap: '0.75rem',
               cursor: 'pointer',
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
-              e.currentTarget.style.color = '#ef4444';
+              e.currentTarget.style.backgroundColor = 'var(--color-danger-bg)';
+              e.currentTarget.style.color = 'var(--color-danger)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#94a3b8';
+              e.currentTarget.style.color = 'var(--color-muted)';
             }}
           >
             <LogOut size={18} />
@@ -185,15 +184,15 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
       </aside>
 
       {/* Main Content Area */}
-      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0, backgroundColor: 'var(--color-background)' }}>
         
         {/* Top Header */}
         <header
           style={{
-            height: '70px',
-            backgroundColor: '#0c162c',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-            padding: '0 2.5rem',
+            height: '64px',
+            backgroundColor: 'var(--color-surface)',
+            borderBottom: '1px solid var(--color-border)',
+            padding: '0 2rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -201,13 +200,13 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
           }}
         >
           {/* Left Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem', color: '#94a3b8' }}>
-            <Menu size={18} color="#94a3b8" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+            <Menu size={18} color="var(--color-muted)" />
             <span>AgriRentGov</span>
             <span>/</span>
             <span>Cooperative Staff</span>
             <span>/</span>
-            <span style={{ color: '#ffffff', fontWeight: 600 }}>Equipment Management</span>
+            <span style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>Dashboard</span>
           </div>
 
           {/* Right User Badge */}
@@ -217,13 +216,12 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                padding: '0.35rem 0.85rem',
+                padding: '0.25rem 0.75rem',
                 borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'rgba(2, 132, 199, 0.15)',
-                border: '1px solid rgba(56, 189, 248, 0.3)',
-                color: '#38bdf8',
-                fontSize: '0.78rem',
-                fontWeight: 700
+                backgroundColor: 'var(--color-info-bg)',
+                color: 'var(--color-info)',
+                fontSize: '0.75rem',
+                fontWeight: 600
               }}
             >
               <ShieldCheck size={14} />
@@ -231,10 +229,10 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
             </div>
 
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
                 RAKESH SHARMA
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                 <Building2 size={12} />
                 <span>Ludhiana Hub #1</span>
               </div>
@@ -242,17 +240,17 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
 
             <div
               style={{
-                width: '38px',
-                height: '38px',
+                width: '36px',
+                height: '36px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(2, 132, 199, 0.2)',
-                border: '1px solid rgba(56, 189, 248, 0.4)',
+                backgroundColor: 'var(--color-background)',
+                border: '1px solid var(--color-border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                color: '#38bdf8'
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                color: 'var(--color-secondary)'
               }}
             >
               RS
@@ -261,8 +259,10 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
         </header>
 
         {/* Content Body */}
-        <main style={{ flexGrow: 1, padding: '2.5rem', overflowY: 'auto' }}>
-          {children}
+        <main style={{ flexGrow: 1, padding: '2rem', overflowY: 'auto' }}>
+          <div className="page-container" style={{ padding: 0 }}>
+            {children}
+          </div>
         </main>
 
       </div>

@@ -18,50 +18,49 @@ export default function Header({ onSelectRole }) {
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        backgroundColor: 'var(--bg-header)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+        backgroundColor: 'var(--color-surface)',
+        borderBottom: '1px solid var(--color-border)',
       }}
     >
       <div
         className="header-inner"
         style={{
-          maxWidth: '1350px',
+          maxWidth: '1200px',
           margin: '0 auto',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0.9rem 2.5rem',
+          padding: '0.75rem 2rem',
           position: 'relative',
         }}
       >
         {/* Logo */}
-        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', textDecoration: 'none' }}>
+        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
           <div
             style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
-              backgroundColor: 'var(--green-primary)',
+              width: '36px',
+              height: '36px',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--color-primary)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
             }}
           >
-            <Sprout size={22} color="#ffffff" strokeWidth={2.5} />
+            <Sprout size={20} color="#ffffff" strokeWidth={2.5} />
           </div>
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff', lineHeight: 1.1, fontFamily: 'var(--font-family)' }}>
-              AgriRentGov
+            <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1, fontFamily: 'var(--font-family)' }}>
+              AGRI RENT GOV
             </div>
-            <div style={{ fontSize: '0.62rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.08em', marginTop: '1px' }}>
+            <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '0.05em', marginTop: '1px' }}>
               STATE COOPERATIVE
             </div>
           </div>
         </a>
 
-        {/* Center Nav Links — hidden on mobile via CSS class */}
+        {/* Center Nav Links */}
         <nav className={`header-nav${navOpen ? ' open' : ''}`}>
           {navLinks.map(({ href, label }) => (
             <a
@@ -69,14 +68,14 @@ export default function Header({ onSelectRole }) {
               href={href}
               onClick={() => setNavOpen(false)}
               style={{
-                color: '#cbd5e1',
+                color: 'var(--color-text)',
                 textDecoration: 'none',
-                fontSize: '0.9rem',
+                fontSize: '0.875rem',
                 fontWeight: 500,
                 transition: 'color 0.2s',
               }}
-              onMouseEnter={(e) => (e.target.style.color = '#ffffff')}
-              onMouseLeave={(e) => (e.target.style.color = '#cbd5e1')}
+              onMouseEnter={(e) => (e.target.style.color = 'var(--color-primary)')}
+              onMouseLeave={(e) => (e.target.style.color = 'var(--color-text)')}
             >
               {label}
             </a>
@@ -84,19 +83,20 @@ export default function Header({ onSelectRole }) {
         </nav>
 
         {/* Right: CTA + Hamburger */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <button onClick={onSelectRole} className="btn-green" style={{ padding: '0.65rem 1.5rem', fontSize: '0.88rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button onClick={onSelectRole} className="btn btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.875rem' }}>
             <span>Select Role</span>
             <ArrowRight size={16} />
           </button>
 
-          {/* Hamburger — shown only on mobile via CSS class */}
+          {/* Hamburger */}
           <button
             className="header-mobile-toggle"
             onClick={() => setNavOpen((v) => !v)}
             aria-label={navOpen ? 'Close menu' : 'Open menu'}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem' }}
           >
-            {navOpen ? <X size={24} color="#fff" /> : <Menu size={24} color="#fff" />}
+            {navOpen ? <X size={24} color="var(--color-text)" /> : <Menu size={24} color="var(--color-text)" />}
           </button>
         </div>
       </div>

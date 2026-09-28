@@ -56,14 +56,14 @@ export default function CostCalculator({ onOpenRentalWithPreset }) {
             
             {/* Left Inputs */}
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: '#38bdf8' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', color: 'var(--color-info)' }}>
                 <Calculator size={18} />
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                   INSTANT PRICE ESTIMATOR
                 </span>
               </div>
 
-              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#fff', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
                 Calculate Your Rental Investment
               </h2>
 
@@ -80,7 +80,7 @@ export default function CostCalculator({ onOpenRentalWithPreset }) {
                       style={{
                         padding: '0.8rem 1rem',
                         borderRadius: 'var(--radius-md)',
-                        background: machineType === key ? 'rgba(16, 185, 129, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                        background: machineType === key ? 'rgba(21, 128, 61, 0.2)' : 'var(--color-border)',
                         border: machineType === key ? '1px solid #34d399' : '1px solid var(--border-glass)',
                         color: machineType === key ? '#34d399' : 'var(--text-main)',
                         fontWeight: 700,
@@ -104,7 +104,7 @@ export default function CostCalculator({ onOpenRentalWithPreset }) {
               <div style={{ marginBottom: '1.8rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <label style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>
-                    Rental Duration: <strong style={{ color: '#fff' }}>{durationDays} Days</strong>
+                    Rental Duration: <strong style={{ color: 'var(--color-text)' }}>{durationDays} Days</strong>
                   </label>
                   {durationDays >= 7 && (
                     <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 700 }}>
@@ -136,7 +136,7 @@ export default function CostCalculator({ onOpenRentalWithPreset }) {
                     type="checkbox"
                     checked={includeOperator}
                     onChange={(e) => setIncludeOperator(e.target.checked)}
-                    style={{ width: '18px', height: '18px', accentColor: '#10b981' }}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--color-primary)' }}
                   />
                   <span>Include Certified Tele-Operator (+$80/day)</span>
                 </label>
@@ -145,7 +145,7 @@ export default function CostCalculator({ onOpenRentalWithPreset }) {
                     type="checkbox"
                     checked={includeInsurance}
                     onChange={(e) => setIncludeInsurance(e.target.checked)}
-                    style={{ width: '18px', height: '18px', accentColor: '#10b981' }}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--color-primary)' }}
                   />
                   <span>Full Field & Damage Protection Insurance (+$25/day)</span>
                 </label>
@@ -168,7 +168,7 @@ export default function CostCalculator({ onOpenRentalWithPreset }) {
               <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                 Estimated Total Investment
               </div>
-              <div style={{ fontSize: '3.4rem', fontWeight: 800, color: '#ffffff', fontFamily: 'var(--font-heading)', margin: '0.5rem 0' }}>
+              <div style={{ fontSize: '3.4rem', fontWeight: 800, color: 'var(--color-text)', fontFamily: 'var(--font-heading)', margin: '0.5rem 0' }}>
                 ${totalEstimate}
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: '2rem' }}>
