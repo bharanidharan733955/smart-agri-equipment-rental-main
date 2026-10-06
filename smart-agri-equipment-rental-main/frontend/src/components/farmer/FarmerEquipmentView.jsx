@@ -119,131 +119,147 @@ export default function FarmerEquipmentView({ equipmentList, onBookEquipment }) 
       </div>
 
       {/* Equipment Cards Grid (4 columns) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: '1.5rem'
-        }}
-      >
-        {filteredItems.map(item => (
-          <div
-            key={item.id || item._id}
-            style={{
-              backgroundColor: 'var(--color-surface)',
-              border: '1px solid var(--color-border)',
-              borderRadius: '20px',
-              padding: '1.6rem 1.5rem',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.transform = 'translateY(-3px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            <div>
-              {/* Header Icon + Title */}
-              <div style={{ display: 'flex', gap: '0.9rem', marginBottom: '1.2rem' }}>
-                <div
-                  style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '12px',
-                    backgroundColor: 'var(--color-success-bg)',
-                    border: '1px solid var(--color-border)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}
-                >
-                  <Tractor size={22} color="var(--color-primary)" />
-                </div>
+      {filteredItems.length > 0 ? (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '1.5rem'
+          }}
+        >
+          {filteredItems.map(item => {
+            const avail = item.availableQuantity ?? (item.status === 'Available' ? 1 : 0);
+            const total = item.totalQuantity ?? item.totalUnits ?? 1;
+            const locationDisplay = item.district && item.taluk ? `${item.district} • ${item.taluk}` : (item.location || item.cooperativeHub || 'Tamil Nadu Hub');
+
+            return (
+              <div
+                key={item.id || item._id}
+                style={{
+                  backgroundColor: 'var(--color-surface)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '20px',
+                  padding: '1.6rem 1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)';
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-border)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
                 <div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.25 }}>
-                    {item.name}
-                  </h3>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginTop: '2px' }}>
-                    {item.category}
+                  {/* Header Icon + Title */}
+                  <div style={{ display: 'flex', gap: '0.9rem', marginBottom: '1.2rem' }}>
+                    <div
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '12px',
+                        backgroundColor: 'var(--color-success-bg)',
+                        border: '1px solid var(--color-border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                      }}
+                    >
+                      <Tractor size={22} color="var(--color-primary)" />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text)', lineHeight: 1.25 }}>
+                        {item.name}
+                      </h3>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)', marginTop: '2px' }}>
+                        {item.category}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Location */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.6rem' }}>
+                    <MapPin size={14} color="#94a3b8" />
+                    <span>{locationDisplay}</span>
+                  </div>
+
+                  {/* Price */}
+                  <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1rem' }}>
+                    ₹ {item.pricePerDay || item.rentalRate || item.price || 0}<span style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--color-muted)' }}>/day</span>
+                  </div>
+
+                  {/* Badges & Inventory Count */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.6rem', flexWrap: 'wrap' }}>
+                    <span
+                      style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        padding: '0.2rem 0.65rem',
+                        borderRadius: '20px',
+                        backgroundColor: avail > 0 ? 'var(--color-success-bg)' : 'rgba(239, 68, 68, 0.1)',
+                        color: avail > 0 ? 'var(--color-primary)' : '#ef4444',
+                        border: `1px solid ${avail > 0 ? 'var(--color-border)' : 'rgba(239, 68, 68, 0.3)'}`
+                      }}
+                    >
+                      {avail > 0 ? `${avail} Available` : '0 Available'}
+                    </span>
                   </div>
                 </div>
-              </div>
 
-              {/* Location */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.6rem' }}>
-                <MapPin size={14} color="#94a3b8" />
-                <span>{item.location || item.cooperativeHub || 'Ludhiana Hub'}</span>
-              </div>
-
-              {/* Price */}
-              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1rem' }}>
-                ₹ {item.pricePerDay || item.rentalRate || item.price || 0}<span style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--color-muted)' }}>/day</span>
-              </div>
-
-              {/* Badges */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.6rem' }}>
-                <span
+                {/* Bottom Row: Manufacturer & Book Button */}
+                <div
                   style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    padding: '0.2rem 0.65rem',
-                    borderRadius: '20px',
-                    backgroundColor: 'var(--color-success-bg)',
-                    color: 'var(--color-primary)',
-                    border: '1px solid var(--color-border)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingTop: '1rem'
                   }}
                 >
-                  {item.status || 'Available'}
-                </span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 500 }}>
+                    {item.manufacturer || item.brand || 'Standard'}
+                  </span>
 
-                <span
-                  style={{
-                    fontSize: '0.72rem',
-                    fontWeight: 600,
-                    padding: '0.2rem 0.65rem',
-                    borderRadius: '20px',
-                    backgroundColor: 'var(--color-border)',
-                    color: 'var(--color-muted)',
-                    border: '1px solid var(--color-border)'
-                  }}
-                >
-                  {item.condition || 'good'}
-                </span>
+                  <button
+                    onClick={() => onBookEquipment(item)}
+                    disabled={avail === 0}
+                    className="btn-green"
+                    style={{
+                      padding: '0.45rem 1.1rem',
+                      fontSize: '0.82rem',
+                      borderRadius: '10px',
+                      opacity: avail === 0 ? 0.5 : 1,
+                      cursor: avail === 0 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {avail > 0 ? 'Book' : 'Unavailable'}
+                  </button>
+                </div>
+
               </div>
-            </div>
-
-            {/* Bottom Row: Manufacturer & Book Button */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingTop: '1rem'
-              }}
-            >
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-muted)', fontWeight: 500 }}>
-                {item.manufacturer || item.brand || 'Standard'}
-              </span>
-
-              <button
-                onClick={() => onBookEquipment(item)}
-                className="btn-green"
-                style={{ padding: '0.45rem 1.1rem', fontSize: '0.82rem', borderRadius: '10px' }}
-              >
-                Book
-              </button>
-            </div>
-
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div
+          style={{
+            padding: '4rem 2rem',
+            textAlign: 'center',
+            backgroundColor: 'var(--color-surface)',
+            borderRadius: '20px',
+            border: '1px border var(--color-border)',
+            color: 'var(--color-muted)',
+            fontSize: '1.1rem',
+            fontWeight: 600
+          }}
+        >
+          No equipment currently available in your area.
+        </div>
+      )}
 
     </div>
   );

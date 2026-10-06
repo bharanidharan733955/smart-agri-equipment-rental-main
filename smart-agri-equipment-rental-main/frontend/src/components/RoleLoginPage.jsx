@@ -1,13 +1,13 @@
 // src/components/RoleLoginPage.jsx
 import React, { useState } from 'react';
-import { 
-  Sprout, 
-  ArrowLeft, 
-  ArrowRight, 
-  Lock, 
-  User, 
-  Phone, 
-  Building2, 
+import {
+  Sprout,
+  ArrowLeft,
+  ArrowRight,
+  Lock,
+  User,
+  Phone,
+  Building2,
   Tractor,
   Users,
   CheckCircle2,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { loginRoleApi, registerApi } from '../api';
+import { TN_DISTRICTS, getTaluksForDistrict } from '../data/tnLocationData';
 import toast, { Toaster } from 'react-hot-toast';
 
 export const ROLE_DETAILS = {
@@ -73,15 +74,27 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
     email: '',
     password: '',
     mobile: '',
-    district: 'Chennai',
+    district: 'Coimbatore',
+    taluk: 'Pollachi',
+    village: 'Anaimalai',
     address: '',
     farmerId: '',
-    cooperativeHub: 'Chennai Central Hub #1'
+    cooperativeHub: 'Coimbatore Central Hub #1'
   });
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === 'district') {
+      const taluks = getTaluksForDistrict(value);
+      setFormData(prev => ({
+        ...prev,
+        district: value,
+        taluk: taluks[0] || ''
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleLoginSubmit = async (e) => {
@@ -102,9 +115,9 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const mappedRoleName = 
+    const mappedRoleName =
       role.id === 'farmer' ? 'Farmer' :
-      role.id === 'operator' ? 'Equipment Operator' : 'Staff';
+        role.id === 'operator' ? 'Equipment Operator' : 'Staff';
 
     const payload = {
       name: formData.name,
@@ -112,6 +125,8 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
       password: formData.password,
       mobile: formData.mobile,
       district: formData.district,
+      taluk: formData.taluk,
+      village: formData.village,
       address: formData.address,
       farmerId: formData.farmerId,
       cooperativeHub: formData.cooperativeHub,
@@ -131,7 +146,7 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" />
-      
+
       {/* Top Navigation Bar */}
       <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -157,7 +172,7 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
       <main className="page-container" style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ maxWidth: '1000px', width: '100%' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }}>
-            
+
             {/* Left Column: Form Container */}
             <div className="agri-card" style={{ padding: '2.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
@@ -175,7 +190,7 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
 
               {/* Action Form */}
               <form onSubmit={isRegistering ? handleRegisterSubmit : handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                
+
                 {isRegistering && (
                   <div>
                     <label className="form-label">Full Name</label>
@@ -248,29 +263,8 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
                       </div>
                     </div>
 
-                    {role.id === 'farmer' && (
-                      <>
-                        <div>
-                          <label className="form-label">Address</label>
-                          <div style={{ position: 'relative' }}>
-                            <Building2 size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
-                            <input
-                              type="text"
-                              name="address"
-                              required
-                              placeholder="e.g. 123 Temple St, Adyar"
-                              value={formData.address}
-                              onChange={handleInputChange}
-                              className="form-input"
-                              style={{ paddingLeft: '2.75rem' }}
-                            />
-                          </div>
-                        </div>
-                      </>
-                    )}
-
                     <div>
-                      <label className="form-label">District</label>
+                      <label className="form-label">District *</label>
                       <div style={{ position: 'relative' }}>
                         <Building2 size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
                         <select
@@ -280,12 +274,82 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
                           className="form-select"
                           style={{ paddingLeft: '2.75rem' }}
                         >
-                          {['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'].map(d => (
+                          {TN_DISTRICTS.map(d => (
                             <option key={d} value={d}>{d}</option>
                           ))}
                         </select>
                       </div>
                     </div>
+
+                    <div>
+                      <label className="form-label">Taluk *</label>
+                      <div style={{ position: 'relative' }}>
+                        <Building2 size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+                        <select
+                          name="taluk"
+                          value={formData.taluk}
+                          onChange={handleInputChange}
+                          className="form-select"
+                          style={{ paddingLeft: '2.75rem' }}
+                        >
+                          {getTaluksForDistrict(formData.district).map(t => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {role.id === 'farmer' && (
+                      <>
+                        <div>
+                          <label className="form-label">Farmer ID</label>
+                          <div style={{ position: 'relative' }}>
+                            <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+                            <input
+                              type="text"
+                              name="farmerId"
+                              placeholder="e.g. FID-TN-2026-8812"
+                              value={formData.farmerId}
+                              onChange={handleInputChange}
+                              className="form-input"
+                              style={{ paddingLeft: '2.75rem' }}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="form-label">Village Name</label>
+                          <div style={{ position: 'relative' }}>
+                            <Building2 size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+                            <input
+                              type="text"
+                              name="village"
+                              placeholder="e.g. Anaimalai Village"
+                              onChange={handleInputChange}
+                              className="form-input"
+                              style={{ paddingLeft: '2.75rem' }}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="form-label">Address</label>
+                          <div style={{ position: 'relative' }}>
+                            <Building2 size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }} />
+                            <input
+                              type="text"
+                              name="address"
+                              required
+                              placeholder="e.g. 45 Agriculture St, Pollachi"
+                              value={formData.address}
+                              onChange={handleInputChange}
+                              className="form-input"
+                              style={{ paddingLeft: '2.75rem' }}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
 

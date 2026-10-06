@@ -192,12 +192,43 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
     const resolvedEndTime = new Date(new Date(resolvedStartTime).getTime() + durationDays * 24 * 60 * 60 * 1000);
 
     const fuel = parseFloat(fuelUsed) || 0;
+    const selectedFuelType = req.body.fuelType || booking?.tentativeBill?.fuelType || 'Diesel';
+    const fuelPricePerLiter = selectedFuelType === 'Petrol' ? 102 : 95;
+
+    // Billing calculations
+    const baseAmount = booking?.tentativeBill?.baseAmount || ((eq?.rentalRate || booking?.rentalRate || 1800) * durationDays);
+    const estimatedFuelCost = booking?.tentativeBill?.estimatedFuelCost || Math.round(durationDays * 6 * fuelPricePerLiter);
+    const estimatedFuelLiters = booking?.tentativeBill?.estimatedFuelLiters || (durationDays * 6);
+    
+    const actualFuelLiters = fuel;
+    const actualFuelCost = Math.round(actualFuelLiters * fuelPricePerLiter);
+    const fuelAdjustment = actualFuelCost - estimatedFuelCost; // Difference (+/-)
+    
+    const finalSubtotal = baseAmount + actualFuelCost;
+    const finalTax = Math.round(finalSubtotal * 0.18);
+    const finalTotal = finalSubtotal + finalTax + (booking?.penalty || 0);
+
+    const finalBill = {
+      baseAmount,
+      estimatedFuelLiters,
+      estimatedFuelCost,
+      actualFuelLiters,
+      fuelType: selectedFuelType,
+      fuelPricePerLiter,
+      actualFuelCost,
+      fuelAdjustment,
+      tax: finalTax,
+      totalAmount: finalTotal,
+      isFinalBilled: true,
+      billedAt: new Date().toISOString()
+    };
 
     // Update job details
     job.status = 'Completed';
     job.endTime = resolvedEndTime;
     job.startTime = resolvedStartTime;
     job.fuelUsed = fuel;
+    job.fuelType = selectedFuelType;
     job.workingHours = hours;
     job.remarks = remarks || '';
     job.workCompleted = workCompleted || '';
@@ -270,16 +301,48 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
         }
       }
 
-      // Update booking
-      await Booking.findByIdAndUpdate(bookingId, { status: 'Returned' });
+      const completionDate = new Date();
+      const dueDate = new Date(completionDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 1 week (7 days) grace period to pay
+
+      // Update booking status, final bill, and payment due window
+      if (booking) {
+        booking.status = 'Returned';
+        booking.finalBill = finalBill;
+        booking.isFinalBilled = true;
+        booking.totalAmount = finalTotal;
+        booking.dueDate = dueDate;
+        booking.paymentStatus = 'Unpaid';
+        await booking.save();
+      }
+
+      // Update Invoice for final bill and due date
+      const inv = await Invoice.findOne({ booking: bookingId });
+      if (inv) {
+        inv.billingStatus = 'Final Billed';
+        inv.isTentative = false;
+        inv.actualFuelLiters = actualFuelLiters;
+        inv.fuelType = selectedFuelType;
+        inv.fuelPricePerLiter = fuelPricePerLiter;
+        inv.actualFuelCost = actualFuelCost;
+        inv.fuelAdjustment = fuelAdjustment;
+        inv.tax = finalTax;
+        inv.totalAmount = finalTotal;
+        inv.finalAmount = finalTotal;
+        inv.dueDate = dueDate;
+        inv.paymentStatus = 'Unpaid';
+        await inv.save();
+      }
 
       // Notify Farmer
       await Notification.create({
         user: job.farmer,
-        title: 'Work Completed',
-        message: `Your equipment rental order has been completed. Job report details are available.`
+        title: 'Work Completed & Final Bill Generated',
+        message: `Your equipment rental order has been completed. Final Bill: ₹${finalTotal}. Please pay at your Cooperative Hub within 7 days (by ${dueDate.toLocaleDateString()}).`
       });
     } else {
+      const completionDate = new Date();
+      const dueDate = new Date(completionDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+
       const jobs = localDb.read('jobs');
       const jIdx = jobs.findIndex(j => j._id === id || j.id === id);
       jobs[jIdx] = {
@@ -288,6 +351,7 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
         endTime: resolvedEndTime.toISOString(),
         startTime: resolvedStartTime.toISOString(),
         fuelUsed: fuel,
+        fuelType: selectedFuelType,
         workingHours: hours,
         remarks: remarks || '',
         workCompleted: workCompleted || '',
@@ -339,10 +403,33 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       }
 
       const bookings = localDb.read('bookings');
-      const bIdx = bookings.findIndex(b => b._id === bookingId || b.id === bookingId);
+      const bIdx = bookings.findIndex(b => b._id === bookingId || b.id === bookingId || b._id?.toString() === bookingId?.toString());
       if (bIdx !== -1) {
         bookings[bIdx].status = 'Returned';
+        bookings[bIdx].finalBill = finalBill;
+        bookings[bIdx].isFinalBilled = true;
+        bookings[bIdx].totalAmount = finalTotal;
+        bookings[bIdx].dueDate = dueDate.toISOString();
+        bookings[bIdx].paymentStatus = 'Unpaid';
         localDb.write('bookings', bookings);
+      }
+
+      const invoices = localDb.read('invoices');
+      const invIdx = invoices.findIndex(i => i.booking === bookingId || i.booking?.toString() === bookingId?.toString());
+      if (invIdx !== -1) {
+        invoices[invIdx].billingStatus = 'Final Billed';
+        invoices[invIdx].isTentative = false;
+        invoices[invIdx].actualFuelLiters = actualFuelLiters;
+        invoices[invIdx].fuelType = selectedFuelType;
+        invoices[invIdx].fuelPricePerLiter = fuelPricePerLiter;
+        invoices[invIdx].actualFuelCost = actualFuelCost;
+        invoices[invIdx].fuelAdjustment = fuelAdjustment;
+        invoices[invIdx].tax = finalTax;
+        invoices[invIdx].totalAmount = finalTotal;
+        invoices[invIdx].finalAmount = finalTotal;
+        invoices[invIdx].dueDate = dueDate.toISOString();
+        invoices[invIdx].paymentStatus = 'Unpaid';
+        localDb.write('invoices', invoices);
       }
 
       // Notify Farmer
@@ -350,8 +437,8 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       notifications.push({
         _id: 'NTF-' + Date.now(),
         user: job.farmer,
-        title: 'Work Completed',
-        message: `Your equipment rental order has been completed. Job report details are available.`,
+        title: 'Work Completed & Final Bill Generated',
+        message: `Your equipment rental order has been completed. Final Bill: ₹${finalTotal} (Fuel adjustment: ${fuelAdjustment >= 0 ? '+' : ''}₹${fuelAdjustment}). Report details are available.`,
         read: false,
         timestamp: new Date().toISOString()
       });

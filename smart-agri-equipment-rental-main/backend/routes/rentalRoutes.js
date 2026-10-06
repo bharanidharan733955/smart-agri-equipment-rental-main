@@ -50,8 +50,12 @@ router.get('/', authenticateToken, async (req, res) => {
         const jBkId = j.booking?._id?.toString() || j.booking?.toString() || j.booking;
         return jBkId === bIdStr;
       });
+      const bObj = JSON.parse(JSON.stringify(b));
+      if (bObj.paymentStatus === 'Paid' && !bObj.paidByStaff && !bObj.paidAt) {
+        bObj.paymentStatus = 'Unpaid';
+      }
       return {
-        ...JSON.parse(JSON.stringify(b)),
+        ...bObj,
         jobDetails: job || null
       };
     });
@@ -89,8 +93,29 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       return res.status(404).json({ success: false, message: 'Equipment not found.' });
     }
 
+    // Retrieve authenticated farmer profile
+    let farmerUser = null;
+    if (isDbConnected()) {
+      farmerUser = await User.findById(req.user.id);
+    } else {
+      const users = localDb.read('users');
+      farmerUser = users.find(u => u._id === req.user.id || u.id === req.user.id);
+    }
+
+    if (!farmerUser) {
+      return res.status(404).json({ success: false, message: 'Farmer profile not found.' });
+    }
+
+    // Backend location check (District & Taluk)
+    if (farmerUser.district && eq.district && farmerUser.district.toLowerCase() !== eq.district.toLowerCase()) {
+      return res.status(400).json({ success: false, message: 'No equipment currently available in your area.' });
+    }
+    if (farmerUser.taluk && eq.taluk && farmerUser.taluk.toLowerCase() !== eq.taluk.toLowerCase()) {
+      return res.status(400).json({ success: false, message: 'No equipment currently available in your area.' });
+    }
+
     if (eq.status === 'Under Maintenance' || eq.status === 'Under Inspection' || eq.status === 'Maintenance Required' || eq.status === 'Awaiting Maintenance Approval') {
-      return res.status(400).json({ success: false, message: 'Equipment is currently unavailable due to maintenance.' });
+      return res.status(400).json({ success: false, message: 'No equipment currently available in your area.' });
     }
 
     // Find all future bookings to evaluate availability and maintenance capacity
@@ -156,10 +181,28 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
     }
 
     if (!selectedUnitNum) {
-      return res.status(400).json({ success: false, message: 'This equipment is not available for the selected dates (all units are booked or lack sufficient maintenance hours).' });
+      return res.status(400).json({ success: false, message: 'No equipment currently available in your area.' });
     }
 
-    const totalAmount = eq.rentalRate * duration;
+    const baseAmount = eq.rentalRate * duration;
+    const requestedFuelType = req.body.fuelType || 'Diesel';
+    const fuelPricePerLiter = requestedFuelType === 'Petrol' ? 102 : 95;
+    const estimatedFuelLiters = duration * 6.0; // Standard 6.0 Liters per day estimate
+    const estimatedFuelCost = Math.round(estimatedFuelLiters * fuelPricePerLiter);
+    const subtotal = baseAmount + estimatedFuelCost;
+    const tax = Math.round(subtotal * 0.18); // 18% GST
+    const tentativeTotal = subtotal + tax;
+
+    const tentativeBill = {
+      baseAmount,
+      estimatedFuelLiters,
+      fuelType: requestedFuelType,
+      fuelPricePerLiter,
+      estimatedFuelCost,
+      tax,
+      tentativeTotal,
+      isTentative: true
+    };
     
     // Automatically approve since stock is available
     const bookingStatus = 'Approved'; 
@@ -180,8 +223,6 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
     }
 
     const invoiceNum = 'INV-' + Math.floor(100000 + Math.random() * 900000);
-    const tax = Math.round(totalAmount * 0.18); // 18% GST
-    const invoiceTotal = totalAmount + tax;
 
     if (isDbConnected()) {
       newBooking = await Booking.create({
@@ -192,7 +233,10 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         durationDays: duration,
         endDate: end,
         rentalRate: eq.rentalRate,
-        totalAmount,
+        totalAmount: tentativeTotal,
+        tentativeBill,
+        isFinalBilled: false,
+        paymentStatus: 'Unpaid',
         status: bookingStatus
       });
 
@@ -213,15 +257,22 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         status: 'Assigned'
       });
 
-      // Create Invoice automatically
+      // Create Invoice automatically with Tentative Bill details (Unpaid)
       await Invoice.create({
         invoiceNumber: invoiceNum,
         booking: newBooking._id,
-        amount: totalAmount,
+        amount: baseAmount,
         tax,
         penalty: 0,
-        totalAmount: invoiceTotal,
-        paymentStatus: 'Paid'
+        totalAmount: tentativeTotal,
+        tentativeAmount: tentativeTotal,
+        estimatedFuelCost,
+        estimatedFuelLiters,
+        fuelType: requestedFuelType,
+        fuelPricePerLiter,
+        isTentative: true,
+        billingStatus: 'Tentative',
+        paymentStatus: 'Unpaid'
       });
 
       // Send Notification to Operator if assigned
@@ -236,8 +287,8 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       // Send Notification to Farmer
       await Notification.create({
         user: req.user.id,
-        title: 'Booking Approved',
-        message: `Your booking request for ${eq.name} has been automatically approved.`
+        title: 'Booking Approved (Tentative Bill Generated)',
+        message: `Your booking request for ${eq.name} has been approved. Payment will be collected at the Cooperative Hub after work completion.`
       });
 
     } else {
@@ -254,7 +305,10 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         durationDays: duration,
         endDate: end.toISOString(),
         rentalRate: eq.rentalRate,
-        totalAmount,
+        totalAmount: tentativeTotal,
+        tentativeBill,
+        isFinalBilled: false,
+        paymentStatus: 'Unpaid',
         status: bookingStatus,
         penalty: 0,
         createdAt: new Date().toISOString()
@@ -281,11 +335,18 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         _id: 'INV-' + Date.now(),
         invoiceNumber: invoiceNum,
         booking: newBooking._id,
-        amount: totalAmount,
+        amount: baseAmount,
         tax,
         penalty: 0,
-        totalAmount: invoiceTotal,
-        paymentStatus: 'Paid',
+        totalAmount: tentativeTotal,
+        tentativeAmount: tentativeTotal,
+        estimatedFuelCost,
+        estimatedFuelLiters,
+        fuelType: requestedFuelType,
+        fuelPricePerLiter,
+        isTentative: true,
+        billingStatus: 'Tentative',
+        paymentStatus: 'Unpaid',
         createdAt: new Date().toISOString()
       });
       localDb.write('invoices', invoices);
@@ -384,7 +445,7 @@ router.post('/:id/approve', authenticateToken, authorizeRoles('Admin'), async (r
         tax,
         penalty: 0,
         totalAmount: invoiceTotal,
-        paymentStatus: 'Paid'
+        paymentStatus: 'Unpaid'
       });
 
       // Send Notification to Operator
@@ -436,7 +497,7 @@ router.post('/:id/approve', authenticateToken, authorizeRoles('Admin'), async (r
         tax,
         penalty: 0,
         totalAmount: invoiceTotal,
-        paymentStatus: 'Paid',
+        paymentStatus: 'Unpaid',
         createdAt: new Date().toISOString()
       });
       localDb.write('invoices', invoices);

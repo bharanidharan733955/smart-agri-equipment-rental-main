@@ -86,18 +86,60 @@ router.get('/operators', authenticateToken, authorizeRoles('Manager', 'Admin'), 
   }
 });
 
-// GET /api/cooperative/farmers (Retrieve pending and approved farmers)
+import { GOVT_FARMER_REGISTRY, findGovtRecord } from '../data/govtFarmerRegistry.js';
+
+// GET /api/cooperative/farmers (Retrieve list of approved registered farmers only)
 router.get('/farmers', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
   try {
+    let list = [];
+    if (isDbConnected()) {
+      list = await User.find({ role: 'Farmer', isApproved: true }).select('-password');
+    } else {
+      list = localDb.read('users').filter(u => u.role === 'Farmer' && u.isApproved !== false);
+    }
+    return res.json({ success: true, data: list });
+  } catch (err) {
+    console.error('Fetch farmers error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// GET /api/cooperative/farmer-verifications (Retrieve farmers with govt database comparison stats)
+router.get('/farmer-verifications', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+  try {
+    const { status } = req.query;
     let list = [];
     if (isDbConnected()) {
       list = await User.find({ role: 'Farmer' }).select('-password');
     } else {
       list = localDb.read('users').filter(u => u.role === 'Farmer');
     }
-    return res.json({ success: true, data: list });
+
+    // Attach government registry match info
+    const verifiedFarmers = list.map(f => {
+      const farmerObj = JSON.parse(JSON.stringify(f));
+      const govtRecord = findGovtRecord(farmerObj.farmerId, farmerObj.mobile);
+      return {
+        ...farmerObj,
+        govtMatch: govtRecord,
+        isIdMatched: !!govtRecord && (govtRecord.govtFarmerId.toLowerCase() === (farmerObj.farmerId || '').trim().toLowerCase()),
+        verificationStatus: farmerObj.verificationStatus || (farmerObj.isApproved ? 'APPROVED' : (farmerObj.isRejected ? 'REJECTED' : 'PENDING_VERIFICATION'))
+      };
+    });
+
+    let filtered = verifiedFarmers;
+    if (status && status !== 'ALL') {
+      filtered = verifiedFarmers.filter(f => f.verificationStatus === status);
+    }
+
+    return res.json({
+      success: true,
+      count: filtered.length,
+      data: filtered,
+      govtRegistry: GOVT_FARMER_REGISTRY
+    });
   } catch (err) {
-    console.error('Fetch farmers error:', err);
+    console.error('Fetch farmer verifications error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
@@ -109,12 +151,14 @@ router.post('/farmers/:id/approve', authenticateToken, authorizeRoles('Manager',
     let farmer;
 
     if (isDbConnected()) {
-      farmer = await User.findByIdAndUpdate(id, { isApproved: true }, { new: true });
+      farmer = await User.findByIdAndUpdate(id, { isApproved: true, isRejected: false, verificationStatus: 'APPROVED' }, { new: true });
     } else {
       const users = localDb.read('users');
       const idx = users.findIndex(u => u._id === id || u.id === id);
       if (idx !== -1) {
         users[idx].isApproved = true;
+        users[idx].isRejected = false;
+        users[idx].verificationStatus = 'APPROVED';
         farmer = users[idx];
         localDb.write('users', users);
       }
@@ -124,11 +168,50 @@ router.post('/farmers/:id/approve', authenticateToken, authorizeRoles('Manager',
       return res.status(404).json({ success: false, message: 'Farmer not found.' });
     }
 
-    await logAudit(req, req.user, 'Farmer Approval', 'Pending', 'Approved', `Approved farmer registration for ${farmer.name}`);
+    await logAudit(req, req.user, 'Farmer Approval', 'Pending', 'Approved', `Approved farmer registration for ${farmer.name} (${farmer.farmerId || 'N/A'})`);
 
     return res.json({ success: true, message: 'Farmer account approved successfully.', data: farmer });
   } catch (err) {
     console.error('Approve farmer error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/cooperative/farmers/:id/reject (Reject farmer registration)
+router.post('/farmers/:id/reject', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    let farmer;
+
+    if (isDbConnected()) {
+      farmer = await User.findByIdAndUpdate(
+        id, 
+        { isApproved: false, isRejected: true, verificationStatus: 'REJECTED', rejectionReason: reason || 'Farmer ID match failed against Government Registry.' }, 
+        { new: true }
+      );
+    } else {
+      const users = localDb.read('users');
+      const idx = users.findIndex(u => u._id === id || u.id === id);
+      if (idx !== -1) {
+        users[idx].isApproved = false;
+        users[idx].isRejected = true;
+        users[idx].verificationStatus = 'REJECTED';
+        users[idx].rejectionReason = reason || 'Farmer ID match failed against Government Registry.';
+        farmer = users[idx];
+        localDb.write('users', users);
+      }
+    }
+
+    if (!farmer) {
+      return res.status(404).json({ success: false, message: 'Farmer not found.' });
+    }
+
+    await logAudit(req, req.user, 'Farmer Rejection', 'Pending', 'Rejected', `Rejected farmer registration for ${farmer.name}. Reason: ${reason || 'ID Mismatch'}`);
+
+    return res.json({ success: true, message: 'Farmer registration rejected.', data: farmer });
+  } catch (err) {
+    console.error('Reject farmer error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
@@ -256,7 +339,7 @@ router.get('/maintenance', authenticateToken, authorizeRoles('Manager', 'Admin',
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
-// GET /api/cooperative/invoices (Fetch all invoices)
+// GET /api/cooperative/invoices (Fetch all invoices with dynamic delay fine evaluation)
 router.get('/invoices', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
   try {
     let invoices = [];
@@ -265,7 +348,7 @@ router.get('/invoices', authenticateToken, authorizeRoles('Manager', 'Admin', 'O
         path: 'booking',
         populate: [
           { path: 'equipment' },
-          { path: 'farmer', select: 'name email mobile' }
+          { path: 'farmer', select: 'name email mobile farmerId' }
         ]
       });
     } else {
@@ -287,28 +370,112 @@ router.get('/invoices', authenticateToken, authorizeRoles('Manager', 'Admin', 'O
       });
     }
 
-    return res.json({ success: true, count: invoices.length, data: invoices });
+    const now = new Date();
+
+    // Evaluate dynamic late fines for overdue manual payments (>7 days after work completion)
+    const evaluatedInvoices = invoices.map(inv => {
+      const invObj = JSON.parse(JSON.stringify(inv));
+      // Safeguard: Reset legacy auto-marked 'Paid' invoices to 'Unpaid' if staff hasn't manually collected them
+      if (invObj.paymentStatus === 'Paid' && !invObj.paidByStaff && !invObj.paidAt) {
+        invObj.paymentStatus = 'Unpaid';
+      }
+      if (invObj.paymentStatus !== 'Paid' && invObj.dueDate) {
+        const due = new Date(invObj.dueDate);
+        if (now > due) {
+          const delayDays = Math.max(1, Math.ceil((now - due) / (1000 * 60 * 60 * 24)));
+          const lateFine = delayDays * 200; // ₹200/day fine for delayed payment
+          invObj.paymentStatus = 'Overdue';
+          invObj.lateFine = lateFine;
+          invObj.totalAmount = (invObj.finalAmount || invObj.tentativeAmount || invObj.totalAmount) + lateFine;
+        }
+      }
+      return invObj;
+    });
+
+    return res.json({ success: true, count: evaluatedInvoices.length, data: evaluatedInvoices });
   } catch (err) {
     console.error('Fetch invoices error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
 
-// POST /api/cooperative/invoices/:id/pay (Pay invoice)
-router.post('/invoices/:id/pay', authenticateToken, async (req, res) => {
+// POST /api/cooperative/invoices/:id/pay (Cooperative staff records manual payment collection)
+router.post('/invoices/:id/pay', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
   try {
     const { id } = req.params;
+    const { paymentMethod, staffNotes } = req.body;
     let invoice;
+    let bookingId;
+
+    const now = new Date();
 
     if (isDbConnected()) {
-      invoice = await Invoice.findByIdAndUpdate(id, { paymentStatus: 'Paid' }, { new: true });
+      invoice = await Invoice.findById(id);
+      if (invoice) {
+        let fine = 0;
+        if (invoice.dueDate && now > new Date(invoice.dueDate)) {
+          const delayDays = Math.max(1, Math.ceil((now - new Date(invoice.dueDate)) / (1000 * 60 * 60 * 24)));
+          fine = delayDays * 200;
+        }
+
+        invoice.paymentStatus = 'Paid';
+        invoice.paidAt = now;
+        invoice.paidByStaff = req.user.name || 'Cooperative Staff';
+        invoice.paymentMethod = paymentMethod || 'Cash';
+        if (fine > 0) {
+          invoice.lateFine = fine;
+          invoice.totalAmount = (invoice.finalAmount || invoice.totalAmount) + fine;
+        }
+        await invoice.save();
+
+        bookingId = invoice.booking;
+        if (bookingId) {
+          await Booking.findByIdAndUpdate(bookingId, {
+            paymentStatus: 'Paid',
+            paidAt: now,
+            paidByStaff: req.user.name || 'Cooperative Staff',
+            paymentMethod: paymentMethod || 'Cash',
+            lateFine: fine,
+            totalAmount: invoice.totalAmount
+          });
+        }
+      }
     } else {
       const invoices = localDb.read('invoices');
       const idx = invoices.findIndex(inv => inv._id === id || inv.id === id);
       if (idx !== -1) {
+        invoice = invoices[idx];
+        let fine = 0;
+        if (invoice.dueDate && now > new Date(invoice.dueDate)) {
+          const delayDays = Math.max(1, Math.ceil((now - new Date(invoice.dueDate)) / (1000 * 60 * 60 * 24)));
+          fine = delayDays * 200;
+        }
+
         invoices[idx].paymentStatus = 'Paid';
+        invoices[idx].paidAt = now.toISOString();
+        invoices[idx].paidByStaff = req.user.name || 'Cooperative Staff';
+        invoices[idx].paymentMethod = paymentMethod || 'Cash';
+        if (fine > 0) {
+          invoices[idx].lateFine = fine;
+          invoices[idx].totalAmount = (invoices[idx].finalAmount || invoices[idx].totalAmount) + fine;
+        }
         invoice = invoices[idx];
         localDb.write('invoices', invoices);
+
+        bookingId = invoice.booking;
+        if (bookingId) {
+          const bookings = localDb.read('bookings');
+          const bIdx = bookings.findIndex(b => b._id === bookingId || b.id === bookingId);
+          if (bIdx !== -1) {
+            bookings[bIdx].paymentStatus = 'Paid';
+            bookings[bIdx].paidAt = now.toISOString();
+            bookings[bIdx].paidByStaff = req.user.name || 'Cooperative Staff';
+            bookings[bIdx].paymentMethod = paymentMethod || 'Cash';
+            bookings[bIdx].lateFine = fine;
+            bookings[bIdx].totalAmount = invoice.totalAmount;
+            localDb.write('bookings', bookings);
+          }
+        }
       }
     }
 
@@ -316,9 +483,16 @@ router.post('/invoices/:id/pay', authenticateToken, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Invoice not found.' });
     }
 
-    await logAudit(req, req.user, 'Payment Received', 'Pending', 'Paid', `Payment completed for Invoice ID ${invoice.invoiceNumber}`);
+    await logAudit(
+      req,
+      req.user,
+      'Manual Payment Collected by Staff',
+      'Unpaid',
+      'Paid',
+      `Staff ${req.user.name} recorded ${req.body.paymentMethod || 'Cash'} payment of ₹${invoice.totalAmount} for Invoice ${invoice.invoiceNumber}`
+    );
 
-    return res.json({ success: true, message: 'Payment registered successfully.', data: invoice });
+    return res.json({ success: true, message: `Manual payment of ₹${invoice.totalAmount} recorded by ${req.user.name}.`, data: invoice });
   } catch (err) {
     console.error('Invoice pay error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
@@ -781,7 +955,7 @@ router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admi
       const penalty = b.penalty || invoice?.penalty || 0;
       const tax = invoice?.tax || Math.round(b.totalAmount * 0.18);
       const totalAmount = invoice?.totalAmount || (b.totalAmount + tax + penalty);
-      const paymentStatus = invoice?.paymentStatus || 'Paid';
+      const paymentStatus = invoice?.paymentStatus || 'Unpaid';
       const invoiceNumber = invoice?.invoiceNumber || 'INV-TEMP';
       
       return {

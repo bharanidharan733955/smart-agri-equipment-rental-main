@@ -6,6 +6,7 @@ import {
   Wrench, 
   LogOut, 
   ShieldCheck, 
+  UserCheck,
   Building2,
   Menu,
   MessageSquare,
@@ -18,6 +19,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
     { id: 'add-equipment', label: 'Add Equipment', icon: PlusCircle, isAction: true },
     { id: 'requests', label: 'Rental Requests', icon: Calendar },
     { id: 'farmers', label: 'Registered Farmers', icon: ShieldCheck },
+    { id: 'verifications', label: 'Farmer Verification', icon: UserCheck },
     { id: 'invoices', label: 'Billing & Invoices', icon: Building2 },
     { id: 'feedback', label: 'Farmer Feedback', icon: MessageSquare },
     { id: 'reports', label: 'Billing & Reports', icon: FileText }

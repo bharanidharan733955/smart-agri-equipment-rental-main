@@ -39,34 +39,55 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
   };
 
   const handleViewInvoice = (booking) => {
-    const baseAmt = booking.totalAmount;
-    const tax = Math.round(baseAmt * 0.18);
-    const penalty = booking.penalty || 0;
-    const grandTotal = baseAmt + tax + penalty;
+    const isFinal = booking.isFinalBilled || booking.status === 'Returned';
+    const tentative = booking.tentativeBill || {
+      baseAmount: (booking.rentalRate || 1800) * (booking.durationDays || 1),
+      estimatedFuelLiters: (booking.durationDays || 1) * 6.0,
+      fuelType: 'Diesel',
+      fuelPricePerLiter: 95,
+      estimatedFuelCost: Math.round((booking.durationDays || 1) * 6.0 * 95),
+      tax: Math.round(((booking.rentalRate || 1800) * (booking.durationDays || 1) + (booking.durationDays || 1) * 6.0 * 95) * 0.18),
+      tentativeTotal: booking.totalAmount
+    };
+
+    const final = booking.finalBill || (isFinal ? {
+      baseAmount: tentative.baseAmount,
+      actualFuelLiters: booking.jobDetails?.fuelUsed || tentative.estimatedFuelLiters,
+      fuelType: booking.jobDetails?.fuelType || tentative.fuelType || 'Diesel',
+      fuelPricePerLiter: tentative.fuelPricePerLiter || 95,
+      actualFuelCost: Math.round((booking.jobDetails?.fuelUsed || tentative.estimatedFuelLiters) * (tentative.fuelPricePerLiter || 95)),
+      fuelAdjustment: Math.round((booking.jobDetails?.fuelUsed || tentative.estimatedFuelLiters) * (tentative.fuelPricePerLiter || 95)) - tentative.estimatedFuelCost,
+      tax: Math.round((tentative.baseAmount + (booking.jobDetails?.fuelUsed || tentative.estimatedFuelLiters) * 95) * 0.18),
+      totalAmount: booking.totalAmount
+    } : null);
+
     const invoiceNum = booking.invoiceNumber || `INV-${booking._id?.toString()?.substr(-6)?.toUpperCase() || 'TEMP'}`;
 
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
         <head>
-          <title>AgriRentGov - Farmer Invoice ${invoiceNum}</title>
+          <title>AgriRentGov - Invoice ${invoiceNum}</title>
           <style>
             body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; background-color: #ffffff; }
-            .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-            h1 { color: var(--color-primary); font-size: 28px; margin: 0 0 10px 0; }
-            .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .invoice-box { max-width: 820px; margin: auto; padding: 30px; border: 1px solid #cbd5e1; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+            h1 { color: #15803d; font-size: 26px; margin: 0 0 5px 0; }
+            .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+            .badge-tentative { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+            .badge-final { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+            .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; margin-top: 15px; }
             .meta-table td { padding: 5px 0; font-size: 13px; color: #64748b; }
-            .meta-table td.strong { font-weight: bold; color: #0f172a; text-align: right; }
-            .section-title { font-size: 16px; font-weight: bold; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 30px; margin-bottom: 10px; }
-            .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            .data-table th { background-color: #f8fafc; color: #475569; font-weight: bold; text-align: left; padding: 10px; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
-            .data-table td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155; }
+            .section-title { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 25px; margin-bottom: 12px; letter-spacing: 0.05em; }
+            .data-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+            .data-table th { background-color: #f8fafc; color: #475569; font-weight: bold; text-align: left; padding: 9px 12px; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
+            .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155; }
             .amount { text-align: right; font-weight: bold; }
             th.amount { text-align: right; }
-            .totals-table { width: 250px; margin-left: auto; margin-top: 20px; border-collapse: collapse; }
-            .totals-table td { padding: 8px 5px; font-size: 13px; color: #64748b; }
-            .totals-table tr.grand-total td { font-size: 16px; font-weight: 800; color: var(--color-primary); border-top: 2px solid #e2e8f0; padding-top: 12px; }
-            .btn-print { background-color: var(--color-primary); color: white; border: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px; cursor: pointer; display: block; margin: 0 auto 20px auto; }
+            .report-card { background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px; margin-top: 15px; font-size: 13px; color: #0369a1; }
+            .totals-table { width: 340px; margin-left: auto; margin-top: 20px; border-collapse: collapse; }
+            .totals-table td { padding: 6px 8px; font-size: 13px; color: #64748b; }
+            .totals-table tr.grand-total td { font-size: 16px; font-weight: 800; color: #15803d; border-top: 2px solid #0f172a; padding-top: 10px; }
+            .btn-print { background-color: #15803d; color: white; border: none; padding: 10px 22px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: block; margin: 0 auto 20px auto; }
             @media print {
               .btn-print { display: none; }
               body { padding: 0; }
@@ -75,79 +96,120 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
           </style>
         </head>
         <body>
-          <button class="btn-print" onclick="window.print()">Print / Download Invoice PDF</button>
+          <button class="btn-print" onclick="window.print()">Print / Download Official Invoice PDF</button>
           <div class="invoice-box">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
               <div>
-                <h1>🌾 AgriRentGov Invoice</h1>
-                <div style="font-size: 12px; color: #64748b;">State Government Sponsored Rent Audited Log Ledger</div>
+                <h1>🌾 AgriRentGov Official Invoice</h1>
+                <div style="font-size: 12px; color: #64748b;">State Cooperative Equipment Rental &amp; Fuel Verification Ledger</div>
               </div>
-              <div style="text-align: right; font-size: 13px; color: #475569;">
-                <strong>Invoice Number:</strong> ${invoiceNum}<br>
-                <strong>Date:</strong> ${new Date(booking.createdAt).toLocaleDateString()}
+              <div style="text-align: right;">
+                <span class="badge ${isFinal ? 'badge-final' : 'badge-tentative'}">
+                  ${isFinal ? '✓ Final Settled Invoice' : '⏳ Tentative Bill Estimate'}
+                </span>
+                <div style="font-size: 12px; color: #475569; margin-top: 8px;">
+                  <strong>Invoice No:</strong> ${invoiceNum}<br>
+                  <strong>Date:</strong> ${new Date(booking.createdAt).toLocaleDateString()}
+                </div>
               </div>
             </div>
             
             <table class="meta-table">
               <tr>
                 <td>
-                  <strong>Billed To:</strong><br>
-                  Farmer Name: ${booking.farmerName || 'Registered Farmer'}<br>
-                  Farmer ID: ${booking.farmerId || 'N/A'}<br>
-                  Contact: ${booking.farmer?.mobile || 'N/A'}
+                  <strong>Billed To (Farmer):</strong><br>
+                  ${booking.farmerName || booking.farmer?.name || 'Registered Farmer'}<br>
+                  Farmer ID: ${booking.farmerId || booking.farmer?.farmerId || 'N/A'}<br>
+                  Mobile: ${booking.farmer?.mobile || 'N/A'}<br>
+                  District: ${booking.farmer?.district || booking.location || 'Tamil Nadu'}
                 </td>
                 <td style="text-align: right; vertical-align: top;">
                   <strong>Cooperative Provider:</strong><br>
-                  Ludhiana Central Hub #1<br>
-                  State Agriculture Department
+                  ${booking.equipment?.cooperativeHub || 'State Cooperative Hub'}<br>
+                  Department of Agriculture &amp; Farmers Welfare
                 </td>
               </tr>
             </table>
 
-            <div class="section-title">Rental Specifications</div>
+            <div class="section-title">1. Tentative Bill Breakdown (Initial Reservation)</div>
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Equipment Description</th>
-                  <th>Rental Duration</th>
-                  <th class="amount">Unit Rate</th>
-                  <th class="amount">Total Amount</th>
+                  <th>Line Item</th>
+                  <th>Details</th>
+                  <th class="amount">Rate</th>
+                  <th class="amount">Subtotal</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>
-                    <strong>${booking.equipmentName || booking.equipment?.name || 'Agri Equipment'}</strong><br>
-                    <small>Category: ${booking.equipment?.category || 'Tractor'}</small>
-                  </td>
-                  <td>${booking.durationDays || booking.days} Days</td>
+                  <td>Base Equipment Rental</td>
+                  <td>${booking.equipmentName || booking.equipment?.name || 'Agri Machinery'} (${booking.durationDays || booking.days} Days)</td>
                   <td class="amount">₹${booking.rentalRate || booking.equipment?.rentalRate}/day</td>
-                  <td class="amount">₹${baseAmt.toLocaleString()}</td>
+                  <td class="amount">₹${tentative.baseAmount.toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td>Estimated Fuel Allocation</td>
+                  <td>${tentative.estimatedFuelLiters.toFixed(1)} Liters ${tentative.fuelType || 'Diesel'} (Baseline Est: 6L/day)</td>
+                  <td class="amount">₹${tentative.fuelPricePerLiter || 95}/L</td>
+                  <td class="amount">₹${tentative.estimatedFuelCost.toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td>CGST &amp; SGST (18%)</td>
+                  <td>Tax on (Base Rental + Est. Fuel)</td>
+                  <td class="amount">18%</td>
+                  <td class="amount">₹${tentative.tax.toLocaleString()}</td>
+                </tr>
+                <tr style="background-color: #f8fafc; font-weight: bold;">
+                  <td colspan="3" style="text-align: right; color: #475569;">Tentative Bill Amount:</td>
+                  <td class="amount" style="color: #d97706;">₹${tentative.tentativeTotal.toLocaleString()}</td>
                 </tr>
               </tbody>
             </table>
 
-            <table class="totals-table">
-              <tr>
-                <td>Subtotal Base:</td>
-                <td class="amount">₹${baseAmt.toLocaleString()}</td>
-              </tr>
-              <tr>
-                <td>CGST & SGST (18%):</td>
-                <td class="amount">₹${tax.toLocaleString()}</td>
-              </tr>
-              <tr>
-                <td>Late Penalties:</td>
-                <td class="amount">₹${penalty.toLocaleString()}</td>
-              </tr>
-              <tr class="grand-total">
-                <td>Grand Total:</td>
-                <td class="amount">₹${grandTotal.toLocaleString()}</td>
-              </tr>
-            </table>
+            ${isFinal && final ? `
+              <div class="section-title">2. Operator Field Work &amp; Fuel Log Report</div>
+              <div class="report-card">
+                <div style="font-weight: bold; margin-bottom: 5px;">Field Operator Completion Report</div>
+                <div>• Actual Fuel Consumed: <strong>${final.actualFuelLiters} Liters (${final.fuelType})</strong> @ ₹${final.fuelPricePerLiter}/Liter</div>
+                <div>• Verified Fuel Cost: <strong>₹${final.actualFuelCost.toLocaleString()}</strong> (Estimated: ₹${tentative.estimatedFuelCost.toLocaleString()})</div>
+                <div>• Fuel Adjustment Variance: <strong style="color: ${final.fuelAdjustment >= 0 ? '#d97706' : '#15803d'}">${final.fuelAdjustment >= 0 ? '+' : ''}₹${final.fuelAdjustment}</strong></div>
+                <div>• Work Remarks: ${booking.jobDetails?.remarks || 'Work completed in full according to field specifications.'}</div>
+              </div>
 
-            <div style="margin-top: 50px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-              Thank you for renting with AgriRent. This invoice is auto-audited and digitally encrypted in compliance with the State Cooperative Registry.
+              <div class="section-title">3. Final Settled Invoice Calculation</div>
+              <table class="totals-table">
+                <tr>
+                  <td>Base Equipment Rental:</td>
+                  <td class="amount">₹${final.baseAmount.toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td>Verified Fuel Consumption (${final.actualFuelLiters}L):</td>
+                  <td class="amount">₹${final.actualFuelCost.toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td>Fuel Adjustment vs Tentative:</td>
+                  <td class="amount" style="color: ${final.fuelAdjustment >= 0 ? '#d97706' : '#15803d'}">
+                    ${final.fuelAdjustment >= 0 ? '+' : ''}₹${final.fuelAdjustment.toLocaleString()}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Final CGST &amp; SGST (18%):</td>
+                  <td class="amount">₹${final.tax.toLocaleString()}</td>
+                </tr>
+                <tr class="grand-total">
+                  <td>Final Settled Amount:</td>
+                  <td class="amount">₹${final.totalAmount.toLocaleString()}</td>
+                </tr>
+              </table>
+            ` : `
+              <div style="margin-top: 20px; padding: 12px; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 12px; color: #92400e;">
+                ℹ️ <strong>Work In Progress:</strong> This is a Tentative Bill estimate. The final bill will be calculated after work completion based on the operator's actual fuel consumption report. Minimal variance guaranteed.
+              </div>
+            `}
+
+            <div style="margin-top: 40px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+              AgriRentGov State Agriculture Cooperative Portal • Digital Encrypted Record • State Rent Audit Certified
             </div>
           </div>
         </body>
@@ -276,8 +338,13 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                     <div style={{ color: 'var(--color-text)' }}>{new Date(b.startDate).toLocaleDateString()}</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)' }}>{b.durationDays || b.days} Days</div>
                   </div>
-                  <div style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
-                    ₹{b.totalAmount}
+                  <div>
+                    <div style={{ fontWeight: 800, color: b.isFinalBilled || b.status === 'Returned' ? 'var(--color-primary)' : 'var(--color-warning)' }}>
+                      ₹{b.totalAmount}
+                    </div>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, color: b.isFinalBilled || b.status === 'Returned' ? 'var(--color-primary)' : '#f59e0b' }}>
+                      {b.isFinalBilled || b.status === 'Returned' ? 'Final Settled' : 'Tentative Bill'}
+                    </span>
                   </div>
                   <div>
                     <span

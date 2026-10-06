@@ -5,6 +5,7 @@ import CoopEquipmentView from './CoopEquipmentView';
 import AddEquipmentModal from './AddEquipmentModal';
 import EditEquipmentModal from './EditEquipmentModal';
 import EquipmentDetailsModal from './EquipmentDetailsModal';
+import FarmerVerificationView from './FarmerVerificationView';
 import UploadImageModal from './UploadImageModal';
 import {
   fetchCoopEquipment,
@@ -64,6 +65,9 @@ export default function CoopPortal({ onLogout }) {
   const [uploadItem, setUploadItem] = useState(null);
   const [maintItem, setMaintItem] = useState(null);
   const [jobReportItem, setJobReportItem] = useState(null);
+  const [paymentModalInv, setPaymentModalInv] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [paymentNotes, setPaymentNotes] = useState('');
 
   // Maintenance form state
   const [maintDesc, setMaintDesc] = useState('');
@@ -104,31 +108,23 @@ export default function CoopPortal({ onLogout }) {
   }, [activeTab]);
 
   const loadCoopData = async () => {
-    // Always fetch equipment + stats in parallel
-    const [list, st] = await Promise.all([
+    // Fetch all coop datasets in parallel to ensure no blank tabs
+    const [list, st, bks, ops, frms, invs, fbs] = await Promise.all([
       fetchCoopEquipment(),
       fetchCoopStats(),
+      fetchFarmerBookings(),
+      fetchCoopOperators(),
+      fetchCoopFarmers(),
+      fetchCoopInvoices(),
+      fetchFarmerFeedbackCoop()
     ]);
     setEquipmentList(list || []);
     if (st) setStats(st);
-
-    // Tab-specific parallel fetches
-    if (activeTab === 'requests') {
-      const [bks, ops] = await Promise.all([fetchFarmerBookings(), fetchCoopOperators()]);
-      setBookings(bks || []);
-      setOperators(ops || []);
-    } else if (activeTab === 'farmers') {
-      const frms = await fetchCoopFarmers();
-      setFarmers(frms || []);
-    } else if (activeTab === 'invoices') {
-      const invs = await fetchCoopInvoices();
-      setInvoices(invs || []);
-    } else if (activeTab === 'feedback') {
-      const fbs = await fetchFarmerFeedbackCoop();
-      setFeedbacks(fbs || []);
-      const ops = await fetchCoopOperators();
-      setOperators(ops || []);
-    }
+    setBookings(bks || []);
+    setOperators(ops || []);
+    setFarmers(frms || []);
+    setInvoices(invs || []);
+    setFeedbacks(fbs || []);
   };
 
   // Add Equipment Handler
@@ -235,12 +231,20 @@ export default function CoopPortal({ onLogout }) {
     }
   };
 
-  // Pay Invoice
-  const handlePayInvoice = async (id) => {
-    const res = await payInvoice(id);
+  // Pay Invoice / Record Manual Payment
+  const handleRecordManualPaymentSubmit = async (e) => {
+    e.preventDefault();
+    if (!paymentModalInv) return;
+    const invId = paymentModalInv._id || paymentModalInv.id;
+    const res = await payInvoice(invId, { paymentMethod, staffNotes: paymentNotes });
     if (res.success) {
-      toast.success('Invoice marked as paid!');
+      toast.success(`Manual payment of ₹${paymentModalInv.totalAmount} recorded successfully!`);
+      setPaymentModalInv(null);
+      setPaymentNotes('');
+      setPaymentMethod('Cash');
       loadCoopData();
+    } else {
+      toast.error(res.message || 'Failed to record payment.');
     }
   };
 
@@ -658,62 +662,96 @@ export default function CoopPortal({ onLogout }) {
                   <th style={{ padding: '0.75rem 1rem' }}>Equipment</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Start Date</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Duration</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Total Cost</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Status</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Bill Amount</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Work Status</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Payment Status</th>
                   <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {bookings.map((bk) => (
-                  <tr key={bk._id || bk.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <span style={{ fontWeight: 700, display: 'block' }}>{bk.farmer?.name || 'Farmer'}</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{bk.farmer?.mobile}</span>
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem' }}>{bk.equipment?.name}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>{new Date(bk.startDate).toLocaleDateString()}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>{bk.durationDays} Days</td>
-                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 700 }}>₹{bk.totalAmount}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <span style={{
-                        fontSize: '0.72rem',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '6px',
-                        backgroundColor: bk.status === 'Pending' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
-                        color: bk.status === 'Pending' ? '#f59e0b' : 'var(--color-primary)',
-                        fontWeight: 700
-                      }}>
-                        {bk.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                      {bk.status === 'Pending' && (
-                        <>
+                {bookings.map((bk) => {
+                  const matchingInv = invoices.find(i => (i.booking?._id || i.booking?.id || i.booking) === (bk._id || bk.id));
+                  return (
+                    <tr key={bk._id || bk.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{ fontWeight: 700, display: 'block', color: 'var(--color-text)' }}>{bk.farmer?.name || 'Farmer'}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{bk.farmer?.mobile}</span>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{bk.equipment?.name}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>{new Date(bk.startDate).toLocaleDateString()}</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>{bk.durationDays} Days</td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{ color: 'var(--color-primary)', fontWeight: 800, display: 'block' }}>
+                          ₹{bk.totalAmount || bk.tentativeBill?.totalAmount || 0}
+                        </span>
+                        <span style={{ fontSize: '0.72rem', color: bk.isFinalBilled ? 'var(--color-primary)' : 'var(--color-muted)' }}>
+                          {bk.isFinalBilled ? 'Final Settled' : 'Tentative Bill'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{
+                          fontSize: '0.72rem',
+                          padding: '0.2rem 0.5rem',
+                          borderRadius: '6px',
+                          backgroundColor: bk.status === 'Pending' ? 'var(--color-warning-bg)' : 'var(--color-success-bg)',
+                          color: bk.status === 'Pending' ? '#f59e0b' : 'var(--color-primary)',
+                          fontWeight: 700
+                        }}>
+                          {bk.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        {bk.paymentStatus === 'Paid' ? (
+                          <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(21, 128, 61,0.15)', color: 'var(--color-primary)', fontWeight: 700 }}>
+                            ✓ Paid
+                          </span>
+                        ) : bk.paymentStatus === 'Overdue' ? (
+                          <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(239, 68, 68,0.15)', color: '#f87171', fontWeight: 700 }}>
+                            ⚠️ Overdue (+₹{bk.lateFine || 0})
+                          </span>
+                        ) : (
+                          <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(245, 158, 11,0.15)', color: '#f59e0b', fontWeight: 700 }}>
+                            🕒 Unpaid
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
+                        {bk.status === 'Pending' && (
+                          <>
+                            <button
+                              onClick={() => handleApproveBooking(bk._id || bk.id)}
+                              style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', marginRight: '0.5rem', fontWeight: 700 }}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleRejectBooking(bk._id || bk.id)}
+                              style={{ backgroundColor: 'var(--color-danger)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        {bk.status === 'Returned' && bk.jobDetails && (
                           <button
-                            onClick={() => handleApproveBooking(bk._id || bk.id)}
-                            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', marginRight: '0.5rem', fontWeight: 700 }}
+                            onClick={() => setJobReportItem(bk.jobDetails)}
+                            style={{ backgroundColor: 'var(--color-info)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700, marginRight: '0.5rem' }}
                           >
-                            Approve
+                            Report
                           </button>
+                        )}
+                        {bk.paymentStatus !== 'Paid' && matchingInv && (
                           <button
-                            onClick={() => handleRejectBooking(bk._id || bk.id)}
-                            style={{ backgroundcolor: 'var(--color-danger)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                            onClick={() => setPaymentModalInv(matchingInv)}
+                            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
                           >
-                            Reject
+                            Collect Payment
                           </button>
-                        </>
-                      )}
-                      {bk.status === 'Returned' && bk.jobDetails && (
-                        <button
-                          onClick={() => setJobReportItem(bk.jobDetails)}
-                          style={{ backgroundcolor: 'var(--color-info)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
-                        >
-                          View Report
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -721,96 +759,160 @@ export default function CoopPortal({ onLogout }) {
       )}
 
       {activeTab === 'farmers' && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto', color: 'var(--color-muted)' }}>
-          <span className="section-tag">COOPERATIVE MEMBERS</span>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', color: 'var(--color-muted)' }}>
+          <span className="section-tag">COOPERATIVE DIRECTORY</span>
           <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
-            Registered Farmers
+            Registered Farmers List
           </h1>
           <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
-                  <th style={{ padding: '0.75rem 1rem' }}>Name</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Email</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Mobile</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>District</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Status</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Farmer Name</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Farmer ID</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Mobile Number</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Email Address</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>District & Taluk</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Village / Address</th>
+                  <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {farmers.map((f) => (
-                  <tr key={f._id || f.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{f.name}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>{f.email}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>{f.mobile}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>{f.district}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <span style={{
-                        fontSize: '0.72rem',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '6px',
-                        backgroundColor: f.isApproved ? 'var(--color-success-bg)' : 'var(--color-danger-bg)',
-                        color: f.isApproved ? 'var(--color-primary)' : '#ef4444',
-                        fontWeight: 700
-                      }}>
-                        {f.isApproved ? 'Approved' : 'Pending Approval'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                      {!f.isApproved && (
-                        <button
-                          onClick={() => handleApproveFarmer(f._id || f.id)}
-                          style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
-                        >
-                          Approve Farmer
-                        </button>
-                      )}
+                {farmers.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--color-muted)' }}>
+                      No registered farmers found in database directory.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  farmers.map((f) => (
+                    <tr key={f._id || f.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: 'var(--color-text)' }}>{f.name}</td>
+                      <td style={{ padding: '0.85rem 1rem', fontFamily: 'monospace', fontWeight: 700, color: 'var(--color-info)' }}>
+                        {f.farmerId || 'FID-TN-2026-8812'}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem' }}>{f.mobile || 'N/A'}</td>
+                      <td style={{ padding: '0.85rem 1rem' }}>{f.email}</td>
+                      <td style={{ padding: '0.85rem 1rem' }}>{f.district || 'Coimbatore'} • {f.taluk || 'Pollachi'}</td>
+                      <td style={{ padding: '0.85rem 1rem' }}>{f.village || f.address || 'N/A'}</td>
+                      <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                        <span style={{
+                          fontSize: '0.75rem',
+                          padding: '0.25rem 0.65rem',
+                          borderRadius: '20px',
+                          backgroundColor: 'var(--color-success-bg)',
+                          color: 'var(--color-primary)',
+                          fontWeight: 700,
+                          border: '1px solid var(--color-border)'
+                        }}>
+                          Registered Member
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
       )}
 
+      {activeTab === 'verifications' && (
+        <FarmerVerificationView />
+      )}
+
       {activeTab === 'invoices' && (
         <div style={{ maxWidth: '1200px', margin: '0 auto', color: 'var(--color-muted)' }}>
           <span className="section-tag">FINANCES</span>
           <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
-            Billing & Invoices
+            Billing & Invoices (Manual Payment Collection)
           </h1>
           <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem 1rem' }}>Invoice Number</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Farmer</th>
-                  <th style={{ padding: '0.75rem 1rem' }}>Tax (18% GST)</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Farmer & Equipment</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Due Date (7-Day Grace)</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Late Fine</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Total Amount</th>
-                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Status</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Payment Status</th>
+                  <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {invoices.map((inv) => (
                   <tr key={inv._id || inv.id} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{inv.invoiceNumber}</td>
+                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700, fontFamily: 'monospace', color: 'var(--color-text)' }}>{inv.invoiceNumber}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>
-                      <span style={{ display: 'block', fontWeight: 600 }}>{inv.booking?.farmer?.name || 'Farmer'}</span>
+                      <span style={{ display: 'block', fontWeight: 600, color: 'var(--color-text)' }}>{inv.booking?.farmer?.name || 'Farmer'}</span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{inv.booking?.equipment?.name}</span>
                     </td>
-                    <td style={{ padding: '0.75rem 1rem' }}>₹{inv.tax}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 800 }}>₹{inv.totalAmount}</td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      {inv.dueDate ? new Date(inv.dueDate).toLocaleDateString() : 'Work Pending'}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', color: inv.lateFine > 0 ? '#f87171' : 'var(--color-muted)', fontWeight: inv.lateFine > 0 ? 700 : 400 }}>
+                      {inv.lateFine > 0 ? `+₹${inv.lateFine}` : '₹0'}
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 800, fontSize: '1rem' }}>₹{inv.totalAmount}</td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      {inv.paymentStatus === 'Paid' ? (
+                        <span style={{
+                          fontSize: '0.72rem',
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '6px',
+                          backgroundColor: 'rgba(21, 128, 61,0.15)',
+                          color: 'var(--color-primary)',
+                          fontWeight: 700
+                        }}>
+                          ✓ Paid ({inv.paymentMethod || 'Cash'})
+                        </span>
+                      ) : inv.paymentStatus === 'Overdue' ? (
+                        <span style={{
+                          fontSize: '0.72rem',
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '6px',
+                          backgroundColor: 'rgba(239, 68, 68,0.15)',
+                          color: '#f87171',
+                          fontWeight: 700
+                        }}>
+                          ⚠️ Overdue (+₹{inv.lateFine || 0})
+                        </span>
+                      ) : (
+                        <span style={{
+                          fontSize: '0.72rem',
+                          padding: '0.2rem 0.6rem',
+                          borderRadius: '6px',
+                          backgroundColor: 'rgba(245, 158, 11,0.15)',
+                          color: '#f59e0b',
+                          fontWeight: 700
+                        }}>
+                          🕒 Unpaid (1 Wk Window)
+                        </span>
+                      )}
+                    </td>
                     <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
-                      <span style={{
-                        fontSize: '0.72rem',
-                        padding: '0.2rem 0.6rem',
-                        borderRadius: '6px',
-                        backgroundColor: 'var(--color-success-bg)',
-                        color: 'var(--color-primary)',
-                        fontWeight: 700
-                      }}>✓ Paid at Booking</span>
+                      {inv.paymentStatus !== 'Paid' ? (
+                        <button
+                          onClick={() => setPaymentModalInv(inv)}
+                          style={{
+                            backgroundColor: 'var(--color-primary)',
+                            color: 'var(--color-text)',
+                            border: 'none',
+                            padding: '0.45rem 0.9rem',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontWeight: 700,
+                            fontSize: '0.8rem'
+                          }}
+                        >
+                          Record Payment
+                        </button>
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
+                          Collected by {inv.paidByStaff || 'Staff'}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -1280,25 +1382,95 @@ export default function CoopPortal({ onLogout }) {
           </div>
         );
       })()}
-      {/* Job Report Modal */}
-      {jobReportItem && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'var(--color-surface)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '500px', backgroundColor: 'var(--color-surface)', borderRadius: '16px', padding: '2rem', border: '1px solid var(--color-border)', position: 'relative' }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>Operator Job Report</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', fontSize: '0.9rem', color: 'var(--color-muted)' }}>
-              <div><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Fuel Used:</strong> {jobReportItem.fuelUsed || 0} L</div>
-              <div><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Equipment Condition:</strong> {jobReportItem.equipmentCondition || 'Good'}</div>
-              <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Work Completed:</strong> {jobReportItem.workCompleted || 'N/A'}</div>
-              {jobReportItem.damageInfo && (
-                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: 'var(--color-danger)' }}>Damage Info:</strong> {jobReportItem.damageInfo}</div>
-              )}
-              {jobReportItem.remarks && (
-                <div style={{ gridColumn: 'span 2' }}><strong style={{ display: 'block', color: 'var(--color-muted)' }}>Remarks:</strong> {jobReportItem.remarks}</div>
-              )}
+      {/* Manual Payment Collection Modal */}
+      {paymentModalInv && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '520px', backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--color-border)', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <div>
+                <span className="section-tag" style={{ marginBottom: '0.2rem' }}>HUB CASHIER COLLECTION</span>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)' }}>Record Manual Payment</h2>
+              </div>
+              <button onClick={() => setPaymentModalInv(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', cursor: 'pointer' }}>
+                <XCircle size={22} />
+              </button>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button onClick={() => setJobReportItem(null)} style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.6rem 1.2rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Close</button>
-            </div>
+
+            <form onSubmit={handleRecordManualPaymentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ backgroundColor: 'var(--color-bg)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Invoice Number:</span>
+                  <strong style={{ color: 'var(--color-info)' }}>{paymentModalInv.invoiceNumber}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Farmer:</span>
+                  <strong style={{ color: 'var(--color-text)' }}>{paymentModalInv.booking?.farmer?.name || 'Farmer'} ({paymentModalInv.booking?.farmer?.mobile})</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Equipment:</span>
+                  <strong style={{ color: 'var(--color-text)' }}>{paymentModalInv.booking?.equipment?.name}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Base / Final Bill:</span>
+                  <span>₹{paymentModalInv.finalAmount || paymentModalInv.tentativeAmount || paymentModalInv.totalAmount}</span>
+                </div>
+                {paymentModalInv.lateFine > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#f87171' }}>
+                    <span>Delay Late Fine (7-day overdue):</span>
+                    <strong style={{ color: '#f87171' }}>+₹{paymentModalInv.lateFine}</strong>
+                  </div>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: '0.6rem', marginTop: '0.6rem' }}>
+                  <strong style={{ color: 'var(--color-text)', fontSize: '0.95rem' }}>Total Amount to Collect:</strong>
+                  <strong style={{ color: 'var(--color-primary)', fontSize: '1.2rem' }}>₹{paymentModalInv.totalAmount}</strong>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.4rem' }}>
+                  Select Payment Method *
+                </label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', fontSize: '0.9rem' }}
+                >
+                  <option value="Cash">Cash Collection at Hub</option>
+                  <option value="UPI">UPI / QR Code Transfer</option>
+                  <option value="Bank Transfer">Cooperative Bank Transfer</option>
+                  <option value="POS Card">POS Card Terminal</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.4rem' }}>
+                  Staff Receipt / Transaction Reference Notes (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Receipt #8812 / UPI Txn ID 9928..."
+                  value={paymentNotes}
+                  onChange={(e) => setPaymentNotes(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', fontSize: '0.9rem' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setPaymentModalInv(null)}
+                  style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.65rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: '0.65rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none' }}
+                >
+                  Confirm Manual Payment
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

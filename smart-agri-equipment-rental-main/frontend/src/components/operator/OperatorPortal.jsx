@@ -20,6 +20,7 @@ export default function OperatorPortal({ user, onLogout }) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [fuelUsed, setFuelUsed] = useState('');
+  const [fuelType, setFuelType] = useState('Diesel');
   const [remarks, setRemarks] = useState('');
   const [workCompleted, setWorkCompleted] = useState('Fully Completed');
   const [fieldLocation, setFieldLocation] = useState('');
@@ -36,6 +37,9 @@ export default function OperatorPortal({ user, onLogout }) {
       };
       setStartTime(formatLocal(defaultStart));
       setEndTime(formatLocal(new Date()));
+      if (activeJob.booking?.tentativeBill?.fuelType) {
+        setFuelType(activeJob.booking.tentativeBill.fuelType);
+      }
     }
   }, [activeJob]);
 
@@ -80,6 +84,7 @@ export default function OperatorPortal({ user, onLogout }) {
     setActionLoading(true);
     const res = await completeJobApi(activeJob._id || activeJob.id, {
       fuelUsed: parseFloat(fuelUsed) || 0,
+      fuelType,
       remarks,
       workCompleted,
       equipmentCondition,
@@ -90,6 +95,7 @@ export default function OperatorPortal({ user, onLogout }) {
       toast.success('Job completed and report submitted successfully!');
       setActiveJob(null);
       setFuelUsed('');
+      setFuelType('Diesel');
       setRemarks('');
       setWorkCompleted('Fully Completed');
       setEquipmentCondition('Good');
@@ -105,6 +111,30 @@ export default function OperatorPortal({ user, onLogout }) {
     active: jobs.find(j => j.status === 'Started'),
     completed: jobs.filter(j => j.status === 'Completed').length
   };
+
+  // Helper for live final bill preview calculation in operator completion modal
+  const getLiveFinalBillPreview = () => {
+    if (!activeJob) return null;
+    const durationDays = activeJob.booking?.durationDays || 1;
+    const rate = activeJob.equipment?.rentalRate || activeJob.booking?.rentalRate || 1800;
+    const baseAmt = rate * durationDays;
+    const pricePerL = fuelType === 'Petrol' ? 102 : 95;
+    const actualL = parseFloat(fuelUsed) || 0;
+    const actualFuelAmt = Math.round(actualL * pricePerL);
+    
+    const estL = durationDays * 6.0;
+    const estFuelAmt = Math.round(estL * pricePerL);
+    const estTotal = activeJob.booking?.tentativeBill?.tentativeTotal || Math.round((baseAmt + estFuelAmt) * 1.18);
+    
+    const subtotal = baseAmt + actualFuelAmt;
+    const tax = Math.round(subtotal * 0.18);
+    const finalTotal = subtotal + tax;
+    const diff = finalTotal - estTotal;
+
+    return { baseAmt, actualL, pricePerL, actualFuelAmt, estTotal, finalTotal, diff };
+  };
+
+  const livePreview = activeJob ? getLiveFinalBillPreview() : null;
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
@@ -200,24 +230,70 @@ export default function OperatorPortal({ user, onLogout }) {
 
         {activeTab === 'jobs' && activeJob ? (
           /* Active job complete report form */
-          <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--green-primary)', marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--color-primary)' }}>Submit Work Completion Report</h2>
-            <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              Job ID: {activeJob._id || activeJob.id} | Booking Date: {activeJob.booking?.startDate || 'Today'}
+          <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--color-primary)', marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.3rem', color: 'var(--color-primary)' }}>Submit Work Completion &amp; Fuel Log Report</h2>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
+              Job ID: {activeJob._id || activeJob.id} | Machine: {activeJob.equipment?.name || 'Machinery'} | Duration: {activeJob.booking?.durationDays || 1} Days
             </p>
+
             <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Fuel Consumption (Liters)</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Fuel Type Used</label>
+                <select
+                  value={fuelType}
+                  onChange={(e) => setFuelType(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                >
+                  <option value="Diesel">Diesel (₹95/Liter)</option>
+                  <option value="Petrol">Petrol (₹102/Liter)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Actual Fuel Consumed (Liters) *</label>
                 <input
                   type="number"
                   step="0.1"
                   required
-                  placeholder="e.g. 15.5"
+                  placeholder="e.g. 12.5"
                   value={fuelUsed}
                   onChange={(e) => setFuelUsed(e.target.value)}
                   style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
                 />
               </div>
+
+              {/* Live Final Bill Preview Box */}
+              {livePreview && (
+                <div style={{ gridColumn: 'span 2', backgroundColor: 'rgba(2, 132, 199, 0.08)', border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '14px', padding: '1rem 1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.4rem' }}>
+                    <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-info)' }}>
+                      ⚡ LIVE FINAL BILL CALCULATION PREVIEW
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: livePreview.diff >= 0 ? 'var(--color-warning)' : 'var(--color-success)', fontWeight: 700 }}>
+                      Fuel Adjustment: {livePreview.diff >= 0 ? '+' : ''}₹{livePreview.diff}
+                    </span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '0.75rem', fontSize: '0.8rem' }}>
+                    <div>
+                      <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.7rem' }}>Tentative Bill Est:</span>
+                      <strong style={{ color: 'var(--color-text)' }}>₹{livePreview.estTotal}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.7rem' }}>Reported Fuel Cost:</span>
+                      <strong style={{ color: 'var(--color-text)' }}>{livePreview.actualL}L @ ₹{livePreview.pricePerL} = ₹{livePreview.actualFuelAmt}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.7rem' }}>GST Tax (18%):</span>
+                      <strong style={{ color: 'var(--color-text)' }}>₹{Math.round((livePreview.baseAmt + livePreview.actualFuelAmt) * 0.18)}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.7rem' }}>Calculated Final Bill:</span>
+                      <strong style={{ color: 'var(--color-primary)', fontSize: '1rem' }}>₹{livePreview.finalTotal}</strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Status / Progress</label>
                 <select
@@ -230,7 +306,8 @@ export default function OperatorPortal({ user, onLogout }) {
                   <option value="Aborted">Aborted / Halted</option>
                 </select>
               </div>
-              <div style={{ gridColumn: 'span 2' }}>
+
+              <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Equipment Post-Work Condition</label>
                 <select
                   value={equipmentCondition}
@@ -242,6 +319,7 @@ export default function OperatorPortal({ user, onLogout }) {
                   <option value="Damaged">Damaged / Malfunctioning</option>
                 </select>
               </div>
+
               <div style={{ gridColumn: 'span 2' }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Damage details (if any)</label>
                 <textarea
@@ -252,7 +330,7 @@ export default function OperatorPortal({ user, onLogout }) {
                 />
               </div>
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Remarks & Notes</label>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Remarks &amp; Notes</label>
                 <textarea
                   placeholder="Explain work done, land coverage, or machinery status..."
                   value={remarks}
@@ -278,7 +356,7 @@ export default function OperatorPortal({ user, onLogout }) {
                   }}
                 >
                   {actionLoading ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle2 size={18} />}
-                  Submit Work Report
+                  Submit Work &amp; Finalize Bill
                 </button>
                 <button
                   type="button"

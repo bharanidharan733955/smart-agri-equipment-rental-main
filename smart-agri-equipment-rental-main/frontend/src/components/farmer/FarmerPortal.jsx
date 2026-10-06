@@ -81,6 +81,8 @@ export default function FarmerPortal({ onLogout, user }) {
       {activeTab === 'dashboard' && (
         <FarmerDashboardView
           overviewData={overviewData}
+          equipmentList={equipmentList}
+          farmerUser={user}
           onNavigate={(tab) => setActiveTab(tab)}
         />
       )}

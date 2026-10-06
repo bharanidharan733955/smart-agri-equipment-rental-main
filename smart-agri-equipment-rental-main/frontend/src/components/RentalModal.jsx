@@ -5,7 +5,8 @@ import { submitRentalApi } from '../api';
 
 export default function RentalModal({ equipment, isOpen, onClose }) {
   const [startDate, setStartDate] = useState('');
-  const [durationDays, setDurationDays] = useState('');
+  const [durationDays, setDurationDays] = useState('1');
+  const [fuelType, setFuelType] = useState('Diesel');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookingRef, setBookingRef] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,10 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
   const todayStr = new Date().toISOString().split('T')[0];
 
   const dailyPrice = equipment?.rentalRate || equipment?.price || equipment?.pricePerDay || 800;
-  const grandTotal = dailyPrice * (parseInt(durationDays) || 0);
+  const duration = parseInt(durationDays) || 1;
+  const baseRent = dailyPrice * duration;
+  const tax = Math.round(baseRent * 0.18);
+  const tentativeTotal = baseRent + tax;
 
   // Guard must come AFTER all hooks (Rules of Hooks)
   if (!isOpen) return null;
@@ -40,14 +44,18 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
       farmerId: sessionUser?.id || 'N/A',
       district: sessionUser?.district || 'N/A',
       startDate,
-      durationDays,
+      durationDays: duration,
       dailyPrice
     };
 
     const res = await submitRentalApi(payload);
     setLoading(false);
-    setBookingRef(res.data?.auditHash || 'GOV-AUDIT-882109');
-    setIsSubmitted(true);
+    if (res && res.success) {
+      setBookingRef(res.data?._id || res.data?.id || res.data?.auditHash || 'GOV-AUDIT-882109');
+      setIsSubmitted(true);
+    } else {
+      alert(res?.message || "No equipment currently available in your area.");
+    }
   };
 
   const handleReset = () => {
@@ -72,7 +80,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
       <div
         style={{
           width: '100%',
-          maxWidth: '580px',
+          maxWidth: '620px',
           backgroundColor: 'var(--color-surface)',
           borderRadius: '20px',
           padding: '2.2rem',
@@ -105,44 +113,36 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
 
         {!isSubmitted ? (
           <div>
-            <div style={{ marginBottom: '1.5rem' }}>
+            <div style={{ marginBottom: '1.25rem' }}>
               <span className="section-tag">STATE COOPERATIVE RENTAL</span>
               <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginTop: '0.2rem' }}>
                 {equipment ? `Book ${equipment.name}` : 'Book Machinery'}
               </h2>
               <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginTop: '4px' }}>
-                Cooperative Rate: ₹{dailyPrice}/day • Immutable Audit Logging
+                Cooperative Base Rate: ₹{dailyPrice}/day • Tentative &amp; Final Bill System
               </p>
             </div>
 
              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
               {/* Logged in Farmer Profile Preview Widget */}
-              <div style={{ backgroundColor: 'var(--color-border)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', fontSize: '0.85rem' }}>
+              <div style={{ backgroundColor: 'var(--color-border)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', fontSize: '0.85rem' }}>
                   <div>
-                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Farmer Name</span>
+                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Farmer Name</span>
                     <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{sessionUser?.name || 'Farmer Client'}</span>
                   </div>
                   <div>
-                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Mobile Number</span>
+                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Mobile Number</span>
                     <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{sessionUser?.mobile || 'N/A'}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>Farmer ID</span>
-                    <span style={{ fontWeight: 700, color: 'var(--color-info)', fontFamily: 'monospace' }}>{sessionUser?.id || 'N/A'}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: 'var(--color-muted)', display: 'block', fontSize: '0.72rem', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>District</span>
-                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>{sessionUser?.district || 'N/A'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Date & Days */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
-                    Rental Start Date *
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '0.3rem', fontWeight: 600 }}>
+                    Start Date *
                   </label>
                   <input
                     type="date"
@@ -152,19 +152,19 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                     onChange={(e) => setStartDate(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '0.7rem 0.9rem',
+                      padding: '0.65rem',
                       borderRadius: '10px',
                       backgroundColor: 'transparent',
                       border: '1px solid var(--color-border)',
                       color: 'var(--color-text)',
-                      fontSize: '0.9rem',
+                      fontSize: '0.85rem',
                       outline: 'none'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '0.3rem', fontWeight: 600 }}>
                     Duration (Days) *
                   </label>
                   <input
@@ -173,48 +173,62 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                     max="30"
                     required
                     value={durationDays}
-                    onChange={(e) => setDurationDays(parseInt(e.target.value) || 1)}
+                    onChange={(e) => setDurationDays(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '0.7rem 0.9rem',
+                      padding: '0.65rem',
                       borderRadius: '10px',
                       backgroundColor: 'transparent',
                       border: '1px solid var(--color-border)',
                       color: 'var(--color-text)',
-                      fontSize: '0.9rem',
+                      fontSize: '0.85rem',
                       outline: 'none'
                     }}
                   />
                 </div>
               </div>
 
-              {/* Summary */}
+              {/* Tentative Bill Summary Breakdown */}
               <div
                 style={{
                   backgroundColor: 'rgba(21, 128, 61, 0.08)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '12px',
-                  padding: '1rem 1.25rem',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginTop: '0.4rem'
+                  border: '1px solid rgba(21, 128, 61, 0.3)',
+                  borderRadius: '14px',
+                  padding: '1rem 1.25rem'
                 }}
               >
-                <div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)' }}>Total Rental Amount</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-primary)' }}>
-                    ₹{grandTotal}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    📋 Tentative Bill Breakdown
+                  </span>
+                  <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '10px', backgroundColor: 'var(--color-warning-bg)', color: '#f59e0b', fontWeight: 700 }}>
+                    Initial Estimate
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.82rem', color: 'var(--color-muted)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Equipment Rental ({duration} Days @ ₹{dailyPrice}):</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>₹{baseRent.toLocaleString()}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>CGST &amp; SGST (18%):</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>₹{tax.toLocaleString()}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--color-border)', paddingTop: '0.4rem', marginTop: '0.2rem', fontSize: '1rem', fontWeight: 800 }}>
+                    <span style={{ color: 'var(--color-text)' }}>Tentative Total Bill:</span>
+                    <span style={{ color: 'var(--color-primary)' }}>₹{tentativeTotal.toLocaleString()}</span>
                   </div>
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-info)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <ShieldCheck size={16} />
-                  <span>Logged via Express Backend API</span>
-                </div>
+
+                <p style={{ fontSize: '0.73rem', color: 'var(--color-info)', marginTop: '0.6rem', lineHeight: 1.35, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <ShieldCheck size={14} style={{ flexShrink: 0 }} />
+                  <span>Note: Final bill will be calculated after work completion based on actual operator fuel report. Minimal variance guaranteed.</span>
+                </p>
               </div>
 
-              <button type="submit" disabled={loading} className="btn-green" style={{ width: '100%', padding: '0.85rem', marginTop: '0.4rem' }}>
-                {loading ? 'Submitting to Backend API...' : 'Confirm Booking'}
+              <button type="submit" disabled={loading} className="btn-green" style={{ width: '100%', padding: '0.85rem', marginTop: '0.2rem' }}>
+                {loading ? 'Submitting to Backend API...' : `Confirm Booking • Tentative Bill ₹${tentativeTotal}`}
               </button>
             </form>
           </div>

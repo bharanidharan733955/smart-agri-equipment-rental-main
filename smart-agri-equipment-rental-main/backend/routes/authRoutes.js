@@ -11,10 +11,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'agrirent-super-secret-key-12345';
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role, mobile, district, address, cooperativeHub, farmerId } = req.body;
-    
+
     if (role === 'Farmer') {
-      if (!name || !mobile || !farmerId) {
-        return res.status(400).json({ success: false, message: 'Name, Mobile Number, and Farmer ID are required.' });
+      if (!name || !mobile) {
+        return res.status(400).json({ success: false, message: 'Name and Mobile Number are required.' });
       }
     } else {
       if (!name || !email || !password || !role) {
@@ -22,7 +22,8 @@ router.post('/register', async (req, res) => {
       }
     }
 
-    const hashedPassword = await bcrypt.hash(password || farmerId || 'default123', 10);
+    const assignedFarmerId = farmerId || (role === 'Farmer' ? `FID-TN-${Math.floor(100000 + Math.random() * 900000)}` : null);
+    const hashedPassword = await bcrypt.hash(password || assignedFarmerId || 'default123', 10);
 
     let newUser;
     if (isDbConnected()) {
@@ -46,7 +47,7 @@ router.post('/register', async (req, res) => {
         mobile,
         district,
         address,
-        farmerId,
+        farmerId: assignedFarmerId,
         cooperativeHub,
         isApproved: role === 'Farmer' ? false : true // Farmers require cooperative manager approval
       });
@@ -73,7 +74,7 @@ router.post('/register', async (req, res) => {
         mobile,
         district,
         address,
-        farmerId,
+        farmerId: assignedFarmerId,
         cooperativeHub,
         isApproved: role === 'Farmer' ? false : true,
         createdAt: new Date().toISOString()

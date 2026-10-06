@@ -201,6 +201,26 @@ export async function approveFarmerApi(id) {
   }
 }
 
+export async function rejectFarmerApi(id, reason) {
+  try {
+    const res = await api.post(`/cooperative/farmers/${id}/reject`, { reason });
+    return res.data;
+  } catch (err) {
+    console.error('Reject farmer error:', err);
+    return { success: false, message: err.response?.data?.message || 'Server error' };
+  }
+}
+
+export async function fetchFarmerVerifications(status = 'ALL') {
+  try {
+    const res = await api.get(`/cooperative/farmer-verifications?status=${status}`);
+    return res.data;
+  } catch (err) {
+    console.error('Fetch farmer verifications error:', err);
+    return { success: false, data: [], govtRegistry: [] };
+  }
+}
+
 export async function addCoopEquipment(payload) {
   try {
     const res = await api.post('/equipment', payload);
@@ -261,13 +281,13 @@ export async function fetchCoopInvoices() {
   }
 }
 
-export async function payInvoice(id) {
+export async function payInvoice(id, payload = {}) {
   try {
-    const res = await api.post(`/cooperative/invoices/${id}/pay`);
+    const res = await api.post(`/cooperative/invoices/${id}/pay`, payload);
     return res.data;
   } catch (err) {
     console.error('Pay invoice error:', err);
-    return { success: false };
+    return err.response?.data || { success: false, message: 'Server error' };
   }
 }
 
