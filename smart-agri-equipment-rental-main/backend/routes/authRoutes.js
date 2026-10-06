@@ -3,6 +3,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, logAudit, isDbConnected, localDb } from '../db.js';
+import { GOVT_FARMER_REGISTRY, findGovtRecord } from '../data/govtFarmerRegistry.js';
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'agrirent-super-secret-key-12345';
@@ -12,18 +13,33 @@ router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role, mobile, district, address, cooperativeHub, farmerId } = req.body;
 
+    let finalFarmerId = farmerId ? farmerId.trim() : null;
+    let govtRecord = null;
+
     if (role === 'Farmer') {
       if (!name || !mobile) {
         return res.status(400).json({ success: false, message: 'Name and Mobile Number are required.' });
       }
+      if (!finalFarmerId) {
+        return res.status(400).json({ success: false, message: 'Farmer ID is required. Please use a valid Seeded Farmer ID (GOV-FARMER-1001 to GOV-FARMER-1050).' });
+      }
+
+      govtRecord = findGovtRecord(finalFarmerId, mobile);
+      if (!govtRecord) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid Farmer ID: '${finalFarmerId}' is not found in the Government Agriculture Registry. Please enter a valid Seeded Farmer ID (GOV-FARMER-1001 to GOV-FARMER-1050).`
+        });
+      }
+
+      finalFarmerId = govtRecord.govtFarmerId;
     } else {
       if (!name || !email || !password || !role) {
         return res.status(400).json({ success: false, message: 'Missing required fields.' });
       }
     }
 
-    const assignedFarmerId = farmerId || (role === 'Farmer' ? `FID-TN-${Math.floor(100000 + Math.random() * 900000)}` : null);
-    const hashedPassword = await bcrypt.hash(password || assignedFarmerId || 'default123', 10);
+    const hashedPassword = await bcrypt.hash(password || finalFarmerId || 'default123', 10);
 
     let newUser;
     if (isDbConnected()) {
@@ -34,9 +50,19 @@ router.post('/register', async (req, res) => {
         }
       }
       if (role === 'Farmer') {
-        const existingMobile = await User.findOne({ mobile });
-        if (existingMobile) {
-          return res.status(400).json({ success: false, message: 'Mobile number already registered.' });
+        const existingFarmer = await User.findOne({
+          role: 'Farmer',
+          $or: [
+            { farmerId: finalFarmerId },
+            { farmerId: govtRecord.altFarmerId },
+            { mobile }
+          ]
+        });
+        if (existingFarmer) {
+          return res.status(400).json({
+            success: false,
+            message: `Duplicate Registration Blocked: Farmer ID '${finalFarmerId}' is already registered to account '${existingFarmer.name}'.`
+          });
         }
       }
       newUser = await User.create({
@@ -45,11 +71,12 @@ router.post('/register', async (req, res) => {
         password: hashedPassword,
         role,
         mobile,
-        district,
-        address,
-        farmerId: assignedFarmerId,
-        cooperativeHub,
-        isApproved: role === 'Farmer' ? false : true // Farmers require cooperative manager approval
+        district: district || govtRecord?.district || 'Coimbatore',
+        address: address || `${govtRecord?.village}, ${govtRecord?.taluk}`,
+        farmerId: finalFarmerId,
+        cooperativeHub: cooperativeHub || `${govtRecord?.taluk || 'Cooperative'} Hub`,
+        isApproved: false,
+        verificationStatus: 'PENDING_VERIFICATION'
       });
     } else {
       const users = localDb.read('users');
@@ -60,9 +87,18 @@ router.post('/register', async (req, res) => {
         }
       }
       if (role === 'Farmer') {
-        const existingMobile = users.find(u => u.mobile === mobile);
-        if (existingMobile) {
-          return res.status(400).json({ success: false, message: 'Mobile number already registered.' });
+        const existingFarmer = users.find(u =>
+          u.role === 'Farmer' && (
+            u.farmerId === finalFarmerId ||
+            u.farmerId === govtRecord.altFarmerId ||
+            u.mobile === mobile
+          )
+        );
+        if (existingFarmer) {
+          return res.status(400).json({
+            success: false,
+            message: `Duplicate Registration Blocked: Farmer ID '${finalFarmerId}' is already registered to account '${existingFarmer.name}'.`
+          });
         }
       }
       newUser = {
@@ -72,11 +108,12 @@ router.post('/register', async (req, res) => {
         password: hashedPassword,
         role,
         mobile,
-        district,
-        address,
-        farmerId: assignedFarmerId,
-        cooperativeHub,
-        isApproved: role === 'Farmer' ? false : true,
+        district: district || govtRecord?.district || 'Coimbatore',
+        address: address || `${govtRecord?.village}, ${govtRecord?.taluk}`,
+        farmerId: finalFarmerId,
+        cooperativeHub: cooperativeHub || `${govtRecord?.taluk || 'Cooperative'} Hub`,
+        isApproved: false,
+        verificationStatus: 'PENDING_VERIFICATION',
         createdAt: new Date().toISOString()
       };
       users.push(newUser);

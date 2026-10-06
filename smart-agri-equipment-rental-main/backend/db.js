@@ -528,13 +528,6 @@ function getMockEquipment() {
 
 async function seedDemoData() {
   const demoUsers = [
-    { name: 'Siva Farmer', email: 'farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543210', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', farmerId: '123456789012', isApproved: true },
-    { name: 'Ravi Kumar', email: 'ravi.farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543210', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', farmerId: '334188128812', isApproved: true },
-    { name: 'Suresh Patel', email: 'suresh.farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543211', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', farmerId: '334188129914', isApproved: false },
-    { name: 'Muthu Swamy', email: 'muthu.farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543212', district: 'Erode', cooperativeHub: 'Perundurai Hub', farmerId: '334188123341', isApproved: true },
-    { name: 'Kannan V', email: 'kannan.farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543213', district: 'Madurai', cooperativeHub: 'Melur Hub', farmerId: '334188127721', isApproved: false },
-    { name: 'Velu Nachiyar', email: 'velu.farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543214', district: 'Salem', cooperativeHub: 'Attur Hub', farmerId: '334188125510', isApproved: true },
-    { name: 'Palanisamy K', email: 'palanisamy.farmer@agrirent.gov', password: 'AgriRentGov#Secure2026!Farmer', role: 'Farmer', mobile: '9876543215', district: 'Tiruchirappalli', cooperativeHub: 'Lalgudi Hub', farmerId: '334188121190', isApproved: false },
     { name: 'Vikram Operator', email: 'operator@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543212', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
     { name: 'Rajesh Operator', email: 'rajesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543220', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
     { name: 'Ramesh Operator', email: 'ramesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543221', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
@@ -553,6 +546,8 @@ async function seedDemoData() {
 
   if (isConnected) {
     try {
+      // Clean up any old demo farmers so verification list only contains user registered farmers
+      await User.deleteMany({ role: 'Farmer' });
       // Update or insert demo users to preserve their _ids across server restarts
       for (const u of demoUsers) {
         console.log(`🌱 Seeding database user: ${u.email}...`);
