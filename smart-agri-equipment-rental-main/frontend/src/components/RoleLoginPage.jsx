@@ -11,7 +11,8 @@ import {
   Tractor,
   Users,
   CheckCircle2,
-  Mail
+  Mail,
+  ShieldCheck
 } from 'lucide-react';
 
 import { loginRoleApi, registerApi } from '../api';
@@ -50,16 +51,30 @@ export const ROLE_DETAILS = {
 
   staff: {
     id: 'staff',
-    name: 'Cooperative Staff',
-    tag: 'COOPERATIVE CORE & OPERATIONS',
-    badge: 'Cooperative Hub Control',
+    name: 'District Cooperative Officer',
+    tag: 'COOPERATIVE CORE & DISTRICT OPERATIONS',
+    badge: 'District Hub Control',
     icon: Users,
-    title: 'Cooperative Staff Portal',
-    subtitle: 'Sign in to manage equipment inventory, approve rental requests, and handle invoices.',
+    title: 'District Cooperative Officer Portal',
+    subtitle: 'Sign in to manage equipment inventory for your district, approve farmer requests, and handle billing invoices.',
     features: [
-      'Review and Approve Farmer account registries & Rental bookings',
-      'Manage cooperative machinery stock list inventory',
-      'Generate invoices, track district stats and logs ledger'
+      'Manage equipment list exclusively for your district',
+      'Approve & verify farmers within your assigned district',
+      'Generate district & taluk billing financial reports'
+    ]
+  },
+  officer: {
+    id: 'officer',
+    name: 'Government Officer',
+    tag: 'STATE GOVERNMENT GOVERNANCE & AUDIT',
+    badge: 'State Auditor Access',
+    icon: ShieldCheck,
+    title: 'Government Officer Portal',
+    subtitle: 'Sign in to view statewide equipment inventory district-wise and download total billing financial reports.',
+    features: [
+      'View complete machinery catalog & serialized units district-wise across Tamil Nadu',
+      'View total state-wide & district-wise billing financial reports with PDF export',
+      'State governance KPI dashboard & immutable system security audit logs'
     ]
   }
 };
@@ -82,6 +97,28 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
     cooperativeHub: 'Coimbatore Central Hub #1'
   });
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (roleId === 'officer') {
+      setFormData(prev => ({
+        ...prev,
+        email: 'officer@agrirent.gov',
+        password: 'AgriRentGov#Secure2026!Officer'
+      }));
+    } else if (roleId === 'staff') {
+      setFormData(prev => ({
+        ...prev,
+        email: 'staff.coimbatore@agrirent.gov',
+        password: 'AgriRentGov#Secure2026!Staff'
+      }));
+    } else if (roleId === 'operator') {
+      setFormData(prev => ({
+        ...prev,
+        email: 'operator@agrirent.gov',
+        password: 'AgriRentGov#Secure2026!Operator'
+      }));
+    }
+  }, [roleId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

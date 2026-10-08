@@ -6,20 +6,79 @@ import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.
 const router = express.Router();
 
 // GET /api/cooperative/operators-with-equipment (Retrieve operators with their assigned vehicles)
-router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manager', 'Admin', 'Operator'), async (req, res) => {
+router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manager', 'Admin', 'Operator', 'Equipment Operator'), async (req, res) => {
   try {
     let operators = [];
     let equipmentList = [];
     let activeJobs = [];
 
+    const isOperator = req.user && (req.user.role === 'Operator' || req.user.role === 'Equipment Operator');
+
     if (isDbConnected()) {
-      operators = await User.find({ role: 'Equipment Operator' }).select('-password');
+      let query = { role: { $in: ['Equipment Operator', 'Operator'] } };
+
+      if (isOperator) {
+        let opUser = await User.findById(req.user.id);
+        if (!opUser) opUser = req.user;
+        let targetTaluk = opUser.taluk || req.user.taluk || '';
+        if (!targetTaluk && opUser.cooperativeHub) {
+          targetTaluk = opUser.cooperativeHub.replace(/ hub$/i, '').trim();
+        }
+        const targetDistrict = opUser.district || req.user.district || '';
+
+        if (targetTaluk) {
+          const talukRegex = new RegExp(targetTaluk.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+          query.$or = [
+            { taluk: talukRegex },
+            { cooperativeHub: talukRegex }
+          ];
+        } else if (targetDistrict) {
+          query.district = new RegExp(`^${targetDistrict.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i');
+        } else {
+          // Default fallback to Pollachi taluk for operator team view
+          query.$or = [
+            { taluk: /Pollachi/i },
+            { cooperativeHub: /Pollachi/i }
+          ];
+        }
+      }
+
+      operators = await User.find(query).select('-password');
       equipmentList = await Equipment.find();
-      activeJobs = await Job.find({ status: { $in: ['Assigned', 'Started'] } });
+      activeJobs = await Job.find({ status: { $in: ['Assigned', 'Started', 'ASSIGNED', 'IN_PROGRESS'] } });
     } else {
-      operators = localDb.read('users').filter(u => u.role === 'Equipment Operator');
-      equipmentList = localDb.read('equipment');
-      activeJobs = localDb.read('jobs').filter(j => ['Assigned', 'Started'].includes(j.status));
+      let allOps = (localDb.read('users') || []).filter(u => u.role === 'Equipment Operator' || u.role === 'Operator');
+
+      if (isOperator) {
+        const users = localDb.read('users') || [];
+        const opUser = users.find(u => String(u._id || u.id) === String(req.user.id)) || req.user;
+        let targetTaluk = opUser.taluk || req.user.taluk || '';
+        if (!targetTaluk && opUser.cooperativeHub) {
+          targetTaluk = opUser.cooperativeHub.replace(/ hub$/i, '').trim();
+        }
+        const targetDistrict = opUser.district || req.user.district || '';
+
+        if (targetTaluk) {
+          const tNorm = targetTaluk.toLowerCase();
+          operators = allOps.filter(u =>
+            (u.taluk && u.taluk.toLowerCase() === tNorm) ||
+            (u.cooperativeHub && u.cooperativeHub.toLowerCase().includes(tNorm))
+          );
+        } else if (targetDistrict) {
+          const dNorm = targetDistrict.toLowerCase();
+          operators = allOps.filter(u => u.district && u.district.toLowerCase() === dNorm);
+        } else {
+          operators = allOps.filter(u =>
+            (u.taluk && u.taluk.toLowerCase() === 'pollachi') ||
+            (u.cooperativeHub && u.cooperativeHub.toLowerCase().includes('pollachi'))
+          );
+        }
+      } else {
+        operators = allOps;
+      }
+
+      equipmentList = localDb.read('equipment') || [];
+      activeJobs = (localDb.read('jobs') || []).filter(j => ['Assigned', 'Started', 'ASSIGNED', 'IN_PROGRESS'].includes(j.status));
     }
 
     // Map each operator with equipment they are currently actively working on (via active jobs)
@@ -46,6 +105,7 @@ router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manag
         email: op.email,
         mobile: op.mobile,
         district: op.district,
+        taluk: op.taluk || (op.cooperativeHub ? op.cooperativeHub.replace(/ hub$/i, '').trim() : ''),
         cooperativeHub: op.cooperativeHub,
         isApproved: op.isApproved,
         assignedVehicles: assigned.map(eq => ({
@@ -71,13 +131,37 @@ router.get('/operators-with-equipment', authenticateToken, authorizeRoles('Manag
 });
 
 // GET /api/cooperative/operators (Retrieve list of operators for assigning to equipment)
-router.get('/operators', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+router.get('/operators', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 'Cooperative Staff', 'Officer'), async (req, res) => {
   try {
     let list = [];
+    const isStaff = req.user && (req.user.role === 'Staff' || req.user.role === 'Cooperative Staff');
+    let staffDistrict = req.user?.district || req.query.district || '';
+
+    if (isStaff && !staffDistrict) {
+      if (isDbConnected()) {
+        const dbUser = await User.findById(req.user.id || req.user._id);
+        if (dbUser) staffDistrict = dbUser.district || '';
+      } else {
+        const users = localDb.read('users') || [];
+        const dbUser = users.find(u => String(u._id || u.id) === String(req.user.id));
+        if (dbUser) staffDistrict = dbUser.district || '';
+      }
+    }
+
     if (isDbConnected()) {
-      list = await User.find({ role: 'Equipment Operator' }).select('name email mobile');
+      let query = { role: { $in: ['Equipment Operator', 'Operator'] } };
+      if (staffDistrict && staffDistrict !== 'ALL') {
+        query.district = new RegExp(`^${staffDistrict.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i');
+      }
+      list = await User.find(query).select('name email mobile district taluk cooperativeHub status operatorId');
     } else {
-      list = localDb.read('users').filter(u => u.role === 'Equipment Operator');
+      let allOps = (localDb.read('users') || []).filter(u => u.role === 'Equipment Operator' || u.role === 'Operator');
+      if (staffDistrict && staffDistrict !== 'ALL') {
+        const dNorm = staffDistrict.toLowerCase();
+        list = allOps.filter(u => u.district && u.district.toLowerCase() === dNorm);
+      } else {
+        list = allOps;
+      }
     }
     return res.json({ success: true, data: list });
   } catch (err) {
@@ -88,31 +172,55 @@ router.get('/operators', authenticateToken, authorizeRoles('Manager', 'Admin'), 
 
 import { GOVT_FARMER_REGISTRY, findGovtRecord } from '../data/govtFarmerRegistry.js';
 
-// GET /api/cooperative/farmers (Retrieve list of approved registered farmers only)
-router.get('/farmers', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+// GET /api/cooperative/farmers (Retrieve list of approved registered farmers filtered by Staff District)
+router.get('/farmers', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff'), async (req, res) => {
   try {
+    const userDistrict = req.user?.district;
+    const isStaff = req.user?.role === 'Staff' || req.user?.role === 'Manager';
+    const filterDistrict = req.query.district || (isStaff && userDistrict ? userDistrict : null);
+
     let list = [];
     if (isDbConnected()) {
-      list = await User.find({ role: 'Farmer', isApproved: true }).select('-password');
+      let filter = { role: 'Farmer', isApproved: true };
+      if (filterDistrict) {
+        filter.district = new RegExp(`^${filterDistrict.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i');
+      }
+      list = await User.find(filter).select('-password');
     } else {
       list = localDb.read('users').filter(u => u.role === 'Farmer' && u.isApproved !== false);
+      if (filterDistrict) {
+        const dNorm = filterDistrict.toLowerCase();
+        list = list.filter(u => u.district && u.district.toLowerCase() === dNorm);
+      }
     }
-    return res.json({ success: true, data: list });
+    return res.json({ success: true, count: list.length, staffDistrict: userDistrict, data: list });
   } catch (err) {
     console.error('Fetch farmers error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
 
-// GET /api/cooperative/farmer-verifications (Retrieve farmers with govt database comparison stats)
-router.get('/farmer-verifications', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+// GET /api/cooperative/farmer-verifications (Retrieve farmers filtered by Staff District)
+router.get('/farmer-verifications', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff'), async (req, res) => {
   try {
-    const { status } = req.query;
+    const { status, district } = req.query;
+    const userDistrict = req.user?.district;
+    const isStaff = req.user?.role === 'Staff' || req.user?.role === 'Manager';
+    const targetDistrict = district || (isStaff && userDistrict ? userDistrict : null);
+
     let list = [];
     if (isDbConnected()) {
-      list = await User.find({ role: 'Farmer' }).select('-password');
+      let filter = { role: 'Farmer' };
+      if (targetDistrict) {
+        filter.district = new RegExp(`^${targetDistrict.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i');
+      }
+      list = await User.find(filter).select('-password');
     } else {
       list = localDb.read('users').filter(u => u.role === 'Farmer');
+      if (targetDistrict) {
+        const dNorm = targetDistrict.toLowerCase();
+        list = list.filter(u => u.district && u.district.toLowerCase() === dNorm);
+      }
     }
 
     // Attach government registry match info
@@ -135,6 +243,7 @@ router.get('/farmer-verifications', authenticateToken, authorizeRoles('Manager',
     return res.json({
       success: true,
       count: filtered.length,
+      staffDistrict: userDistrict,
       data: filtered,
       govtRegistry: GOVT_FARMER_REGISTRY
     });
@@ -842,7 +951,11 @@ router.get('/feedback', authenticateToken, authorizeRoles('Manager', 'Admin', 'O
 // GET /api/cooperative/billing-report (Generates financial report for custom period)
 router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
   try {
-    const { from, to } = req.query;
+    const { from, to, district, taluk } = req.query;
+    const userDistrict = req.user?.district;
+    const targetDistrict = district || userDistrict || null;
+    const targetTaluk = taluk && taluk !== 'ALL' ? taluk : null;
+
     if (!from || !to) {
       return res.status(400).json({ success: false, message: 'From and To dates are required.' });
     }
@@ -875,8 +988,8 @@ router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admi
     if (isDbConnected()) {
       bookings = await Booking.find({
         createdAt: { $gte: fromDate, $lte: toDate }
-      }).populate('farmer', 'name email mobile farmerId')
-        .populate('equipment', 'name category regNumber rentalRate');
+      }).populate('farmer', 'name email mobile farmerId district taluk')
+        .populate('equipment', 'name category regNumber rentalRate district taluk');
 
       const bookingIds = bookings.map(b => b._id);
       jobs = await Job.find({
@@ -889,7 +1002,7 @@ router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admi
 
       maintenance = await Maintenance.find({
         createdAt: { $gte: fromDate, $lte: toDate }
-      }).populate('equipment', 'name category regNumber');
+      }).populate('equipment', 'name category regNumber district taluk');
     } else {
       const allBookings = localDb.read('bookings') || [];
       bookings = allBookings.filter(b => {
@@ -928,6 +1041,30 @@ router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admi
         ...m,
         equipment: allEq.find(e => e._id === m.equipment || e.id === m.equipment)
       }));
+    }
+
+    if (targetDistrict) {
+      const dNorm = targetDistrict.toLowerCase();
+      bookings = bookings.filter(b => {
+        const eqDist = b.equipment?.district || b.farmer?.district;
+        return !eqDist || eqDist.toLowerCase() === dNorm;
+      });
+      maintenance = maintenance.filter(m => {
+        const eqDist = m.equipment?.district;
+        return !eqDist || eqDist.toLowerCase() === dNorm;
+      });
+    }
+
+    if (targetTaluk) {
+      const tNorm = targetTaluk.toLowerCase();
+      bookings = bookings.filter(b => {
+        const eqTaluk = b.equipment?.taluk || b.farmer?.taluk;
+        return !eqTaluk || eqTaluk.toLowerCase() === tNorm;
+      });
+      maintenance = maintenance.filter(m => {
+        const eqTaluk = m.equipment?.taluk;
+        return !eqTaluk || eqTaluk.toLowerCase() === tNorm;
+      });
     }
 
     const bookingDetails = bookings.map(b => {

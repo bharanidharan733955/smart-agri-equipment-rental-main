@@ -34,6 +34,7 @@ import {
   rejectJobCancellationApi,
   reassignJobOperatorApi
 } from '../../api';
+import { getTaluksForDistrict } from '../../data/tnLocationData';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   CheckCircle2, XCircle, UserCheck, Wrench, FileSpreadsheet, DollarSign,
@@ -46,12 +47,24 @@ export default function CoopPortal({ onLogout }) {
   const [equipmentList, setEquipmentList] = useState([]);
   const [stats, setStats] = useState(null);
 
+  // Read staff user info
+  const staffUser = JSON.parse(localStorage.getItem('agrirent_user') || '{}');
+  const staffDistrict = staffUser.district || 'Coimbatore';
+  const staffTaluks = getTaluksForDistrict(staffDistrict);
+
   // Data lists
   const [bookings, setBookings] = useState([]);
   const [operators, setOperators] = useState([]);
   const [farmers, setFarmers] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
+
+  // Billing / Financial Reports State
+  const [reportFromDate, setReportFromDate] = useState('');
+  const [reportToDate, setReportToDate] = useState('');
+  const [reportTaluk, setReportTaluk] = useState('ALL');
+  const [reportLoading, setReportLoading] = useState(false);
+  const [billingReport, setBillingReport] = useState(null);
 
   // Operator Cancellations & Reassignment State
   const [cancellationRequests, setCancellationRequests] = useState([]);
@@ -331,10 +344,10 @@ export default function CoopPortal({ onLogout }) {
     }
     setReportLoading(true);
     try {
-      const data = await fetchBillingReport(fromFormatted, toFormatted);
+      const data = await fetchBillingReport(fromFormatted, toFormatted, staffDistrict, reportTaluk);
       if (data) {
         setBillingReport(data);
-        toast.success('Billing report generated successfully!');
+        toast.success(`Billing report generated for ${reportTaluk === 'ALL' ? staffDistrict + ' Total District' : reportTaluk + ' Taluk'}!`);
       } else {
         toast.error('Failed to generate billing report.');
       }
@@ -380,7 +393,7 @@ export default function CoopPortal({ onLogout }) {
         <body>
           <button class="btn-print" onclick="window.print()">Print / Save PDF Report</button>
           <h1>🌾 AgriRentGov Financial & Operations Report</h1>
-          <div class="hub-title">Cooperative Hub: Ludhiana Central Hub #1</div>
+          <div class="hub-title">Cooperative District Hub: ${staffDistrict} District (${reportTaluk === 'ALL' ? 'Total District Invoicing Overview' : reportTaluk + ' Taluk Overview'})</div>
           
           <div class="report-meta">
             <div>
@@ -697,6 +710,7 @@ export default function CoopPortal({ onLogout }) {
         <CoopEquipmentView
           equipmentList={equipmentList}
           stats={stats}
+          userDistrict={staffDistrict}
           onOpenAddModal={() => setIsAddOpen(true)}
           onViewDetails={(item) => setDetailsItem(item)}
           onEditEquipment={(item) => setEditingItem(item)}
@@ -824,7 +838,7 @@ export default function CoopPortal({ onLogout }) {
           <div style={{ marginBottom: '1.5rem' }}>
             <span className="section-tag" style={{ color: '#ef4444' }}>COOPERATIVE OVERLAY & AUDIT</span>
             <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', margin: '0.2rem 0' }}>
-              ⚠️ Operator Cancellations &amp; Manual Reassignment
+              Operator Cancellations &amp; Manual Reassignment
             </h1>
             <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>
               Review operator job cancellation requests and manually allocate replacement operators.
@@ -886,60 +900,20 @@ export default function CoopPortal({ onLogout }) {
             )}
           </div>
 
-          {/* Manual Reassignment Required Panel */}
-          <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '1.5rem', marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f59e0b', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <AlertCircle size={20} /> ⚠️ MANUAL REASSIGNMENT REQUIRED
-            </h3>
-            <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              When an operator cancellation request is approved by Cooperative Staff, the system requires manual staff selection for the replacement operator. Automatic rotation is bypassed for cancelled jobs.
-            </p>
 
-            {cancellationRequests.filter(j => j.status === 'MANUAL_REASSIGNMENT_REQUIRED' || (j.cancellationDecision === 'Approved' && !j.operator)).length === 0 ? (
-              <p style={{ color: 'var(--color-muted)', fontStyle: 'italic', padding: '0.5rem 0' }}>No unassigned jobs currently requiring manual operator reallocation.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {cancellationRequests.filter(j => j.status === 'MANUAL_REASSIGNMENT_REQUIRED' || (j.cancellationDecision === 'Approved' && !j.operator)).map((job) => (
-                  <div key={job._id || job.id} style={{ backgroundColor: 'rgba(245, 158, 11, 0.08)', borderRadius: '14px', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', marginBottom: '0.4rem' }}>
-                        <strong style={{ fontSize: '1rem', color: 'var(--color-text)' }}>Job #{job.jobId || job._id || job.id}</strong>
-                        <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '10px', backgroundColor: '#f59e0b', color: '#000', fontWeight: 800 }}>
-                          REASSIGNMENT NEEDED
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>
-                        <div><strong>Equipment:</strong> {job.equipment?.name || 'Equipment'} | <strong>Farmer:</strong> {job.farmer?.name || 'Farmer'}</div>
-                        <div><strong>Reason for Cancellation:</strong> {job.cancellationReason} ({job.cancellationNote})</div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        setReassignModalJob(job);
-                        setSelectedReplacementOp('');
-                      }}
-                      style={{ backgroundColor: '#f59e0b', color: '#000', border: 'none', padding: '0.7rem 1.4rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}
-                    >
-                      <UserPlus size={16} /> REASSIGN JOB
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* Operator Performance & Cancellation Statistics */}
 
           <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', border: '1px solid var(--color-border)', padding: '1.5rem' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>
-              📊 Operator Performance &amp; Cancellation History
+              Operator Performance &amp; Cancellation History
             </h3>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
                   <th style={{ padding: '0.75rem 1rem' }}>Operator ID</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Operator Name</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Taluk &amp; District</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Status</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Total Jobs</th>
                   <th style={{ padding: '0.75rem 1rem' }}>Completed</th>
@@ -949,22 +923,27 @@ export default function CoopPortal({ onLogout }) {
                 </tr>
               </thead>
               <tbody>
-                {operatorStats.map((op) => (
-                  <tr key={op.operatorId} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--color-primary)' }}>{op.operatorId}</td>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{op.name}</td>
-                    <td style={{ padding: '0.75rem 1rem' }}>
-                      <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'var(--color-success-bg)', color: 'var(--color-primary)', fontWeight: 700 }}>
-                        {op.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{op.totalJobs}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 700 }}>{op.completed}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#f59e0b', fontWeight: 700 }}>{op.cancellationRequests}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)' }}>{op.approved}</td>
-                    <td style={{ padding: '0.75rem 1rem', color: '#ef4444' }}>{op.rejected}</td>
-                  </tr>
-                ))}
+                {operatorStats
+                  .filter(op => !staffDistrict || !op.district || op.district.toLowerCase() === staffDistrict.toLowerCase())
+                  .map((op) => (
+                    <tr key={op.operatorId || op.name} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--color-primary)' }}>{op.operatorId}</td>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{op.name}</td>
+                      <td style={{ padding: '0.75rem 1rem', color: 'var(--color-muted)', fontSize: '0.82rem' }}>
+                        {op.taluk ? `${op.taluk}, ${op.district}` : op.district || staffDistrict}
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem' }}>
+                        <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'var(--color-success-bg)', color: 'var(--color-primary)', fontWeight: 700 }}>
+                          {op.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{op.totalJobs}</td>
+                      <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 700 }}>{op.completed}</td>
+                      <td style={{ padding: '0.75rem 1rem', color: '#f59e0b', fontWeight: 700 }}>{op.cancellationRequests}</td>
+                      <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)' }}>{op.approved}</td>
+                      <td style={{ padding: '0.75rem 1rem', color: '#ef4444' }}>{op.rejected}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -1007,7 +986,7 @@ export default function CoopPortal({ onLogout }) {
                       </td>
                       <td style={{ padding: '0.85rem 1rem' }}>{f.mobile || 'N/A'}</td>
                       <td style={{ padding: '0.85rem 1rem' }}>{f.email}</td>
-                      <td style={{ padding: '0.85rem 1rem' }}>{f.district || 'Coimbatore'} • {f.taluk || 'Pollachi'}</td>
+                      <td style={{ padding: '0.85rem 1rem' }}>{f.district || 'Coimbatore'}{f.taluk ? ` • ${f.taluk}` : ''}</td>
                       <td style={{ padding: '0.85rem 1rem' }}>{f.village || f.address || 'N/A'}</td>
                       <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
                         <span style={{
@@ -1289,7 +1268,20 @@ export default function CoopPortal({ onLogout }) {
           </h1>
 
           <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)', marginBottom: '2rem' }}>
-            <form onSubmit={handleGenerateReport} style={{ display: 'flex', alignItems: 'flex-end', gap: '1.5rem' }}>
+            <form onSubmit={handleGenerateReport} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', alignItems: 'flex-end' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 700 }}>Staff District</label>
+                <input type="text" readOnly value={`${staffDistrict} District`} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)', color: 'var(--color-primary)', fontWeight: 700, border: '1px solid var(--color-border)' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 700 }}>Invoicing Scope</label>
+                <select value={reportTaluk} onChange={(e) => setReportTaluk(e.target.value)} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)', fontWeight: 600 }}>
+                  <option value="ALL">🏢 Total District ({staffDistrict})</option>
+                  {staffTaluks.map(t => (
+                    <option key={t} value={t}>📍 {t} Taluk</option>
+                  ))}
+                </select>
+              </div>
               <div style={{ flexGrow: 1 }}>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 700 }}>From Date</label>
                 <input type="date" required value={reportFromDate} onChange={(e) => setReportFromDate(e.target.value)} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
@@ -1299,7 +1291,7 @@ export default function CoopPortal({ onLogout }) {
                 <input type="date" required value={reportToDate} onChange={(e) => setReportToDate(e.target.value)} style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', backgroundColor: 'transparent', color: 'var(--color-text)', border: '1px solid var(--color-border)' }} />
               </div>
               <button type="submit" disabled={reportLoading} className="btn-green" style={{ padding: '0.65rem 1.8rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', height: '42px', fontSize: '0.9rem' }}>
-                {reportLoading ? 'Generating...' : 'Generate Report'}
+                {reportLoading ? 'Generating...' : `Generate ${reportTaluk === 'ALL' ? 'Total District' : reportTaluk + ' Taluk'} Invoice Report`}
               </button>
             </form>
           </div>

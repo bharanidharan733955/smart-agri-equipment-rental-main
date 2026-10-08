@@ -1,6 +1,6 @@
-// src/components/farmer/FarmerDashboardView.jsx
 import React from 'react';
 import { Calendar, Tractor, TrendingUp, IndianRupee, Bell, MapPin, CheckCircle } from 'lucide-react';
+import { getTaluksForDistrict } from '../../data/tnLocationData';
 
 export default function FarmerDashboardView({ overviewData, equipmentList = [], farmerUser, onNavigate }) {
   const totalBookings = overviewData?.totalBookings || 0;
@@ -10,7 +10,10 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
   const unreadNotifications = overviewData?.unreadNotifications || 0;
 
   const district = farmerUser?.district || 'Coimbatore';
-  const taluk = farmerUser?.taluk || 'Pollachi';
+  const validTaluks = getTaluksForDistrict(district);
+  const taluk = (farmerUser?.taluk && validTaluks.includes(farmerUser.taluk))
+    ? farmerUser.taluk
+    : (validTaluks[0] || district);
 
   // Calculate available equipment units for farmer's location
   const availableItems = (equipmentList || []).filter(item => (item.availableQuantity ?? (item.status === 'Available' ? 1 : 0)) > 0);
@@ -33,7 +36,7 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
               letterSpacing: '-0.02em'
             }}
           >
-            Namaste — here is your farm activity.
+            Here is your farm activity.
           </h1>
           <p style={{ color: 'var(--color-muted)', fontSize: '0.95rem' }}>
             Smart Agri Equipment Rental Platform

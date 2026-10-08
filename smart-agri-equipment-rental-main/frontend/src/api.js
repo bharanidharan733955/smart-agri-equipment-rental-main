@@ -594,9 +594,9 @@ export async function fetchFarmerFeedbackCoop() {
   }
 }
 
-export async function fetchBillingReport(from, to) {
+export async function fetchBillingReport(from, to, district = '', taluk = '') {
   try {
-    const res = await api.get('/cooperative/billing-report', { params: { from, to } });
+    const res = await api.get('/cooperative/billing-report', { params: { from, to, district, taluk } });
     return res.data.success ? res.data.data : null;
   } catch (err) {
     console.error('Fetch billing report API error:', err);

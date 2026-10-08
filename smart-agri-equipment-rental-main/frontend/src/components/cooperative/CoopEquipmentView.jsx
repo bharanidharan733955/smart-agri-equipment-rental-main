@@ -1,5 +1,5 @@
 // src/components/cooperative/CoopEquipmentView.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   PlusCircle,
   Search,
@@ -29,20 +29,30 @@ export default function CoopEquipmentView({
   onUpdateStatus,
   onUpdateCondition,
   onScheduleMaint,
-  onCompleteMaint
+  onCompleteMaint,
+  userDistrict
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [selectedDistrict, setSelectedDistrict] = useState('All');
+  const [selectedDistrict, setSelectedDistrict] = useState(userDistrict || 'All');
   const [selectedTaluk, setSelectedTaluk] = useState('All');
+
+  useEffect(() => {
+    if (userDistrict) {
+      setSelectedDistrict(userDistrict);
+    }
+  }, [userDistrict]);
 
   const statusTabs = ['All', 'Available', 'Rented'];
 
-  const availableTaluks = selectedDistrict === 'All'
+  const activeDistrict = userDistrict || selectedDistrict;
+
+  const availableTaluks = activeDistrict === 'All'
     ? []
-    : getTaluksForDistrict(selectedDistrict);
+    : getTaluksForDistrict(activeDistrict);
 
   const handleDistrictChange = (e) => {
+    if (userDistrict) return;
     setSelectedDistrict(e.target.value);
     setSelectedTaluk('All');
   };
@@ -55,7 +65,7 @@ export default function CoopEquipmentView({
       (item.taluk && item.taluk.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (item.district && item.district.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const matchesDistrict = selectedDistrict === 'All' || (item.district && item.district.toLowerCase() === selectedDistrict.toLowerCase());
+    const matchesDistrict = activeDistrict === 'All' || (item.district && item.district.toLowerCase() === activeDistrict.toLowerCase());
     const matchesTaluk = selectedTaluk === 'All' || (item.taluk && item.taluk.toLowerCase() === selectedTaluk.toLowerCase());
 
     return matchesStatus && matchesSearch && matchesDistrict && matchesTaluk;
@@ -200,26 +210,42 @@ export default function CoopEquipmentView({
           {/* District Dropdown */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <label style={{ fontSize: '0.82rem', color: 'var(--color-muted)', fontWeight: 600 }}>District:</label>
-            <select
-              value={selectedDistrict}
-              onChange={handleDistrictChange}
-              style={{
-                padding: '0.5rem 0.8rem',
-                borderRadius: '10px',
-                backgroundColor: 'var(--color-border)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text)',
-                fontSize: '0.88rem',
-                fontWeight: 600,
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="All">🌐 All Districts (Statewide)</option>
-              {TN_DISTRICTS.map(d => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
+            {userDistrict ? (
+              <span
+                style={{
+                  padding: '0.45rem 0.85rem',
+                  borderRadius: '10px',
+                  backgroundColor: 'rgba(21, 128, 61, 0.12)',
+                  border: '1px solid var(--color-primary)',
+                  color: 'var(--color-primary)',
+                  fontSize: '0.88rem',
+                  fontWeight: 700
+                }}
+              >
+                🏢 {userDistrict} District (Assigned)
+              </span>
+            ) : (
+              <select
+                value={selectedDistrict}
+                onChange={handleDistrictChange}
+                style={{
+                  padding: '0.5rem 0.8rem',
+                  borderRadius: '10px',
+                  backgroundColor: 'var(--color-border)',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
+                  fontSize: '0.88rem',
+                  fontWeight: 600,
+                  outline: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="All">🌐 All Districts (Statewide)</option>
+                {TN_DISTRICTS.map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Taluk Dropdown */}

@@ -17,6 +17,7 @@ const FarmerPortal = lazy(() => import('./components/farmer/FarmerPortal'));
 const CoopPortal = lazy(() => import('./components/cooperative/CoopPortal'));
 const OperatorPortal = lazy(() => import('./components/operator/OperatorPortal'));
 const AdminPortal = lazy(() => import('./components/admin/AdminPortal'));
+const GovernmentPortal = lazy(() => import('./components/government/GovernmentPortal'));
 
 // Minimal loading spinner shown while a lazy portal chunk loads
 function PortalLoader() {
@@ -124,6 +125,9 @@ export default function App() {
     }
     if (user.role === 'Admin' || user.role === 'Manager') {
       return <Suspense fallback={<PortalLoader />}><AdminPortal onLogout={handleLogout} user={user} /></Suspense>;
+    }
+    if (user.role === 'Officer' || user.role === 'Auditor') {
+      return <Suspense fallback={<PortalLoader />}><GovernmentPortal onLogout={handleLogout} user={user} /></Suspense>;
     }
   }
 

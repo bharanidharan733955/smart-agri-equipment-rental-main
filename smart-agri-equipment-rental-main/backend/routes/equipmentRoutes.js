@@ -2,6 +2,7 @@
 import express from 'express';
 import { Equipment, User, logAudit, isDbConnected, localDb } from '../db.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
+import { getTaluksForDistrict } from '../data/tnLocationData.js';
 
 const router = express.Router();
 
@@ -32,6 +33,8 @@ router.get('/', optionalAuthenticateToken, async (req, res) => {
           village: farmerUser.village || ''
         };
       }
+    } else if (req.user && (req.user.role === 'Staff' || req.user.role === 'Cooperative Staff' || req.user.role === 'Manager') && req.user.district) {
+      targetDistrict = req.user.district;
     }
 
     let items = [];
@@ -180,7 +183,8 @@ router.post('/', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 
     }
 
     const targetDistrict = district || 'Coimbatore';
-    const targetTaluk = taluk || 'Pollachi';
+    const validTaluks = getTaluksForDistrict(targetDistrict);
+    const targetTaluk = (taluk && validTaluks.includes(taluk)) ? taluk : (validTaluks[0] || targetDistrict);
     const targetHub = cooperativeHub || `${targetTaluk} Cooperative Hub`;
     const targetRegNumber = regNumber || `TN-${Math.floor(10 + Math.random() * 80)}-EQ-${Math.floor(1000 + Math.random() * 9000)}`;
     const qrCode = `AGRIRENT-QR-${targetRegNumber}-${Math.floor(1000 + Math.random() * 9000)}`;

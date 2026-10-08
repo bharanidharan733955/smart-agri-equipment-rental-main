@@ -230,16 +230,16 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
               }}
             >
               <ShieldCheck size={14} />
-              <span>Cooperative Staff</span>
+              <span>{JSON.parse(localStorage.getItem('agrirent_user') || '{}').district || 'Coimbatore'} Staff</span>
             </div>
 
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
-                RAKESH SHARMA
+                {(JSON.parse(localStorage.getItem('agrirent_user') || '{}').name || 'Cooperative Staff').toUpperCase()}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                 <Building2 size={12} />
-                <span>Ludhiana Hub #1</span>
+                <span>{JSON.parse(localStorage.getItem('agrirent_user') || '{}').district || 'Coimbatore'} Hub</span>
               </div>
             </div>
 
@@ -258,7 +258,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
                 color: 'var(--color-secondary)'
               }}
             >
-              RS
+              {(JSON.parse(localStorage.getItem('agrirent_user') || '{}').name || 'CS').substring(0, 2).toUpperCase()}
             </div>
           </div>
         </header>

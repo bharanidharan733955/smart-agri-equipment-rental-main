@@ -5,7 +5,8 @@ import {
   Users, 
   Tractor, 
   ArrowLeft, 
-  ArrowRight
+  ArrowRight,
+  ShieldCheck
 } from 'lucide-react';
 
 export const ROLES = [
@@ -27,11 +28,19 @@ export const ROLES = [
   },
   {
     id: 'staff',
-    name: 'Cooperative Staff',
-    badge: 'Hub Administration',
+    name: 'District Cooperative Officer',
+    badge: 'District Hub Control',
     badgeColor: 'navy',
     icon: Users,
-    description: 'Approve farmer rental requests, update inventory listings, generate invoices, manage maintenance, and view metrics.'
+    description: 'Manage equipment list for your district, approve district farmer requests, process billing invoices, and generate reports.'
+  },
+  {
+    id: 'officer',
+    name: 'Government Officer',
+    badge: 'State Oversight & Auditor',
+    badgeColor: 'purple',
+    icon: ShieldCheck,
+    description: 'Statewide governance portal: View all equipment district-wise, view & download total state billing financial reports.'
   }
 ];
 

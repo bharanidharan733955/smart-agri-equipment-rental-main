@@ -641,8 +641,12 @@ export default function OperatorPortal({ user, onLogout }) {
         {activeTab === 'team' && (
           <div>
             <div style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.3rem' }}>Field Operator Directory</h3>
-              <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>All registered equipment operators and their assigned agricultural vehicles.</p>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.3rem' }}>
+                {user?.taluk ? `${user.taluk} Taluk Operator Team` : 'Field Operator Directory'}
+              </h3>
+              <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>
+                Registered equipment operators and their vehicle assignments in {user?.taluk ? `${user.taluk} Taluk` : 'your taluk'}.
+              </p>
             </div>
 
             {teamLoading ? (
@@ -650,7 +654,7 @@ export default function OperatorPortal({ user, onLogout }) {
                 <Loader2 className="animate-spin" size={40} color="var(--color-primary)" />
               </div>
             ) : operatorsTeam.length === 0 ? (
-              <p style={{ color: 'var(--color-muted)', padding: '2rem 0' }}>No operators found in the system.</p>
+              <p style={{ color: 'var(--color-muted)', padding: '2rem 0' }}>No operators found in this taluk.</p>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '1.5rem' }}>
                 {operatorsTeam.map((op) => (
@@ -686,7 +690,7 @@ export default function OperatorPortal({ user, onLogout }) {
                             <Phone size={11} /> {op.mobile || 'N/A'}
                           </span>
                           <span style={{ fontSize: '0.78rem', color: 'var(--color-muted)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <MapPin size={11} /> {op.district || 'N/A'}
+                            <MapPin size={11} /> {op.taluk ? `${op.taluk} Taluk, ${op.district}` : op.district || 'N/A'}
                           </span>
                         </div>
                       </div>

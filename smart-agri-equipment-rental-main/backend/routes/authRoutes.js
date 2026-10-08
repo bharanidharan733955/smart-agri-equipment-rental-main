@@ -161,7 +161,7 @@ router.post('/login', async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user._id, name: user.name, email: user.email, role: user.role, district: user.district, cooperativeHub: user.cooperativeHub },
+      { id: user._id, name: user.name, email: user.email, role: user.role, district: user.district, taluk: user.taluk, cooperativeHub: user.cooperativeHub },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -179,6 +179,7 @@ router.post('/login', async (req, res) => {
         role: user.role,
         mobile: user.mobile,
         district: user.district,
+        taluk: user.taluk,
         cooperativeHub: user.cooperativeHub
       }
     });

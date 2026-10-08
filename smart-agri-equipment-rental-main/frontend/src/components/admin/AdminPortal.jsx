@@ -29,7 +29,7 @@ import {
 } from '../../api';
 import toast, { Toaster } from 'react-hot-toast';
 import { 
-  ShieldCheck, LogOut, Users, Tractor, Calendar, DollarSign, Activity, FileText, ClipboardList, PlusCircle, Wrench, Search, ShieldAlert, CheckCircle2, UserCheck, BarChart3, PieChart
+  ShieldCheck, LogOut, Users, Tractor, Calendar, DollarSign, Activity, FileText, ClipboardList, PlusCircle, Wrench, Search, ShieldAlert, CheckCircle2, UserCheck, BarChart3, PieChart, Building2, Download
 } from 'lucide-react';
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
@@ -38,12 +38,16 @@ import AddEquipmentModal from '../cooperative/AddEquipmentModal';
 import EditEquipmentModal from '../cooperative/EditEquipmentModal';
 import EquipmentDetailsModal from '../cooperative/EquipmentDetailsModal';
 import UploadImageModal from '../cooperative/UploadImageModal';
+import { TN_DISTRICTS } from '../../data/tnLocationData';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 export default function AdminPortal({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('inventory');
   const [loading, setLoading] = useState(true);
+
+  // District Filter for Government Officer Oversight
+  const [selectedDistrictFilter, setSelectedDistrictFilter] = useState('All');
 
   // States
   const [equipmentList, setEquipmentList] = useState([]);
@@ -657,19 +661,41 @@ export default function AdminPortal({ user, onLogout }) {
           ) : (
             <>
               {activeTab === 'inventory' && (
-                <CoopEquipmentView
-                  equipmentList={equipmentList}
-                  stats={stats}
-                  onOpenAddModal={() => setIsAddOpen(true)}
-                  onViewDetails={(item) => setDetailsItem(item)}
-                  onEditEquipment={(item) => setEditingItem(item)}
-                  onDeleteEquipment={handleDeleteEquipment}
-                  onUploadImage={(item) => setUploadItem(item)}
-                  onUpdateStatus={handleUpdateStatus}
-                  onUpdateCondition={handleUpdateCondition}
-                  onScheduleMaint={(item) => setMaintItem(item)}
-                  onCompleteMaint={handleCompleteMaint}
-                />
+                <>
+                  <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: 'var(--color-surface)', padding: '1rem 1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                    <Building2 size={22} color="var(--color-primary)" />
+                    <div>
+                      <span style={{ fontWeight: 800, fontSize: '0.95rem', display: 'block', color: 'var(--color-text)' }}>Statewide District Equipment Explorer</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Filter machinery catalog & serialized units district-wise across Tamil Nadu</span>
+                    </div>
+                    <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <select
+                        value={selectedDistrictFilter}
+                        onChange={(e) => setSelectedDistrictFilter(e.target.value)}
+                        style={{ padding: '0.55rem 1rem', borderRadius: '8px', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', border: '1px solid var(--color-primary)', fontWeight: 700, fontSize: '0.88rem', cursor: 'pointer' }}
+                      >
+                        <option value="All">🌐 All Districts (Statewide Fleet - {equipmentList.length} Items)</option>
+                        {TN_DISTRICTS.map(d => (
+                          <option key={d} value={d}>📍 {d} District Inventory</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <CoopEquipmentView
+                    equipmentList={equipmentList.filter(item => selectedDistrictFilter === 'All' || (item.district && item.district.toLowerCase() === selectedDistrictFilter.toLowerCase()))}
+                    stats={stats}
+                    onOpenAddModal={() => setIsAddOpen(true)}
+                    onViewDetails={(item) => setDetailsItem(item)}
+                    onEditEquipment={(item) => setEditingItem(item)}
+                    onDeleteEquipment={handleDeleteEquipment}
+                    onUploadImage={(item) => setUploadItem(item)}
+                    onUpdateStatus={handleUpdateStatus}
+                    onUpdateCondition={handleUpdateCondition}
+                    onScheduleMaint={(item) => setMaintItem(item)}
+                    onCompleteMaint={handleCompleteMaint}
+                  />
+                </>
               )}
 
               {activeTab === 'requests' && (

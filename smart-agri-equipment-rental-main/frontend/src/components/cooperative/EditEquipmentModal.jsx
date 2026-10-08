@@ -6,12 +6,16 @@ import { TN_DISTRICTS, getTaluksForDistrict } from '../../data/tnLocationData';
 export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveEdit }) {
   if (!isOpen || !equipment) return null;
 
+  const initialDistrict = equipment.district || 'Coimbatore';
+  const initialTaluks = getTaluksForDistrict(initialDistrict);
+  const initialTaluk = (equipment.taluk && initialTaluks.includes(equipment.taluk)) ? equipment.taluk : (initialTaluks[0] || 'Coimbatore');
+
   const [name, setName] = useState(equipment.name || '');
   const [category, setCategory] = useState(equipment.category || 'Tractor');
   const [price, setPrice] = useState(equipment.price || equipment.rentalRate || 1800);
-  const [district, setDistrict] = useState(equipment.district || 'Coimbatore');
-  const [taluk, setTaluk] = useState(equipment.taluk || 'Pollachi');
-  const [location, setLocation] = useState(equipment.location || `${equipment.taluk || 'Pollachi'} Hub, ${equipment.district || 'Coimbatore'}`);
+  const [district, setDistrict] = useState(initialDistrict);
+  const [taluk, setTaluk] = useState(initialTaluk);
+  const [location, setLocation] = useState(equipment.location || `${initialTaluk} Hub, ${initialDistrict}`);
   const [condition, setCondition] = useState(equipment.condition || 'good');
   const [status, setStatus] = useState(equipment.status || 'Available');
   const [imageUrl, setImageUrl] = useState(equipment.imageUrl || '');
@@ -23,7 +27,8 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
       setCategory(equipment.category || 'Tractor');
       setPrice(equipment.rentalRate || equipment.price || 1800);
       const d = equipment.district || 'Coimbatore';
-      const t = equipment.taluk || 'Pollachi';
+      const validT = getTaluksForDistrict(d);
+      const t = (equipment.taluk && validT.includes(equipment.taluk)) ? equipment.taluk : (validT[0] || 'Coimbatore');
       setDistrict(d);
       setTaluk(t);
       setLocation(equipment.location || `${t} Hub, ${d}`);

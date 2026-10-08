@@ -3,6 +3,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 dotenv.config();
 
@@ -566,14 +569,41 @@ function getAllTalukOperators() {
   return operators;
 }
 
+function getDistrictStaffUsers() {
+  const staffList = [
+    { name: 'Coimbatore District Staff', email: 'staff@agrirent.gov', password: 'AgriRentGov#Secure2026!Staff', role: 'Staff', mobile: '9876543214', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Coimbatore District Central Hub', isApproved: true }
+  ];
+  let mobileCounter = 9876580000;
+  Object.keys(TN_TALUKS_MAP).forEach((district) => {
+    const districtSlug = district.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const email = `staff.${districtSlug}@agrirent.gov`;
+    if (!staffList.some(s => s.email === email)) {
+      mobileCounter++;
+      const firstTaluk = TN_TALUKS_MAP[district]?.[0] || 'Central';
+      staffList.push({
+        name: `${district} Cooperative Staff`,
+        email,
+        password: 'AgriRentGov#Secure2026!Staff',
+        role: 'Staff',
+        mobile: String(mobileCounter),
+        district,
+        taluk: firstTaluk,
+        cooperativeHub: `${district} District Central Hub`,
+        isApproved: true
+      });
+    }
+  });
+  return staffList;
+}
+
 export async function seedDemoData() {
   const allTalukOperators = getAllTalukOperators();
+  const districtStaffUsers = getDistrictStaffUsers();
   const otherDemoUsers = [
     { name: 'Maintenance Tech', email: 'maint@agrirent.gov', password: 'AgriRentGov#Secure2026!Maint', role: 'Equipmaintance', mobile: '9876543213', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
-    { name: 'Staff Controller', email: 'staff@agrirent.gov', password: 'AgriRentGov#Secure2026!Staff', role: 'Staff', mobile: '9876543214', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
     { name: 'State Government Auditor', email: 'officer@agrirent.gov', password: 'AgriRentGov#Secure2026!Officer', role: 'Officer', mobile: '9876543215', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true }
   ];
-  const demoUsers = [...allTalukOperators, ...otherDemoUsers];
+  const demoUsers = [...allTalukOperators, ...districtStaffUsers, ...otherDemoUsers];
 
   if (isConnected) {
     try {
@@ -659,31 +689,52 @@ export async function seedDemoData() {
     } catch (err) {
       console.error('Error seeding DB users:', err);
     }
-  } else {
-    // Local memory file seeding
-    const fileUsers = localDb.read('users') || [];
-    const existingEmails = new Set(fileUsers.map(u => u.email));
-    let updatedUsers = [...fileUsers];
-    let seededAny = false;
+  }
 
+  // Local memory file seeding (always runs to ensure local fallback files are in sync)
+  try {
+    const fileUsers = localDb.read('users') || [];
     const hashedOpPassword = await bcrypt.hash('AgriRentGov#Secure2026!Operator', 10);
+    const hashedMaintPassword = await bcrypt.hash('AgriRentGov#Secure2026!Maint', 10);
+    const hashedStaffPassword = await bcrypt.hash('AgriRentGov#Secure2026!Staff', 10);
+    const hashedOfficerPassword = await bcrypt.hash('AgriRentGov#Secure2026!Officer', 10);
+
+    const userMap = new Map(fileUsers.map(u => [u.email, u]));
+    let modified = false;
 
     for (const u of demoUsers) {
-      if (!existingEmails.has(u.email)) {
-        updatedUsers.push({
+      let pass = hashedOpPassword;
+      if (u.role === 'Equipmaintance') pass = hashedMaintPassword;
+      if (u.role === 'Staff') pass = hashedStaffPassword;
+      if (u.role === 'Officer') pass = hashedOfficerPassword;
+
+      if (userMap.has(u.email)) {
+        const existing = userMap.get(u.email);
+        existing.password = pass;
+        existing.role = u.role;
+        existing.district = u.district;
+        existing.taluk = u.taluk;
+        existing.cooperativeHub = u.cooperativeHub;
+        existing.isApproved = true;
+        modified = true;
+      } else {
+        userMap.set(u.email, {
           _id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
           ...u,
-          password: hashedOpPassword,
+          password: pass,
           createdAt: new Date().toISOString()
         });
-        seededAny = true;
+        modified = true;
       }
     }
 
-    if (seededAny) {
-      localDb.write('users', updatedUsers);
-      console.log('✅ Local JSON Seeding completed for taluk operators.');
+    if (modified) {
+      localDb.write('users', Array.from(userMap.values()));
+      console.log('✅ Local JSON Seeding completed for demo users with correct role passwords.');
     }
+  } catch (lErr) {
+    console.error('Error in local seeding:', lErr);
+  }
 
     // Seed equipment locally if count < 100 or units are missing or rates out of range
     const fileEq = localDb.read('equipment') || [];
@@ -711,6 +762,7 @@ export async function seedDemoData() {
       console.log('✅ Local JSON Seeding of equipment completed with units fleet.');
 
       // Also seed a mock booking and job so the operator has something to see
+      const op = opUsers[0];
       if (op && farmer) {
         const bookings = localDb.read('bookings') || [];
         const jobs = localDb.read('jobs') || [];
@@ -749,7 +801,6 @@ export async function seedDemoData() {
         }
       }
     }
-  }
 }
 
 export async function connectDB() {
@@ -1083,7 +1134,7 @@ export const Feedback = mongoose.models.Feedback || mongoose.model('Feedback', f
 
 
 // Memory fallback layer implementation
-const DATA_DIR = path.resolve('backend/data/db');
+const DATA_DIR = path.resolve(__dirname, 'data/db');
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }

@@ -496,17 +496,41 @@ router.get('/cancellation-requests', authenticateToken, authorizeRoles('Admin', 
 });
 
 // GET /api/jobs/operator-stats (Staff views operator performance & cancellation statistics)
-router.get('/operator-stats', authenticateToken, authorizeRoles('Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
+router.get('/operator-stats', authenticateToken, authorizeRoles('Admin', 'Staff', 'Cooperative Staff', 'Officer'), async (req, res) => {
   try {
     let operators = [];
     let jobs = [];
 
+    const isStaff = req.user && (req.user.role === 'Staff' || req.user.role === 'Cooperative Staff');
+    let staffDistrict = req.user?.district || req.query.district || '';
+
+    if (isStaff && !staffDistrict) {
+      if (isDbConnected()) {
+        const dbUser = await User.findById(req.user.id || req.user._id);
+        if (dbUser) staffDistrict = dbUser.district || '';
+      } else {
+        const users = localDb.read('users') || [];
+        const dbUser = users.find(u => String(u._id || u.id) === String(req.user.id));
+        if (dbUser) staffDistrict = dbUser.district || '';
+      }
+    }
+
     if (isDbConnected()) {
-      operators = await User.find({ role: 'Equipment Operator' }).lean();
+      let query = { role: { $in: ['Equipment Operator', 'Operator'] } };
+      if (staffDistrict && staffDistrict !== 'ALL') {
+        query.district = new RegExp(`^${staffDistrict.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i');
+      }
+      operators = await User.find(query).lean();
       jobs = await Job.find().lean();
     } else {
       const users = localDb.read('users') || [];
-      operators = users.filter(u => u.role === 'Equipment Operator');
+      let allOps = users.filter(u => u.role === 'Equipment Operator' || u.role === 'Operator');
+      if (staffDistrict && staffDistrict !== 'ALL') {
+        const dNorm = staffDistrict.toLowerCase();
+        operators = allOps.filter(u => u.district && u.district.toLowerCase() === dNorm);
+      } else {
+        operators = allOps;
+      }
       jobs = localDb.read('jobs') || [];
     }
 
@@ -524,8 +548,10 @@ router.get('/operator-stats', authenticateToken, authorizeRoles('Admin', 'Staff'
       const rejected = opJobs.filter(j => j.cancellationDecision === 'Rejected').length;
 
       return {
-        operatorId: op.operatorId || op.id || 'OP-00' + op._id,
+        operatorId: op.operatorId || op.id || 'OP-' + String(op._id).slice(-4),
         name: op.name || 'Operator',
+        district: op.district || '',
+        taluk: op.taluk || (op.cooperativeHub ? op.cooperativeHub.replace(/ hub$/i, '').trim() : ''),
         mobile: op.mobile || '',
         status: op.status || 'Active',
         totalJobs,
@@ -624,7 +650,7 @@ router.post('/:id/approve-cancellation', authenticateToken, authorizeRoles('Admi
     let job;
 
     if (isDbConnected()) {
-      job = await Job.findById(id);
+      job = await Job.findById(id).populate('equipment').populate('booking');
     } else {
       const jobs = localDb.read('jobs') || [];
       job = jobs.find(j => j._id === id || j.id === id);
@@ -634,13 +660,148 @@ router.post('/:id/approve-cancellation', authenticateToken, authorizeRoles('Admi
       return res.status(404).json({ success: false, message: 'Job not found.' });
     }
 
+    const oldOperatorId = (job.operator?._id || job.operator)?.toString();
+    const oldOperatorIdRaw = job.operator;
+
+    // Determine target location and dates for reassignment
+    let targetTaluk = job.taluk || job.equipment?.taluk || '';
+    let targetDistrict = job.district || job.equipment?.district || req.user.district || '';
+
+    let startDate = job.assignedDate || job.createdAt || new Date();
+    let durationDays = 1;
+    if (job.booking) {
+      startDate = job.booking.startDate || startDate;
+      durationDays = job.booking.durationDays || 1;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(start.getTime() + durationDays * 24 * 60 * 60 * 1000);
+
+    let replacementOperator = null;
+
+    if (isDbConnected()) {
+      // Find active jobs that overlap with start -> end window
+      const activeJobs = await Job.find({
+        _id: { $ne: job._id },
+        status: { $in: ['ASSIGNED', 'ACCEPTED', 'PRECHECK', 'READY', 'IN_PROGRESS', 'PAUSED', 'Assigned', 'Started', 'CANCELLATION_REQUESTED'] }
+      });
+
+      const busyOperatorIds = new Set(activeJobs.map(j => (j.operator?._id || j.operator)?.toString()).filter(Boolean));
+
+      // Build location query for candidate operators in the same taluk
+      let locationFilter = {};
+      if (targetTaluk) {
+        const talukRegex = new RegExp(targetTaluk.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+        locationFilter = {
+          $or: [
+            { taluk: talukRegex },
+            { cooperativeHub: talukRegex }
+          ]
+        };
+      } else if (targetDistrict) {
+        const distRegex = new RegExp(`^${targetDistrict.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i');
+        locationFilter = { district: distRegex };
+      }
+
+      // Find operators in the target location
+      let candidateOperators = await User.find({
+        role: { $in: ['Equipment Operator', 'Operator'] },
+        ...locationFilter
+      });
+
+      // Filter out original cancelling operator and operators busy on that day
+      let eligibleOperators = candidateOperators.filter(op => {
+        const opId = op._id.toString();
+        if (opId === oldOperatorId) return false;
+        return !busyOperatorIds.has(opId);
+      });
+
+      // Fallback to district level if no free operator in specific taluk
+      if (eligibleOperators.length === 0 && targetDistrict && targetTaluk) {
+        const districtOps = await User.find({
+          role: { $in: ['Equipment Operator', 'Operator'] },
+          district: new RegExp(`^${targetDistrict.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}$`, 'i')
+        });
+        eligibleOperators = districtOps.filter(op => {
+          const opId = op._id.toString();
+          if (opId === oldOperatorId) return false;
+          return !busyOperatorIds.has(opId);
+        });
+      }
+
+      if (eligibleOperators.length > 0) {
+        replacementOperator = eligibleOperators[0];
+      }
+    } else {
+      // Local Database logic
+      const jobs = localDb.read('jobs') || [];
+      const users = localDb.read('users') || [];
+      const equipments = localDb.read('equipment') || [];
+
+      const eq = equipments.find(e => (e._id || e.id) === (job.equipment?._id || job.equipment));
+      if (!targetTaluk && eq) targetTaluk = eq.taluk || '';
+      if (!targetDistrict && eq) targetDistrict = eq.district || '';
+
+      const activeJobs = jobs.filter(j => 
+        (j._id !== id && j.id !== id) &&
+        ['ASSIGNED', 'ACCEPTED', 'PRECHECK', 'READY', 'IN_PROGRESS', 'PAUSED', 'Assigned', 'Started', 'CANCELLATION_REQUESTED'].includes(j.status)
+      );
+
+      const busyOperatorIds = new Set(activeJobs.map(j => (j.operator?._id || j.operator)?.toString()).filter(Boolean));
+
+      let allOps = users.filter(u => u.role === 'Equipment Operator' || u.role === 'Operator');
+      let candidateOperators = [];
+
+      if (targetTaluk) {
+        const tNorm = targetTaluk.toLowerCase();
+        candidateOperators = allOps.filter(u => 
+          (u.taluk && u.taluk.toLowerCase() === tNorm) ||
+          (u.cooperativeHub && u.cooperativeHub.toLowerCase().includes(tNorm))
+        );
+      } else if (targetDistrict) {
+        const dNorm = targetDistrict.toLowerCase();
+        candidateOperators = allOps.filter(u => u.district && u.district.toLowerCase() === dNorm);
+      }
+
+      let eligibleOperators = candidateOperators.filter(op => {
+        const opId = (op._id || op.id)?.toString();
+        if (opId === oldOperatorId) return false;
+        return !busyOperatorIds.has(opId);
+      });
+
+      if (eligibleOperators.length === 0 && targetDistrict && targetTaluk) {
+        const dNorm = targetDistrict.toLowerCase();
+        const districtOps = allOps.filter(u => u.district && u.district.toLowerCase() === dNorm);
+        eligibleOperators = districtOps.filter(op => {
+          const opId = (op._id || op.id)?.toString();
+          if (opId === oldOperatorId) return false;
+          return !busyOperatorIds.has(opId);
+        });
+      }
+
+      if (eligibleOperators.length > 0) {
+        replacementOperator = eligibleOperators[0];
+      }
+    }
+
+    // Update job state
     job.cancellationDecision = 'Approved';
     job.cancellationDecisionBy = req.user.id;
     job.cancellationDecisionAt = new Date();
     job.cancellationRequested = false;
-    job.status = 'MANUAL_REASSIGNMENT_REQUIRED';
-    const oldOperatorId = job.operator;
-    job.operator = null;
+
+    let responseMsg = '';
+
+    if (replacementOperator) {
+      const newOpId = replacementOperator._id || replacementOperator.id;
+      job.operator = newOpId;
+      job.status = 'ASSIGNED';
+      responseMsg = `Cancellation approved! Job automatically reassigned to ${replacementOperator.name || 'new operator'} (${replacementOperator.taluk || targetTaluk} Taluk) who is free on the requested date.`;
+    } else {
+      job.operator = null;
+      job.status = 'MANUAL_REASSIGNMENT_REQUIRED';
+      responseMsg = `Cancellation approved. No available operator was free in ${targetTaluk || 'the taluk'} on the requested date, so manual reassignment is required.`;
+    }
 
     if (isDbConnected()) {
       await job.save();
@@ -648,19 +809,27 @@ router.post('/:id/approve-cancellation', authenticateToken, authorizeRoles('Admi
       // Log assignment history
       await AssignmentHistory.create({
         jobId: job._id,
-        operatorId: oldOperatorId,
+        operatorId: oldOperatorIdRaw,
         assignmentType: 'AUTOMATIC_ROTATION',
         assignedBy: 'SYSTEM',
         unassignedAt: new Date(),
-        reason: `Cancellation approved by Staff: ${job.cancellationReason}`
+        reason: `Cancellation approved by Staff. ${replacementOperator ? `Auto-reassigned to ${replacementOperator.name}.` : 'No free operator in taluk.'}`
       });
 
-      // Notify original operator
-      if (oldOperatorId) {
+      // Notifications
+      if (oldOperatorIdRaw) {
         await Notification.create({
-          user: oldOperatorId,
+          user: oldOperatorIdRaw,
           title: 'Cancellation Approved',
-          message: `Your cancellation request for Job #${job.jobId || job._id} has been approved by Cooperative Staff.`
+          message: `Your cancellation request for Job #${job.jobId || job._id} has been approved.`
+        });
+      }
+
+      if (replacementOperator) {
+        await Notification.create({
+          user: replacementOperator._id,
+          title: 'New Job Assigned (Reassigned)',
+          message: `You have been automatically assigned to Job #${job.jobId || job._id} in ${replacementOperator.taluk || targetTaluk} Taluk.`
         });
       }
     } else {
@@ -673,16 +842,46 @@ router.post('/:id/approve-cancellation', authenticateToken, authorizeRoles('Admi
           cancellationDecisionBy: req.user.id,
           cancellationDecisionAt: new Date().toISOString(),
           cancellationRequested: false,
-          status: 'MANUAL_REASSIGNMENT_REQUIRED',
-          operator: null
+          status: replacementOperator ? 'ASSIGNED' : 'MANUAL_REASSIGNMENT_REQUIRED',
+          operator: replacementOperator ? (replacementOperator._id || replacementOperator.id) : null
         };
         localDb.write('jobs', jobs);
       }
+
+      const notifications = localDb.read('notifications') || [];
+      if (oldOperatorIdRaw) {
+        notifications.push({
+          _id: 'NOTIF-' + Math.floor(1000 + Math.random() * 9000),
+          user: oldOperatorIdRaw,
+          title: 'Cancellation Approved',
+          message: `Your cancellation request for Job #${job.jobId || job._id} has been approved.`,
+          read: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+      if (replacementOperator) {
+        notifications.push({
+          _id: 'NOTIF-' + Math.floor(1000 + Math.random() * 9000),
+          user: replacementOperator._id || replacementOperator.id,
+          title: 'New Job Assigned (Reassigned)',
+          message: `You have been automatically assigned to Job #${job.jobId || job._id} in ${replacementOperator.taluk || targetTaluk} Taluk.`,
+          read: false,
+          createdAt: new Date().toISOString()
+        });
+      }
+      localDb.write('notifications', notifications);
     }
 
-    await logAudit(req, req.user, 'Approved Operator Cancellation', 'CANCELLATION_REQUESTED', 'MANUAL_REASSIGNMENT_REQUIRED', `Job #${id} cancellation approved. Manual reassignment required.`);
+    await logAudit(
+      req,
+      req.user,
+      'Approved Operator Cancellation',
+      'CANCELLATION_REQUESTED',
+      job.status,
+      `Job #${id} cancellation approved. ${replacementOperator ? `Automatically reassigned to ${replacementOperator.name}` : 'Manual reassignment required.'}`
+    );
 
-    return res.json({ success: true, message: 'Cancellation approved. Job requires manual operator reassignment by Cooperative Staff.', data: job });
+    return res.json({ success: true, message: responseMsg, data: job });
   } catch (err) {
     console.error('Approve cancellation error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });

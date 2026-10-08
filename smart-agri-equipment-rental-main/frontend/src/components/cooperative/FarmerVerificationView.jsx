@@ -212,7 +212,7 @@ export default function FarmerVerificationView() {
                     </div>
                     <div>
                       <span style={{ color: 'var(--color-muted)' }}>Location: </span>
-                      <strong>{farmer.district || 'Coimbatore'} • {farmer.taluk || 'Pollachi'}</strong>
+                      <strong>{farmer.district || 'Coimbatore'}{farmer.taluk ? ` • ${farmer.taluk}` : ''}</strong>
                     </div>
                     {farmer.address && (
                       <div>
