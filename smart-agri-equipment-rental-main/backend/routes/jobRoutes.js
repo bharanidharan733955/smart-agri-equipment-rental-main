@@ -1,6 +1,6 @@
 // backend/routes/jobRoutes.js
 import express from 'express';
-import { Job, Booking, Equipment, User, Maintenance, Notification, logAudit, isDbConnected, localDb } from '../db.js';
+import { Job, Booking, Equipment, User, Maintenance, Notification, Invoice, AssignmentHistory, logAudit, isDbConnected, localDb } from '../db.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -12,10 +12,12 @@ router.get('/', authenticateToken, async (req, res) => {
     if (isDbConnected()) {
       if (req.user.role === 'Equipment Operator') {
         list = await Job.find({ operator: req.user.id })
+          .sort({ createdAt: -1 })
           .populate('equipment')
           .populate('farmer', 'name email mobile');
       } else {
         list = await Job.find()
+          .sort({ createdAt: -1 })
           .populate('equipment')
           .populate('farmer', 'name email mobile')
           .populate('operator', 'name email mobile');
@@ -35,6 +37,7 @@ router.get('/', authenticateToken, async (req, res) => {
       if (req.user.role === 'Equipment Operator') {
         list = list.filter(j => j.operator._id === req.user.id || j.operator === req.user.id);
       }
+      list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     }
 
     return res.json({ success: true, count: list.length, data: list });
@@ -185,20 +188,20 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       booking = bookings.find(b => b._id?.toString() === job.booking?.toString() || b.id?.toString() === job.booking?.toString());
     }
 
-    const durationDays = booking ? booking.durationDays : 1;
-    const hours = durationDays * 9;
+    const durationDays = (booking && booking.durationDays) ? parseInt(booking.durationDays) : 1;
+    const hours = (durationDays || 1) * 9;
 
     const resolvedStartTime = job.startTime || (booking ? new Date(booking.startDate) : new Date());
-    const resolvedEndTime = new Date(new Date(resolvedStartTime).getTime() + durationDays * 24 * 60 * 60 * 1000);
+    const resolvedEndTime = new Date(new Date(resolvedStartTime).getTime() + (durationDays || 1) * 24 * 60 * 60 * 1000);
 
     const fuel = parseFloat(fuelUsed) || 0;
     const selectedFuelType = req.body.fuelType || booking?.tentativeBill?.fuelType || 'Diesel';
     const fuelPricePerLiter = selectedFuelType === 'Petrol' ? 102 : 95;
 
     // Billing calculations
-    const baseAmount = booking?.tentativeBill?.baseAmount || ((eq?.rentalRate || booking?.rentalRate || 1800) * durationDays);
-    const estimatedFuelCost = booking?.tentativeBill?.estimatedFuelCost || Math.round(durationDays * 6 * fuelPricePerLiter);
-    const estimatedFuelLiters = booking?.tentativeBill?.estimatedFuelLiters || (durationDays * 6);
+    const baseAmount = booking?.tentativeBill?.baseAmount || ((eq?.rentalRate || booking?.rentalRate || 1800) * (durationDays || 1));
+    const estimatedFuelCost = booking?.tentativeBill?.estimatedFuelCost || Math.round((durationDays || 1) * 6 * fuelPricePerLiter);
+    const estimatedFuelLiters = booking?.tentativeBill?.estimatedFuelLiters || ((durationDays || 1) * 6);
     
     const actualFuelLiters = fuel;
     const actualFuelCost = Math.round(actualFuelLiters * fuelPricePerLiter);
@@ -245,31 +248,25 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
 
     // Update equipment usage hours
     if (eq) {
-      eq.currentCycleHours = Math.round((eq.currentCycleHours + hours) * 10) / 10;
-      eq.totalUsageHours = Math.round((eq.totalUsageHours + hours) * 10) / 10;
+      const curCycle = typeof eq.currentCycleHours === 'number' && !isNaN(eq.currentCycleHours) ? eq.currentCycleHours : 0;
+      const totalHours = typeof eq.totalUsageHours === 'number' && !isNaN(eq.totalUsageHours) ? eq.totalUsageHours : 0;
+      
+      eq.currentCycleHours = Math.round((curCycle + hours) * 10) / 10;
+      eq.totalUsageHours = Math.round((totalHours + hours) * 10) / 10;
       
       // Update sub-unit work hours
-      if (job.unitNum) {
+      if (job.unitNum && Array.isArray(eq.units)) {
         const unit = eq.units.find(u => u.unitNum === job.unitNum);
         if (unit) {
-          unit.hours = Math.round((unit.hours + hours) * 10) / 10;
+          const uHours = typeof unit.hours === 'number' && !isNaN(unit.hours) ? unit.hours : 0;
+          unit.hours = Math.round((uHours + hours) * 10) / 10;
         }
       }
 
-      // Check 360-hour threshold
-      if (eq.currentCycleHours >= 360) {
-        newEquipmentStatus = 'Maintenance Required';
-        eq.status = 'Maintenance Required';
-        if (job.unitNum) {
-          const unit = eq.units.find(u => u.unitNum === job.unitNum);
-          if (unit) unit.status = 'Under Maintenance';
-        }
-      } else {
-        eq.status = 'Available';
-        if (job.unitNum) {
-          const unit = eq.units.find(u => u.unitNum === job.unitNum);
-          if (unit) unit.status = 'Available';
-        }
+      eq.status = 'Available';
+      if (job.unitNum && Array.isArray(eq.units)) {
+        const unit = eq.units.find(u => u.unitNum === job.unitNum);
+        if (unit) unit.status = 'Available';
       }
     }
 
@@ -460,4 +457,452 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
   }
 });
 
+// GET /api/jobs/cancellation-requests (Staff views cancellation requests)
+router.get('/cancellation-requests', authenticateToken, authorizeRoles('Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
+  try {
+    let requests = [];
+    if (isDbConnected()) {
+      requests = await Job.find({
+        $or: [
+          { status: 'CANCELLATION_REQUESTED' },
+          { cancellationRequested: true }
+        ],
+        cancellationDecision: { $nin: ['Approved', 'Rejected', 'APPROVED', 'REJECTED'] }
+      })
+      .populate('equipment')
+      .populate('farmer', 'name email mobile')
+      .populate('operator', 'name email mobile operatorId');
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      const equipment = localDb.read('equipment') || [];
+      const users = localDb.read('users') || [];
+
+      requests = jobs.filter(j => 
+        (j.status === 'CANCELLATION_REQUESTED' || j.cancellationRequested === true) &&
+        !['Approved', 'Rejected', 'APPROVED', 'REJECTED'].includes(j.cancellationDecision)
+      )
+        .map(j => ({
+          ...j,
+          equipment: equipment.find(e => e._id === j.equipment || e.id === j.equipment),
+          farmer: users.find(u => u._id === j.farmer || u.id === j.farmer) || { name: 'Farmer' },
+          operator: users.find(u => u._id === j.operator || u.id === j.operator) || { name: 'Operator' }
+        }));
+    }
+    return res.json({ success: true, count: requests.length, data: requests });
+  } catch (err) {
+    console.error('Fetch cancellation requests error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// GET /api/jobs/operator-stats (Staff views operator performance & cancellation statistics)
+router.get('/operator-stats', authenticateToken, authorizeRoles('Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
+  try {
+    let operators = [];
+    let jobs = [];
+
+    if (isDbConnected()) {
+      operators = await User.find({ role: 'Equipment Operator' }).lean();
+      jobs = await Job.find().lean();
+    } else {
+      const users = localDb.read('users') || [];
+      operators = users.filter(u => u.role === 'Equipment Operator');
+      jobs = localDb.read('jobs') || [];
+    }
+
+    const stats = operators.map(op => {
+      const opIdStr = (op._id || op.id)?.toString();
+      const opJobs = jobs.filter(j => {
+        const jOpStr = (j.operator?._id || j.operator)?.toString();
+        return jOpStr === opIdStr;
+      });
+
+      const totalJobs = opJobs.length;
+      const completed = opJobs.filter(j => j.status === 'Completed').length;
+      const cancellationRequests = opJobs.filter(j => j.cancellationRequested || j.status === 'CANCELLATION_REQUESTED' || j.cancellationDecision).length;
+      const approved = opJobs.filter(j => j.cancellationDecision === 'Approved').length;
+      const rejected = opJobs.filter(j => j.cancellationDecision === 'Rejected').length;
+
+      return {
+        operatorId: op.operatorId || op.id || 'OP-00' + op._id,
+        name: op.name || 'Operator',
+        mobile: op.mobile || '',
+        status: op.status || 'Active',
+        totalJobs,
+        completed,
+        cancellationRequests,
+        approved,
+        rejected
+      };
+    });
+
+    return res.json({ success: true, count: stats.length, data: stats });
+  } catch (err) {
+    console.error('Fetch operator stats error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/jobs/:id/request-cancellation (Operator requests cancellation with reason and explanation)
+router.post('/:id/request-cancellation', authenticateToken, authorizeRoles('Operator', 'Equipment Operator'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason, explanation } = req.body;
+
+    if (!reason || !explanation || !explanation.trim()) {
+      return res.status(400).json({ success: false, message: 'Cancellation reason and detailed explanation are mandatory.' });
+    }
+
+    let job;
+    if (isDbConnected()) {
+      job = await Job.findById(id);
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      job = jobs.find(j => j._id === id || j.id === id);
+    }
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found.' });
+    }
+
+    const jobOpId = (job.operator?._id || job.operator)?.toString();
+    if (jobOpId !== req.user.id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized: You can only request cancellation for your own assigned jobs.' });
+    }
+
+    if (job.cancellationRequested) {
+      return res.status(400).json({ success: false, message: 'Cancellation request has already been submitted for this job.' });
+    }
+
+    job.cancellationRequested = true;
+    job.cancellationReason = reason;
+    job.cancellationNote = explanation;
+    job.cancellationRequestedAt = new Date();
+    job.status = 'CANCELLATION_REQUESTED';
+
+    if (isDbConnected()) {
+      await job.save();
+
+      // Notify Staff
+      const staffUsers = await User.find({ role: { $in: ['Cooperative Staff', 'Admin', 'Manager'] } });
+      for (const st of staffUsers) {
+        await Notification.create({
+          user: st._id,
+          title: '⚠️ Operator Cancellation Request',
+          message: `Operator requested cancellation for Job #${job.jobId || job._id}. Reason: ${reason}`
+        });
+      }
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      const idx = jobs.findIndex(j => j._id === id || j.id === id);
+      if (idx !== -1) {
+        jobs[idx] = {
+          ...jobs[idx],
+          cancellationRequested: true,
+          cancellationReason: reason,
+          cancellationNote: explanation,
+          cancellationRequestedAt: new Date().toISOString(),
+          status: 'CANCELLATION_REQUESTED'
+        };
+        localDb.write('jobs', jobs);
+      }
+    }
+
+    await logAudit(req, req.user, 'Operator Requested Cancellation', job.status, 'CANCELLATION_REQUESTED', `Reason: ${reason} - ${explanation}`);
+
+    return res.json({ success: true, message: 'Cancellation request submitted. Awaiting Cooperative Staff review.', data: job });
+  } catch (err) {
+    console.error('Request cancellation error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/jobs/:id/approve-cancellation (Staff approves cancellation)
+router.post('/:id/approve-cancellation', authenticateToken, authorizeRoles('Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    let job;
+
+    if (isDbConnected()) {
+      job = await Job.findById(id);
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      job = jobs.find(j => j._id === id || j.id === id);
+    }
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found.' });
+    }
+
+    job.cancellationDecision = 'Approved';
+    job.cancellationDecisionBy = req.user.id;
+    job.cancellationDecisionAt = new Date();
+    job.cancellationRequested = false;
+    job.status = 'MANUAL_REASSIGNMENT_REQUIRED';
+    const oldOperatorId = job.operator;
+    job.operator = null;
+
+    if (isDbConnected()) {
+      await job.save();
+
+      // Log assignment history
+      await AssignmentHistory.create({
+        jobId: job._id,
+        operatorId: oldOperatorId,
+        assignmentType: 'AUTOMATIC_ROTATION',
+        assignedBy: 'SYSTEM',
+        unassignedAt: new Date(),
+        reason: `Cancellation approved by Staff: ${job.cancellationReason}`
+      });
+
+      // Notify original operator
+      if (oldOperatorId) {
+        await Notification.create({
+          user: oldOperatorId,
+          title: 'Cancellation Approved',
+          message: `Your cancellation request for Job #${job.jobId || job._id} has been approved by Cooperative Staff.`
+        });
+      }
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      const idx = jobs.findIndex(j => j._id === id || j.id === id);
+      if (idx !== -1) {
+        jobs[idx] = {
+          ...jobs[idx],
+          cancellationDecision: 'Approved',
+          cancellationDecisionBy: req.user.id,
+          cancellationDecisionAt: new Date().toISOString(),
+          cancellationRequested: false,
+          status: 'MANUAL_REASSIGNMENT_REQUIRED',
+          operator: null
+        };
+        localDb.write('jobs', jobs);
+      }
+    }
+
+    await logAudit(req, req.user, 'Approved Operator Cancellation', 'CANCELLATION_REQUESTED', 'MANUAL_REASSIGNMENT_REQUIRED', `Job #${id} cancellation approved. Manual reassignment required.`);
+
+    return res.json({ success: true, message: 'Cancellation approved. Job requires manual operator reassignment by Cooperative Staff.', data: job });
+  } catch (err) {
+    console.error('Approve cancellation error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/jobs/:id/reject-cancellation (Staff rejects cancellation)
+router.post('/:id/reject-cancellation', authenticateToken, authorizeRoles('Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ success: false, message: 'Staff rejection reason is required.' });
+    }
+
+    let job;
+    if (isDbConnected()) {
+      job = await Job.findById(id);
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      job = jobs.find(j => j._id === id || j.id === id);
+    }
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found.' });
+    }
+
+    job.cancellationDecision = 'Rejected';
+    job.cancellationDecisionBy = req.user.id;
+    job.cancellationDecisionAt = new Date();
+    job.cancellationDecisionReason = reason;
+    job.cancellationRequested = false;
+    job.status = 'Assigned'; // Job remains assigned to original operator
+
+    if (isDbConnected()) {
+      await job.save();
+
+      if (job.operator) {
+        await Notification.create({
+          user: job.operator,
+          title: 'Cancellation Request Rejected',
+          message: `Your cancellation request for Job #${job.jobId || job._id} was rejected by Cooperative Staff. Reason: ${reason}. Job remains assigned.`
+        });
+      }
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      const idx = jobs.findIndex(j => j._id === id || j.id === id);
+      if (idx !== -1) {
+        jobs[idx] = {
+          ...jobs[idx],
+          cancellationDecision: 'Rejected',
+          cancellationDecisionBy: req.user.id,
+          cancellationDecisionAt: new Date().toISOString(),
+          cancellationDecisionReason: reason,
+          cancellationRequested: false,
+          status: 'Assigned'
+        };
+        localDb.write('jobs', jobs);
+      }
+    }
+
+    await logAudit(req, req.user, 'Rejected Operator Cancellation', 'CANCELLATION_REQUESTED', 'Assigned', `Staff rejected cancellation for Job #${id}. Reason: ${reason}`);
+
+    return res.json({ success: true, message: 'Cancellation request rejected. Job remains assigned to original operator.', data: job });
+  } catch (err) {
+    console.error('Reject cancellation error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/jobs/:id/reassign (Staff manually reassigns job to replacement operator)
+router.post('/:id/reassign', authenticateToken, authorizeRoles('Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { operatorId } = req.body;
+
+    if (!operatorId) {
+      return res.status(400).json({ success: false, message: 'Please select a replacement operator.' });
+    }
+
+    let job;
+    let newOpUser;
+
+    if (isDbConnected()) {
+      job = await Job.findById(id);
+      newOpUser = await User.findById(operatorId);
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      job = jobs.find(j => j._id === id || j.id === id);
+      const users = localDb.read('users') || [];
+      newOpUser = users.find(u => u._id === operatorId || u.id === operatorId);
+    }
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found.' });
+    }
+    if (!newOpUser) {
+      return res.status(404).json({ success: false, message: 'Selected operator not found.' });
+    }
+
+    const previousOperator = job.operator;
+    job.operator = operatorId;
+    job.status = 'Assigned';
+    job.assignmentType = 'MANUAL_REASSIGNMENT';
+    job.cancellationRequested = false;
+    job.cancellationDecision = 'Approved';
+
+    if (isDbConnected()) {
+      await job.save();
+
+      // Record Assignment History
+      await AssignmentHistory.create({
+        jobId: job._id,
+        operatorId,
+        assignmentType: 'MANUAL_REASSIGNMENT',
+        assignedBy: req.user.name || req.user.id,
+        assignedAt: new Date(),
+        reason: 'Manual Staff Reassignment'
+      });
+
+      // Notify replacement operator
+      await Notification.create({
+        user: operatorId,
+        title: 'New Job Assigned (Manual Reassignment)',
+        message: `You have been manually assigned to Job #${job.jobId || job._id} by Cooperative Staff.`
+      });
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      const idx = jobs.findIndex(j => j._id === id || j.id === id);
+      if (idx !== -1) {
+        jobs[idx] = {
+          ...jobs[idx],
+          operator: operatorId,
+          status: 'Assigned',
+          assignmentType: 'MANUAL_REASSIGNMENT',
+          cancellationRequested: false,
+          cancellationDecision: 'Approved'
+        };
+        localDb.write('jobs', jobs);
+      }
+    }
+
+    await logAudit(req, req.user, 'Manual Operator Reassignment', String(previousOperator), String(operatorId), `Staff manually reassigned Job #${id} to ${newOpUser.name}`);
+
+    return res.json({ success: true, message: `Job successfully reassigned to operator ${newOpUser.name}.`, data: job });
+  } catch (err) {
+    console.error('Reassign job error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/jobs/:id/report-issue (Operator reports equipment issue during work)
+router.post('/:id/report-issue', authenticateToken, authorizeRoles('Operator', 'Equipment Operator'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { issueType, description, photo } = req.body;
+
+    if (!issueType || !description) {
+      return res.status(400).json({ success: false, message: 'Issue type and description are required.' });
+    }
+
+    let job;
+    if (isDbConnected()) {
+      job = await Job.findById(id);
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      job = jobs.find(j => j._id === id || j.id === id);
+    }
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found.' });
+    }
+
+    job.status = 'EQUIPMENT_FAILURE';
+    job.issueReported = {
+      issueType,
+      description,
+      photo: photo || '',
+      reportedAt: new Date()
+    };
+
+    if (isDbConnected()) {
+      await job.save();
+
+      // Notify Staff
+      const staffUsers = await User.find({ role: { $in: ['Cooperative Staff', 'Admin', 'Manager'] } });
+      for (const st of staffUsers) {
+        await Notification.create({
+          user: st._id,
+          title: '🚨 Equipment Failure Reported',
+          message: `Operator reported equipment issue on Job #${job.jobId || job._id}: ${issueType}`
+        });
+      }
+    } else {
+      const jobs = localDb.read('jobs') || [];
+      const idx = jobs.findIndex(j => j._id === id || j.id === id);
+      if (idx !== -1) {
+        jobs[idx] = {
+          ...jobs[idx],
+          status: 'EQUIPMENT_FAILURE',
+          issueReported: {
+            issueType,
+            description,
+            photo: photo || '',
+            reportedAt: new Date().toISOString()
+          }
+        };
+        localDb.write('jobs', jobs);
+      }
+    }
+
+    await logAudit(req, req.user, 'Operator Reported Equipment Issue', 'IN_PROGRESS', 'EQUIPMENT_FAILURE', `Issue: ${issueType} - ${description}`);
+
+    return res.json({ success: true, message: 'Equipment issue reported to Cooperative Staff.', data: job });
+  } catch (err) {
+    console.error('Report issue error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
 export default router;
+

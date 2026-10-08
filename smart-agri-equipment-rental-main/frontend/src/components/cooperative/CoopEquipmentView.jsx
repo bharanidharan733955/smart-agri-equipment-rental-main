@@ -77,15 +77,15 @@ export default function CoopEquipmentView({
         status: 'Available',
         totalUnits: 25,
         availableQuantity: 20,
-        bookedQuantity: 3,
-        maintenanceQuantity: 2,
+        bookedQuantity: 5,
+        maintenanceQuantity: 0,
         district: locDist,
         taluk: locTaluk,
         cooperativeHub: `${locTaluk} Agri Cooperative Hub`,
         units: Array.from({ length: 25 }, (_, i) => ({
           unitNum: i + 1,
           serial: `TN-EQ-${locTaluk.substring(0, 3).toUpperCase()}-${String(i + 1).padStart(2, '0')}`,
-          status: i < 20 ? 'Available' : i < 23 ? 'Reserved' : 'Under Maintenance',
+          status: 'Available',
           hours: i * 12
         }))
       },
@@ -99,16 +99,16 @@ export default function CoopEquipmentView({
         rentalRate: 3200,
         status: 'Available',
         totalUnits: 25,
-        availableQuantity: 20,
-        bookedQuantity: 3,
-        maintenanceQuantity: 2,
+        availableQuantity: 25,
+        bookedQuantity: 0,
+        maintenanceQuantity: 0,
         district: locDist,
         taluk: locTaluk,
         cooperativeHub: `${locTaluk} Agri Cooperative Hub`,
         units: Array.from({ length: 25 }, (_, i) => ({
           unitNum: i + 1,
           serial: `TN-EQ-${locTaluk.substring(0, 3).toUpperCase()}-H${String(i + 1).padStart(2, '0')}`,
-          status: i < 20 ? 'Available' : i < 23 ? 'Reserved' : 'Under Maintenance',
+          status: 'Available',
           hours: i * 15
         }))
       }

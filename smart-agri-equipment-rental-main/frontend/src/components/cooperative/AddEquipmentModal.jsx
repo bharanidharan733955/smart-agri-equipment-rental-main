@@ -1,6 +1,7 @@
 // src/components/cooperative/AddEquipmentModal.jsx
 import React, { useState } from 'react';
-import { X, PlusCircle, Tractor, Upload } from 'lucide-react';
+import { X, PlusCircle, MapPin, Building2, ShieldCheck } from 'lucide-react';
+import { TN_DISTRICTS, getTaluksForDistrict } from '../../data/tnLocationData';
 
 export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
   if (!isOpen) return null;
@@ -8,7 +9,11 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Tractor');
   const [price, setPrice] = useState(1800);
-  const [location, setLocation] = useState('Ludhiana Central Hub #1');
+  const [district, setDistrict] = useState('Coimbatore');
+  const [taluk, setTaluk] = useState('Pollachi');
+  const [location, setLocation] = useState('Pollachi Cooperative Hub, Coimbatore');
+  const [regNumber, setRegNumber] = useState(`TN-37-EQ-${Math.floor(1000 + Math.random() * 9000)}`);
+  const [totalUnits, setTotalUnits] = useState(15);
   const [condition, setCondition] = useState('good');
   const [status, setStatus] = useState('Available');
   const [imageUrl, setImageUrl] = useState('');
@@ -16,21 +21,45 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
   const [hp, setHp] = useState('50 HP');
   const [fuel, setFuel] = useState('Diesel');
 
+  const handleDistrictChange = (e) => {
+    const selectedDist = e.target.value;
+    setDistrict(selectedDist);
+    const taluks = getTaluksForDistrict(selectedDist);
+    const firstTaluk = taluks[0] || 'Central';
+    setTaluk(firstTaluk);
+    setLocation(`${firstTaluk} Cooperative Hub, ${selectedDist}`);
+  };
+
+  const handleTalukChange = (e) => {
+    const selectedTaluk = e.target.value;
+    setTaluk(selectedTaluk);
+    setLocation(`${selectedTaluk} Cooperative Hub, ${district}`);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onAddEquipment({
       name,
       category,
-      price,
-      location,
+      price: parseFloat(price),
+      rentalRate: parseFloat(price),
+      district,
+      taluk,
+      cooperativeHub: `${taluk} Cooperative Hub`,
+      location: location || `${taluk} Hub, ${district}`,
+      regNumber: regNumber || `TN-${Math.floor(10 + Math.random() * 80)}-EQ-${Math.floor(1000 + Math.random() * 9000)}`,
+      totalUnits: parseInt(totalUnits) || 15,
       condition,
       status,
       imageUrl: imageUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
       manufacturer,
+      brand: manufacturer,
       specs: { power: hp, fuelType: fuel }
     });
     onClose();
   };
+
+  const availableTaluks = getTaluksForDistrict(district);
 
   return (
     <div
@@ -38,7 +67,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'var(--color-surface)',
+        backgroundColor: 'rgba(10, 15, 20, 0.85)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -49,7 +78,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
       <div
         style={{
           width: '100%',
-          maxWidth: '600px',
+          maxWidth: '650px',
           maxHeight: '90vh',
           overflowY: 'auto',
           backgroundColor: 'var(--color-surface)',
@@ -82,12 +111,83 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
         </button>
 
         <span className="section-tag">COOPERATIVE INVENTORY MANAGEMENT</span>
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
-          Add New Equipment
+        <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.3rem' }}>
+          Add New Machinery
         </h2>
+        <p style={{ color: 'var(--color-muted)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
+          Assign machinery directly to a specific District and Taluk hub fleet.
+        </p>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           
+          {/* Location Assignment: District & Taluk */}
+          <div style={{
+            padding: '1.2rem',
+            borderRadius: '16px',
+            backgroundColor: 'rgba(21, 128, 61, 0.08)',
+            border: '1px solid rgba(21, 128, 61, 0.25)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4ade80', fontWeight: 700, fontSize: '0.9rem' }}>
+              <MapPin size={18} />
+              <span>Target District & Taluk Deployment</span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text)', marginBottom: '0.35rem', fontWeight: 600 }}>
+                  District *
+                </label>
+                <select
+                  value={district}
+                  onChange={handleDistrictChange}
+                  style={{
+                    width: '100%',
+                    padding: '0.7rem 0.9rem',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                    fontSize: '0.9rem',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {TN_DISTRICTS.map(d => (
+                    <option key={d} value={d} style={{ backgroundColor: 'var(--color-surface)' }}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text)', marginBottom: '0.35rem', fontWeight: 600 }}>
+                  Taluk *
+                </label>
+                <select
+                  value={taluk}
+                  onChange={handleTalukChange}
+                  style={{
+                    width: '100%',
+                    padding: '0.7rem 0.9rem',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                    fontSize: '0.9rem',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {availableTaluks.map(t => (
+                    <option key={t} value={t} style={{ backgroundColor: 'var(--color-surface)' }}>{t}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           {/* Name & Manufacturer */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
@@ -97,7 +197,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
               <input
                 type="text"
                 required
-                placeholder="e.g. Mahindra Tractor 6670"
+                placeholder="e.g. Mahindra Tractor 575 DI"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 style={{
@@ -120,7 +220,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
               <input
                 type="text"
                 required
-                placeholder="e.g. John Deere / Mahindra"
+                placeholder="e.g. Mahindra / John Deere"
                 value={manufacturer}
                 onChange={(e) => setManufacturer(e.target.value)}
                 style={{
@@ -194,6 +294,56 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
             </div>
           </div>
 
+          {/* Registration Number & Total Fleet Units */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
+                Registration Number *
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. TN-37-EQ-8844"
+                value={regNumber}
+                onChange={(e) => setRegNumber(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem 0.9rem',
+                  borderRadius: '10px',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
+                  fontSize: '0.9rem',
+                  outline: 'none'
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
+                Total Units Fleet Size *
+              </label>
+              <input
+                type="number"
+                required
+                min="1"
+                max="50"
+                value={totalUnits}
+                onChange={(e) => setTotalUnits(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.7rem 0.9rem',
+                  borderRadius: '10px',
+                  backgroundColor: 'transparent',
+                  border: '1px solid var(--color-border)',
+                  color: 'var(--color-text)',
+                  fontSize: '0.9rem',
+                  outline: 'none'
+                }}
+              />
+            </div>
+          </div>
+
           {/* Condition & Initial Status */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
@@ -250,7 +400,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
           {/* Hub Location */}
           <div>
             <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
-              Hub Location *
+              Hub Display Location *
             </label>
             <input
               type="text"
@@ -272,7 +422,7 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
 
           <button type="submit" className="btn-green" style={{ width: '100%', padding: '0.85rem', marginTop: '0.5rem', justifyContent: 'center' }}>
             <PlusCircle size={18} />
-            <span>Add Equipment to Inventory</span>
+            <span>Deploy Equipment to {taluk} Hub</span>
           </button>
         </form>
       </div>

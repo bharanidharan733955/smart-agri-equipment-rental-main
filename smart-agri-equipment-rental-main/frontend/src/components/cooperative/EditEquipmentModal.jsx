@@ -1,31 +1,53 @@
 // src/components/cooperative/EditEquipmentModal.jsx
 import React, { useState, useEffect } from 'react';
-import { X, Edit, Save } from 'lucide-react';
+import { X, Save, MapPin } from 'lucide-react';
+import { TN_DISTRICTS, getTaluksForDistrict } from '../../data/tnLocationData';
 
 export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveEdit }) {
   if (!isOpen || !equipment) return null;
 
   const [name, setName] = useState(equipment.name || '');
   const [category, setCategory] = useState(equipment.category || 'Tractor');
-  const [price, setPrice] = useState(equipment.price || equipment.pricePerDay || 1500);
-  const [location, setLocation] = useState(equipment.location || 'Ludhiana Central Hub #1');
+  const [price, setPrice] = useState(equipment.price || equipment.rentalRate || 1800);
+  const [district, setDistrict] = useState(equipment.district || 'Coimbatore');
+  const [taluk, setTaluk] = useState(equipment.taluk || 'Pollachi');
+  const [location, setLocation] = useState(equipment.location || `${equipment.taluk || 'Pollachi'} Hub, ${equipment.district || 'Coimbatore'}`);
   const [condition, setCondition] = useState(equipment.condition || 'good');
   const [status, setStatus] = useState(equipment.status || 'Available');
   const [imageUrl, setImageUrl] = useState(equipment.imageUrl || '');
-  const [manufacturer, setManufacturer] = useState(equipment.manufacturer || 'Mahindra');
+  const [manufacturer, setManufacturer] = useState(equipment.manufacturer || equipment.brand || 'Mahindra');
 
   useEffect(() => {
     if (equipment) {
       setName(equipment.name || '');
       setCategory(equipment.category || 'Tractor');
-      setPrice(equipment.rentalRate || equipment.price || equipment.pricePerDay || 1500);
-      setLocation(equipment.location || 'Ludhiana Central Hub #1');
+      setPrice(equipment.rentalRate || equipment.price || 1800);
+      const d = equipment.district || 'Coimbatore';
+      const t = equipment.taluk || 'Pollachi';
+      setDistrict(d);
+      setTaluk(t);
+      setLocation(equipment.location || `${t} Hub, ${d}`);
       setCondition(equipment.condition || 'good');
       setStatus(equipment.status || 'Available');
       setImageUrl(equipment.imageUrl || '');
-      setManufacturer(equipment.manufacturer || 'Mahindra');
+      setManufacturer(equipment.manufacturer || equipment.brand || 'Mahindra');
     }
   }, [equipment]);
+
+  const handleDistrictChange = (e) => {
+    const selectedDist = e.target.value;
+    setDistrict(selectedDist);
+    const taluks = getTaluksForDistrict(selectedDist);
+    const firstTaluk = taluks[0] || 'Central';
+    setTaluk(firstTaluk);
+    setLocation(`${firstTaluk} Hub, ${selectedDist}`);
+  };
+
+  const handleTalukChange = (e) => {
+    const selectedTaluk = e.target.value;
+    setTaluk(selectedTaluk);
+    setLocation(`${selectedTaluk} Hub, ${district}`);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -34,14 +56,20 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
       category,
       price: parseFloat(price),
       rentalRate: parseFloat(price),
+      district,
+      taluk,
+      cooperativeHub: `${taluk} Hub`,
       location,
       condition,
       status,
       imageUrl,
-      manufacturer
+      manufacturer,
+      brand: manufacturer
     });
     onClose();
   };
+
+  const availableTaluks = getTaluksForDistrict(district);
 
   return (
     <div
@@ -49,7 +77,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'var(--color-surface)',
+        backgroundColor: 'rgba(10, 15, 20, 0.85)',
         backdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
@@ -60,7 +88,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
       <div
         style={{
           width: '100%',
-          maxWidth: '600px',
+          maxWidth: '650px',
           maxHeight: '90vh',
           overflowY: 'auto',
           backgroundColor: 'var(--color-surface)',
@@ -99,6 +127,74 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
           
+          {/* Location Assignment: District & Taluk */}
+          <div style={{
+            padding: '1.2rem',
+            borderRadius: '16px',
+            backgroundColor: 'rgba(21, 128, 61, 0.08)',
+            border: '1px solid rgba(21, 128, 61, 0.25)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4ade80', fontWeight: 700, fontSize: '0.9rem' }}>
+              <MapPin size={18} />
+              <span>Assigned District & Taluk Deployment</span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text)', marginBottom: '0.35rem', fontWeight: 600 }}>
+                  District *
+                </label>
+                <select
+                  value={district}
+                  onChange={handleDistrictChange}
+                  style={{
+                    width: '100%',
+                    padding: '0.7rem 0.9rem',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                    fontSize: '0.9rem',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {TN_DISTRICTS.map(d => (
+                    <option key={d} value={d} style={{ backgroundColor: 'var(--color-surface)' }}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text)', marginBottom: '0.35rem', fontWeight: 600 }}>
+                  Taluk *
+                </label>
+                <select
+                  value={taluk}
+                  onChange={handleTalukChange}
+                  style={{
+                    width: '100%',
+                    padding: '0.7rem 0.9rem',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text)',
+                    fontSize: '0.9rem',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {availableTaluks.map(t => (
+                    <option key={t} value={t} style={{ backgroundColor: 'var(--color-surface)' }}>{t}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
@@ -170,7 +266,7 @@ export default function EditEquipmentModal({ equipment, isOpen, onClose, onSaveE
 
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-muted)', marginBottom: '0.35rem', fontWeight: 600 }}>
-                Daily Price (₹) *
+                Daily Rate (₹) *
               </label>
               <input
                 type="number"

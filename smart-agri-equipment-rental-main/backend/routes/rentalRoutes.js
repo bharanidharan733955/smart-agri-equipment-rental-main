@@ -1,7 +1,8 @@
 // backend/routes/rentalRoutes.js
 import express from 'express';
-import { Booking, Equipment, User, Job, Invoice, Notification, logAudit, isDbConnected, localDb } from '../db.js';
+import { Booking, Equipment, User, Job, Invoice, Notification, AssignmentHistory, logAudit, isDbConnected, localDb } from '../db.js';
 import { authenticateToken, authorizeRoles } from '../middleware/authMiddleware.js';
+import { findNextEligibleOperator } from '../services/rotationService.js';
 
 const router = express.Router();
 
@@ -76,7 +77,23 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
     }
 
     const duration = parseInt(durationDays);
+    if (isNaN(duration) || duration < 1) {
+      return res.status(400).json({ success: false, message: 'Booking duration must be at least 1 day.' });
+    }
+    if (duration > 7) {
+      return res.status(400).json({ success: false, message: 'Booking duration cannot exceed a maximum of 7 days.' });
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const start = new Date(startDate);
+    const startDay = new Date(start);
+    startDay.setHours(0, 0, 0, 0);
+
+    if (isNaN(startDay.getTime()) || startDay < today) {
+      return res.status(400).json({ success: false, message: 'Booking start date cannot be prior to today.' });
+    }
+
     const end = new Date(start);
     end.setDate(end.getDate() + duration);
 
@@ -162,22 +179,9 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       // Sort chronologically by start date
       timeline.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
-      let simHours = currentUnitHours;
-      let maintenanceExceeded = false;
-      
-      for (const b of timeline) {
-        simHours += (b.durationDays * 9); // 9 hours of operation per day
-        if (simHours > 360) {
-          maintenanceExceeded = true;
-          break;
-        }
-      }
-
-      // If unit satisfies both time and maintenance constraints, select it
-      if (!maintenanceExceeded) {
-        selectedUnitNum = i;
-        break;
-      }
+      // Select the first available unit that is free for the booking duration
+      selectedUnitNum = i;
+      break;
     }
 
     if (!selectedUnitNum) {
@@ -208,17 +212,39 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
     const bookingStatus = 'Approved'; 
     let newBooking;
 
-    // Resolve assigned operator
-    let operatorId = eq.assignedOperator;
+    // Automatic Operator Rotation System allocation
+    let operatorId = null;
+    try {
+      const eligibleOp = await findNextEligibleOperator({
+        equipment: eq,
+        equipmentType: eq.category || eq.name,
+        startDate: start,
+        endDate: end,
+        district: eq.district || farmerUser.district,
+        taluk: eq.taluk,
+        hubId: eq.cooperativeHub || eq.district || farmerUser.district
+      });
+      if (eligibleOp) {
+        operatorId = eligibleOp._id || eligibleOp.id;
+      }
+    } catch (opErr) {
+      console.error('Operator rotation lookup error:', opErr);
+    }
+
     if (!operatorId) {
-      let opUser;
+      // Fallback if no operator matched rotation criteria
       if (isDbConnected()) {
-        opUser = await User.findOne({ role: 'Equipment Operator' });
-        if (opUser) operatorId = opUser._id;
+        const fallbackOp = await User.findOne({
+          role: { $in: ['Equipment Operator', 'Operator'] },
+          status: 'Active',
+          $or: [{ taluk: eq.taluk }, { cooperativeHub: eq.cooperativeHub }, { district: eq.district }]
+        }) || await User.findOne({ role: { $in: ['Equipment Operator', 'Operator'] }, status: 'Active' });
+        if (fallbackOp) operatorId = fallbackOp._id;
       } else {
         const users = localDb.read('users');
-        opUser = users.find(u => u.role === 'Equipment Operator');
-        if (opUser) operatorId = opUser._id || opUser.id;
+        const fallbackOp = users.find(u => (u.role === 'Equipment Operator' || u.role === 'Operator') && (u.taluk === eq.taluk || u.district === eq.district)) ||
+                           users.find(u => (u.role === 'Equipment Operator' || u.role === 'Operator') && (u.status === 'Active' || !u.status));
+        if (fallbackOp) operatorId = fallbackOp._id || fallbackOp.id;
       }
     }
 
@@ -248,14 +274,26 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       }
 
       // Create Job automatically
-      await Job.create({
+      const createdJob = await Job.create({
         booking: newBooking._id,
         farmer: req.user.id,
         equipment: equipmentId,
         unitNum: selectedUnitNum,
         operator: operatorId || null,
-        status: 'Assigned'
+        status: 'Assigned',
+        assignmentType: 'AUTOMATIC_ROTATION'
       });
+
+      // Record Assignment History
+      if (operatorId) {
+        await AssignmentHistory.create({
+          jobId: createdJob._id,
+          operatorId: operatorId,
+          assignmentType: 'AUTOMATIC_ROTATION',
+          assignedBy: 'SYSTEM',
+          assignedAt: new Date()
+        });
+      }
 
       // Create Invoice automatically with Tentative Bill details (Unpaid)
       await Invoice.create({
@@ -373,7 +411,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       localDb.write('notifications', notifications);
     }
 
-    await logAudit(req, req.user, 'Booking Approved', '', JSON.stringify({ equipmentId, totalAmount }), `Automatically approved booking request for ${eq.name}`);
+    await logAudit(req, req.user, 'Booking Approved', '', JSON.stringify({ equipmentId, totalAmount: tentativeTotal }), `Automatically approved booking request for ${eq.name}`);
 
     return res.status(201).json({ success: true, message: 'Booking request created and approved automatically.', data: newBooking });
   } catch (err) {

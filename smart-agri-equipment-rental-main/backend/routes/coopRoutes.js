@@ -1106,4 +1106,55 @@ router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admi
   }
 });
 
+// PUT /api/cooperative/equipment/:id/units/:unitNum/operator (Assign 1 operator per equipment unit)
+router.put('/equipment/:id/units/:unitNum/operator', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff'), async (req, res) => {
+  try {
+    const { id, unitNum } = req.params;
+    const { operatorId } = req.body;
+    const targetUnitNum = parseInt(unitNum);
+
+    let eq;
+    let operatorUser = null;
+
+    if (isDbConnected()) {
+      if (operatorId) {
+        operatorUser = await User.findById(operatorId);
+      }
+      eq = await Equipment.findById(id);
+      if (!eq) return res.status(404).json({ success: false, message: 'Equipment not found.' });
+
+      const unit = eq.units.find(u => u.unitNum === targetUnitNum);
+      if (!unit) return res.status(404).json({ success: false, message: 'Unit not found.' });
+
+      unit.assignedOperator = operatorId || null;
+      await eq.save();
+    } else {
+      const users = localDb.read('users');
+      if (operatorId) {
+        operatorUser = users.find(u => u._id === operatorId || u.id === operatorId);
+      }
+      const equipmentList = localDb.read('equipment');
+      const idx = equipmentList.findIndex(e => e._id === id || e.id === id);
+      if (idx === -1) return res.status(404).json({ success: false, message: 'Equipment not found.' });
+
+      eq = equipmentList[idx];
+      if (!eq.units) eq.units = [];
+      const uIdx = eq.units.findIndex(u => u.unitNum === targetUnitNum);
+      if (uIdx === -1) return res.status(404).json({ success: false, message: 'Unit not found.' });
+
+      eq.units[uIdx].assignedOperator = operatorId || null;
+      equipmentList[idx] = eq;
+      localDb.write('equipment', equipmentList);
+    }
+
+    const opName = operatorUser ? operatorUser.name : 'Unassigned';
+    await logAudit(req, req.user, 'Assign Unit Operator', '', `Unit #${targetUnitNum}: ${opName}`, `Assigned operator ${opName} to ${eq.name} Unit #${targetUnitNum}`);
+
+    return res.json({ success: true, message: `Operator ${opName} assigned to Unit #${targetUnitNum} successfully.`, data: eq });
+  } catch (err) {
+    console.error('Assign unit operator error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
 export default router;

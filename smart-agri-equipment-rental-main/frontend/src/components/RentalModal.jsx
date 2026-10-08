@@ -29,8 +29,18 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!startDate) {
+      alert("Please select a start date.");
+      return;
+    }
+
     if (startDate < todayStr) {
-      alert("Invalid date: Booking day cannot be in the past.");
+      alert("Invalid start date: Booking start date cannot be prior to today.");
+      return;
+    }
+
+    if (duration < 1 || duration > 7) {
+      alert("Invalid duration: Equipment rental duration must be minimum 1 day and maximum 7 days.");
       return;
     }
 
@@ -170,7 +180,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                   <input
                     type="number"
                     min="1"
-                    max="30"
+                    max="7"
                     required
                     value={durationDays}
                     onChange={(e) => setDurationDays(e.target.value)}
@@ -185,6 +195,9 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
                       outline: 'none'
                     }}
                   />
+                  <span style={{ fontSize: '0.72rem', color: 'var(--color-muted)', display: 'block', marginTop: '0.25rem' }}>
+                    Min: 1 day • Max: 7 days
+                  </span>
                 </div>
               </div>
 

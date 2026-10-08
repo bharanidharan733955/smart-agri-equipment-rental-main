@@ -241,6 +241,16 @@ export async function editCoopEquipment(id, payload) {
   }
 }
 
+export async function assignUnitOperatorApi(equipmentId, unitNum, operatorId) {
+  try {
+    const res = await api.put(`/cooperative/equipment/${equipmentId}/units/${unitNum}/operator`, { operatorId });
+    return res.data;
+  } catch (err) {
+    console.error('Assign unit operator error:', err);
+    return { success: false, message: err.response?.data?.message || 'Server error' };
+  }
+}
+
 export async function deleteCoopEquipment(id) {
   try {
     const res = await api.delete(`/equipment/${id}`);
@@ -400,6 +410,77 @@ export async function completeJobApi(id, payload) {
     return err.response?.data || { success: false, message: 'Server error' };
   }
 }
+
+export async function requestJobCancellationApi(id, payload) {
+  try {
+    const res = await api.post(`/jobs/${id}/request-cancellation`, payload);
+    return res.data;
+  } catch (err) {
+    console.error('Request job cancellation error:', err);
+    return err.response?.data || { success: false, message: 'Server connection failed.' };
+  }
+}
+
+export async function reportJobIssueApi(id, payload) {
+  try {
+    const res = await api.post(`/jobs/${id}/report-issue`, payload);
+    return res.data;
+  } catch (err) {
+    console.error('Report job issue error:', err);
+    return err.response?.data || { success: false, message: 'Server connection failed.' };
+  }
+}
+
+export async function fetchCancellationRequestsApi() {
+  try {
+    const res = await api.get('/jobs/cancellation-requests');
+    return res.data.success ? res.data.data : [];
+  } catch (err) {
+    console.error('Fetch cancellation requests error:', err);
+    return [];
+  }
+}
+
+export async function fetchOperatorStatsApi() {
+  try {
+    const res = await api.get('/jobs/operator-stats');
+    return res.data.success ? res.data.data : [];
+  } catch (err) {
+    console.error('Fetch operator stats error:', err);
+    return [];
+  }
+}
+
+export async function approveJobCancellationApi(id) {
+  try {
+    const res = await api.post(`/jobs/${id}/approve-cancellation`);
+    return res.data;
+  } catch (err) {
+    console.error('Approve job cancellation error:', err);
+    return err.response?.data || { success: false, message: 'Server connection failed.' };
+  }
+}
+
+export async function rejectJobCancellationApi(id, reason) {
+  try {
+    const res = await api.post(`/jobs/${id}/reject-cancellation`, { reason });
+    return res.data;
+  } catch (err) {
+    console.error('Reject job cancellation error:', err);
+    return err.response?.data || { success: false, message: 'Server connection failed.' };
+  }
+}
+
+export async function reassignJobOperatorApi(id, operatorId) {
+  try {
+    const res = await api.post(`/jobs/${id}/reassign`, { operatorId });
+    return res.data;
+  } catch (err) {
+    console.error('Reassign job operator error:', err);
+    return err.response?.data || { success: false, message: 'Server connection failed.' };
+  }
+}
+
 
 // --- Government Officer & Admin APIs ---
 export async function fetchDistrictStats() {

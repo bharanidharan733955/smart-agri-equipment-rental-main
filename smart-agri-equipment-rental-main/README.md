@@ -20,7 +20,6 @@ AgriRentGov is a premium, state-of-the-art web application designed to help farm
 ### 👥 Role-Based Access Portals
 *   **Farmer Portal:** Manage active rentals, view order dispatches, and check upfront invoices.
 *   **Equipment Operator Portal:** Log daily engine working hours, view route maps, and accept auto-dispatched job tasks.
-*   **Maintenance Specialist Portal:** Maintain service schedules, record cost of parts, and complete machinery inspections.
 *   **Cooperative Staff & Admin Portal:** 
     *   Dynamic inventory management.
     *   Dynamic **User Account Suspensions** ledger search filter (by name, email, role, or hub).
@@ -71,6 +70,7 @@ Open [http://localhost:5174](http://localhost:5174) in your browser. (Note: The 
 
 ## 📂 Repository Structure
 ```
+├── PROJECT_WALKTHROUGH.md  # Detailed Project Walkthrough & Role Work Processes
 ├── backend/
 │   ├── routes/          # Auth, Equipment, and Rental API endpoints
 │   ├── db.js            # MongoDB Schemas & Seeding logic
@@ -81,3 +81,5 @@ Open [http://localhost:5174](http://localhost:5174) in your browser. (Note: The 
     │   ├── App.jsx      # Navigation Router
     │   └── components/  # User roles portals, login, and registration modules
 ```
+
+For a comprehensive guide on the platform architecture and step-by-step work process for each user role, see [PROJECT_WALKTHROUGH.md](file:///c:/Users/bhara/Downloads/smart-agri-equipment-rental-main/smart-agri-equipment-rental-main/PROJECT_WALKTHROUGH.md).

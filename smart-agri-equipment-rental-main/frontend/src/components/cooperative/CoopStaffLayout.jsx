@@ -10,7 +10,8 @@ import {
   Building2,
   Menu,
   MessageSquare,
-  FileText
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
 
 export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onOpenAddModal, children }) {
@@ -18,12 +19,14 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
     { id: 'inventory', label: 'Hub Inventory', icon: Tractor },
     { id: 'add-equipment', label: 'Add Equipment', icon: PlusCircle, isAction: true },
     { id: 'requests', label: 'Rental Requests', icon: Calendar },
+    { id: 'cancellations', label: 'Operator Cancellations', icon: AlertTriangle },
     { id: 'farmers', label: 'Registered Farmers', icon: ShieldCheck },
     { id: 'verifications', label: 'Farmer Verification', icon: UserCheck },
     { id: 'invoices', label: 'Billing & Invoices', icon: Building2 },
     { id: 'feedback', label: 'Farmer Feedback', icon: MessageSquare },
     { id: 'reports', label: 'Billing & Reports', icon: FileText }
   ];
+
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>

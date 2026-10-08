@@ -481,26 +481,17 @@ function getMockEquipment() {
 
     const units = Array.from({ length: totalCount }, (_, idx) => {
       const unitNum = idx + 1;
-      let status = 'Available';
-      if (unitNum <= spec.avail) {
-        status = 'Available';
-      } else if (unitNum <= spec.avail + spec.res) {
-        status = 'Reserved';
-      } else {
-        status = 'Under Maintenance';
-      }
-
       return {
         unitNum,
         serial: `TN-${String((index % 80) + 10).padStart(2, '0')}-EQ-${String(index + 1).padStart(3, '0')}-${String(unitNum).padStart(2, '0')}`,
-        hours: status === 'Under Maintenance' ? 365 : (unitNum * 12),
-        status
+        hours: unitNum * 12,
+        status: 'Available'
       };
     });
 
-    const availCount = units.filter(u => u.status === 'Available').length;
-    const bookedCount = units.filter(u => ['Reserved', 'In Use', 'Rented'].includes(u.status)).length;
-    const maintCount = units.filter(u => ['Under Maintenance', 'Under Inspection', 'Maintenance Required'].includes(u.status)).length;
+    const availCount = totalCount;
+    const bookedCount = 0;
+    const maintCount = 0;
 
     const eqIdNum = index + 1;
     const hexId = (1700000000000 + eqIdNum).toString(16).padStart(24, '0');
@@ -526,38 +517,89 @@ function getMockEquipment() {
   });
 }
 
-async function seedDemoData() {
-  const demoUsers = [
-    { name: 'Vikram Operator', email: 'operator@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543212', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Rajesh Operator', email: 'rajesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543220', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Ramesh Operator', email: 'ramesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543221', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Suresh Operator', email: 'suresh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543222', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Ganesh Operator', email: 'ganesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543223', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Karthik Operator', email: 'karthik@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543224', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Murugan Operator', email: 'murugan@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543225', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Siva Operator', email: 'siva@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543226', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Hari Operator', email: 'hari@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543227', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Arjun Operator', email: 'arjun@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543228', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Vijay Operator', email: 'vijay@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543229', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Maintenance Tech', email: 'maint@agrirent.gov', password: 'AgriRentGov#Secure2026!Maint', role: 'Equipmaintance', mobile: '9876543213', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'Staff Controller', email: 'staff@agrirent.gov', password: 'AgriRentGov#Secure2026!Staff', role: 'Staff', mobile: '9876543214', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true },
-    { name: 'State Government Auditor', email: 'officer@agrirent.gov', password: 'AgriRentGov#Secure2026!Officer', role: 'Officer', mobile: '9876543215', district: 'Coimbatore', cooperativeHub: 'Pollachi Cooperative Hub', isApproved: true }
+function getAllTalukOperators() {
+  const operators = [
+    { name: 'Vikram Operator', email: 'operator@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543212', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Rajesh Operator', email: 'rajesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543220', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Ramesh Operator', email: 'ramesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543221', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Suresh Operator', email: 'suresh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543222', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Ganesh Operator', email: 'ganesh@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543223', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Karthik Operator', email: 'karthik@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543224', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Murugan Operator', email: 'murugan@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543225', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Siva Operator', email: 'siva@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543226', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Hari Operator', email: 'hari@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543227', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Arjun Operator', email: 'arjun@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543228', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Vijay Operator', email: 'vijay@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543229', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Kannan Operator', email: 'kannan@agrirent.gov', password: 'AgriRentGov#Secure2026!Operator', role: 'Equipment Operator', mobile: '9876543230', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true }
   ];
+
+  const existingPollachiEmails = new Set(operators.map(o => o.email));
+
+  let globalCounter = 1000;
+  Object.entries(TN_TALUKS_MAP).forEach(([district, taluks]) => {
+    taluks.forEach(taluk => {
+      const talukSlug = taluk.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const isPollachi = taluk.toLowerCase() === 'pollachi';
+      const countNeeded = isPollachi ? 0 : 12;
+
+      for (let i = 1; i <= countNeeded; i++) {
+        const email = `op.${talukSlug}.${i}@agrirent.gov`;
+        if (!existingPollachiEmails.has(email)) {
+          globalCounter++;
+          operators.push({
+            name: `${taluk} Operator ${i}`,
+            email,
+            password: 'AgriRentGov#Secure2026!Operator',
+            role: 'Equipment Operator',
+            mobile: `98765${String(globalCounter).padStart(5, '0')}`,
+            district,
+            taluk,
+            cooperativeHub: `${taluk} Hub`,
+            isApproved: true,
+            status: 'Active'
+          });
+        }
+      }
+    });
+  });
+
+  return operators;
+}
+
+export async function seedDemoData() {
+  const allTalukOperators = getAllTalukOperators();
+  const otherDemoUsers = [
+    { name: 'Maintenance Tech', email: 'maint@agrirent.gov', password: 'AgriRentGov#Secure2026!Maint', role: 'Equipmaintance', mobile: '9876543213', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'Staff Controller', email: 'staff@agrirent.gov', password: 'AgriRentGov#Secure2026!Staff', role: 'Staff', mobile: '9876543214', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true },
+    { name: 'State Government Auditor', email: 'officer@agrirent.gov', password: 'AgriRentGov#Secure2026!Officer', role: 'Officer', mobile: '9876543215', district: 'Coimbatore', taluk: 'Pollachi', cooperativeHub: 'Pollachi Hub', isApproved: true }
+  ];
+  const demoUsers = [...allTalukOperators, ...otherDemoUsers];
 
   if (isConnected) {
     try {
-      // Clean up any old demo farmers so verification list only contains user registered farmers
-      await User.deleteMany({ role: 'Farmer' });
-      // Update or insert demo users to preserve their _ids across server restarts
-      for (const u of demoUsers) {
-        console.log(`🌱 Seeding database user: ${u.email}...`);
-        const hashedPassword = await bcrypt.hash(u.password, 10);
-        await User.updateOne(
-          { email: u.email },
-          { $set: { ...u, password: hashedPassword } },
-          { upsert: true }
-        );
-      }
+      console.log(`🌱 Bulk seeding ${demoUsers.length} users (12 operators per taluk)...`);
+      const hashedOpPassword = await bcrypt.hash('AgriRentGov#Secure2026!Operator', 10);
+      const hashedMaintPassword = await bcrypt.hash('AgriRentGov#Secure2026!Maint', 10);
+      const hashedStaffPassword = await bcrypt.hash('AgriRentGov#Secure2026!Staff', 10);
+      const hashedOfficerPassword = await bcrypt.hash('AgriRentGov#Secure2026!Officer', 10);
+
+      const bulkOps = demoUsers.map(u => {
+        let pass = hashedOpPassword;
+        if (u.role === 'Equipmaintance') pass = hashedMaintPassword;
+        if (u.role === 'Staff') pass = hashedStaffPassword;
+        if (u.role === 'Officer') pass = hashedOfficerPassword;
+
+        return {
+          updateOne: {
+            filter: { email: u.email },
+            update: { $set: { ...u, password: pass } },
+            upsert: true
+          }
+        };
+      });
+
+      await User.bulkWrite(bulkOps);
+      console.log(`✅ MongoDB User Seeding completed for ${demoUsers.length} accounts.`);
 
       const eqCount = await Equipment.countDocuments();
       const eqWithUnits = await Equipment.countDocuments({ units: { $exists: true, $not: { $size: 0 } } });
@@ -565,34 +607,73 @@ async function seedDemoData() {
       const eqWithoutLocation = await Equipment.countDocuments({ district: { $exists: false } });
       if (eqCount < 100 || eqWithUnits < eqCount || outOfBounds > 0 || eqWithoutLocation > 0) {
         console.log("🌱 Seeding MongoDB equipment database (with statewide taluk units fleet)...");
-        await Equipment.deleteMany({}); // clear existing
+        await Equipment.deleteMany({});
         const mockEq = getMockEquipment();
-        const opUser = await User.findOne({ role: 'Equipment Operator' });
-        if (opUser) {
-          mockEq[0].assignedOperator = opUser._id;
-          mockEq[1].assignedOperator = opUser._id;
+        const opUsers = await User.find({ role: { $in: ['Equipment Operator', 'Operator'] } });
+        if (opUsers.length > 0) {
+          mockEq.forEach(eq => {
+            const talukOps = opUsers.filter(op => 
+              (op.taluk && op.taluk.toLowerCase() === (eq.taluk || '').toLowerCase()) ||
+              (op.cooperativeHub && op.cooperativeHub.toLowerCase().includes((eq.taluk || '').toLowerCase()))
+            );
+            const activePool = talukOps.length > 0 ? talukOps : opUsers;
+
+            if (eq.units && Array.isArray(eq.units)) {
+              eq.units.forEach((u, uIdx) => {
+                const assignedOp = activePool[uIdx % activePool.length];
+                u.assignedOperator = assignedOp._id;
+              });
+            }
+            eq.assignedOperator = activePool[0]._id;
+          });
         }
         await Equipment.insertMany(mockEq);
-        console.log("✅ MongoDB Equipment Seeding completed with statewide taluk units fleet.");
+        console.log("✅ MongoDB Equipment Seeding completed with taluk-matched operator assignments per unit.");
+      }
+
+      // Ensure all existing equipment units have 1 assigned operator per unit matching their taluk
+      const opUsersAll = await User.find({ role: { $in: ['Equipment Operator', 'Operator'] } });
+      if (opUsersAll.length > 0) {
+        const allEquip = await Equipment.find();
+        for (const eqDoc of allEquip) {
+          let updated = false;
+          const talukOps = opUsersAll.filter(op => 
+            (op.taluk && op.taluk.toLowerCase() === (eqDoc.taluk || '').toLowerCase()) ||
+            (op.cooperativeHub && op.cooperativeHub.toLowerCase().includes((eqDoc.taluk || '').toLowerCase()))
+          );
+          const activePool = talukOps.length > 0 ? talukOps : opUsersAll;
+
+          if (eqDoc.units && eqDoc.units.length > 0) {
+            eqDoc.units.forEach((u, uIdx) => {
+              if (!u.assignedOperator) {
+                u.assignedOperator = activePool[uIdx % activePool.length]._id;
+                updated = true;
+              }
+            });
+          }
+          if (updated) {
+            await eqDoc.save();
+          }
+        }
       }
     } catch (err) {
       console.error('Error seeding DB users:', err);
     }
   } else {
     // Local memory file seeding
-    const fileUsers = localDb.read('users');
-    const existingEmails = fileUsers.map(u => u.email);
+    const fileUsers = localDb.read('users') || [];
+    const existingEmails = new Set(fileUsers.map(u => u.email));
     let updatedUsers = [...fileUsers];
     let seededAny = false;
 
+    const hashedOpPassword = await bcrypt.hash('AgriRentGov#Secure2026!Operator', 10);
+
     for (const u of demoUsers) {
-      if (!existingEmails.includes(u.email)) {
-        console.log(`🌱 Seeding local JSON user: ${u.email}...`);
-        const hashedPassword = await bcrypt.hash(u.password, 10);
+      if (!existingEmails.has(u.email)) {
         updatedUsers.push({
           _id: 'USR-' + Math.floor(1000 + Math.random() * 9000),
           ...u,
-          password: hashedPassword,
+          password: hashedOpPassword,
           createdAt: new Date().toISOString()
         });
         seededAny = true;
@@ -601,7 +682,7 @@ async function seedDemoData() {
 
     if (seededAny) {
       localDb.write('users', updatedUsers);
-      console.log('✅ Local JSON Seeding completed.');
+      console.log('✅ Local JSON Seeding completed for taluk operators.');
     }
 
     // Seed equipment locally if count < 100 or units are missing or rates out of range
@@ -611,13 +692,20 @@ async function seedDemoData() {
       console.log("🌱 Seeding local JSON equipment database (with statewide taluk units fleet)...");
       const mockEq = getMockEquipment();
       const users = localDb.read('users');
-      const op = users.find(u => u.role === 'Equipment Operator');
+      const opUsers = users.filter(u => u.role === 'Equipment Operator');
       const farmer = users.find(u => u.role === 'Farmer');
 
-      if (op) {
-        mockEq[0].assignedOperator = op._id;
+      if (opUsers.length > 0) {
+        mockEq.forEach(eq => {
+          if (eq.units && Array.isArray(eq.units)) {
+            eq.units.forEach((u, uIdx) => {
+              const assignedOp = opUsers[uIdx % opUsers.length];
+              u.assignedOperator = assignedOp._id || assignedOp.id;
+            });
+          }
+          eq.assignedOperator = opUsers[0]._id || opUsers[0].id;
+        });
         mockEq[0].status = 'In Use';
-        mockEq[1].assignedOperator = op._id;
       }
       localDb.write('equipment', mockEq);
       console.log('✅ Local JSON Seeding of equipment completed with units fleet.');
@@ -690,6 +778,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['Farmer', 'Equipment Operator', 'Equipmaintance', 'Staff', 'Officer'], required: true },
   mobile: String,
   district: String,
+  taluk: String,
   address: String,
   cooperativeHub: String,
   farmerId: String,
@@ -704,7 +793,8 @@ const unitSchema = new mongoose.Schema({
   unitNum: { type: Number, required: true },
   serial: { type: String, required: true },
   hours: { type: Number, default: 0 },
-  status: { type: String, enum: ['Available', 'Reserved', 'In Use', 'Rented', 'Under Maintenance'], default: 'Available' }
+  status: { type: String, enum: ['Available', 'Reserved', 'In Use', 'Rented', 'Under Maintenance'], default: 'Available' },
+  assignedOperator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
 // Equipment Schema
@@ -766,29 +856,136 @@ export const Booking = mongoose.models.Booking || mongoose.model('Booking', book
 
 // Job Schema
 const jobSchema = new mongoose.Schema({
+  jobId: String,
   booking: { type: mongoose.Schema.Types.ObjectId, ref: 'Booking', required: true },
   farmer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   equipment: { type: mongoose.Schema.Types.ObjectId, ref: 'Equipment', required: true },
   unitNum: { type: Number },
-  operator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  equipmentUnitId: String,
+  operator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  hubId: String,
+
+  scheduledDate: Date,
+  scheduledTime: String,
+  expectedDuration: String,
+
+  assignmentType: { type: String, enum: ['AUTOMATIC_ROTATION', 'MANUAL_REASSIGNMENT'], default: 'AUTOMATIC_ROTATION' },
+  assignmentStatus: { type: String, default: 'ASSIGNED' },
+
+  status: { 
+    type: String, 
+    enum: [
+      'ASSIGNED', 'ACCEPTED', 'REJECTED', 'PRECHECK', 'READY', 
+      'IN_PROGRESS', 'PAUSED', 'COMPLETED', 'SUBMITTED', 
+      'CORRECTION_REQUIRED', 'STAFF_VERIFIED', 'FINALIZED', 'EQUIPMENT_FAILURE', 
+      'CANCELLATION_REQUESTED', 'CANCELLATION_REJECTED', 'CANCELLATION_APPROVED', 
+      'MANUAL_REASSIGNMENT_REQUIRED', 'MANUALLY_REASSIGNED', 
+      'Cancelled', 'Assigned', 'Started', 'Completed'
+    ], 
+    default: 'ASSIGNED' 
+  },
+
+  acceptedAt: Date,
+  rejectedAt: Date,
+  rejectionReason: String,
+  rejectionNote: String,
+
+  cancellationRequested: { type: Boolean, default: false },
+  cancellationReason: String,
+  cancellationNote: String,
+  cancellationRequestedAt: Date,
+
+  cancellationDecision: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED', 'Approved', 'Rejected', 'Pending'], default: 'PENDING' },
+  cancellationDecisionBy: String,
+  cancellationDecisionAt: Date,
+  cancellationDecisionReason: String,
+
+  preCheckCompleted: { type: Boolean, default: false },
+  preCheckItems: { type: mongoose.Schema.Types.Mixed },
+  preCheckObservation: String,
+
+  startEngineHours: { type: Number, default: 0 },
+  startFuelLevel: { type: Number, default: 0 },
+  beforeImage: String,
+  beforeImageUploadedAt: Date,
+
   startTime: Date,
+  startedAt: Date,
+
+  pauseHistory: [{
+    pauseTime: Date,
+    resumeTime: Date,
+    pauseReason: String
+  }],
+
+  workType: String,
+  areaCovered: String,
+  actualWorkingHours: { type: Number, default: 0 },
+
+  endEngineHours: { type: Number, default: 0 },
+  fuelAdded: { type: Number, default: 0 },
+  endFuelLevel: { type: Number, default: 0 },
+
   endTime: Date,
   fuelUsed: { type: Number, default: 0 },
   fuelType: { type: String, default: 'Diesel' },
   workingHours: { type: Number, default: 0 },
-  remarks: String,
-  beforeImage: String,
+
   afterImage: String,
+  afterImageUploadedAt: Date,
+
+  remarks: String,
+  operatorNotes: String,
   workCompleted: String,
   fieldLocation: String,
   equipmentCondition: String,
   damageInfo: String,
   photos: [String],
-  status: { type: String, enum: ['Assigned', 'Started', 'Completed', 'Cancelled'], default: 'Assigned' },
+
+  submittedAt: Date,
+
+  staffVerificationStatus: { type: String, enum: ['Pending', 'Approved', 'Correction Required'], default: 'Pending' },
+  staffVerifiedAt: Date,
+  staffVerificationNote: String,
+  correctionReason: String,
+
+  equipmentIssue: {
+    issueType: String,
+    description: String,
+    photo: String,
+    reportedAt: Date
+  },
+
+  completedAt: Date,
+  finalizedAt: Date,
   createdAt: { type: Date, default: Date.now }
 });
 
 export const Job = mongoose.models.Job || mongoose.model('Job', jobSchema);
+
+// Assignment History Schema
+const assignmentHistorySchema = new mongoose.Schema({
+  job: { type: mongoose.Schema.Types.ObjectId, ref: 'Job' },
+  jobId: { type: mongoose.Schema.Types.Mixed },
+  operator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  operatorId: { type: mongoose.Schema.Types.Mixed },
+  operatorName: String,
+  assignmentType: { type: String, enum: ['AUTOMATIC_ROTATION', 'MANUAL_REASSIGNMENT'], default: 'AUTOMATIC_ROTATION' },
+  assignedBy: { type: String, default: 'SYSTEM' },
+  assignedAt: { type: Date, default: Date.now },
+  unassignedAt: Date,
+  reason: String,
+  cancellationRequested: { type: Boolean, default: false },
+  cancellationReason: String,
+  cancellationNote: String,
+  cancellationDecision: { type: String, enum: ['APPROVED', 'REJECTED', 'PENDING', 'Approved', 'Rejected'], default: 'PENDING' },
+  decisionBy: String,
+  decisionAt: Date,
+  decisionReason: String
+});
+
+export const AssignmentHistory = mongoose.models.AssignmentHistory || mongoose.model('AssignmentHistory', assignmentHistorySchema);
+
 
 // Invoice Schema
 const invoiceSchema = new mongoose.Schema({
@@ -883,6 +1080,7 @@ const feedbackSchema = new mongoose.Schema({
 });
 
 export const Feedback = mongoose.models.Feedback || mongoose.model('Feedback', feedbackSchema);
+
 
 // Memory fallback layer implementation
 const DATA_DIR = path.resolve('backend/data/db');

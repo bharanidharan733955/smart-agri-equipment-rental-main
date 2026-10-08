@@ -27,13 +27,19 @@ import {
   fetchCoopInvoices,
   payInvoice,
   fetchFarmerFeedbackCoop,
-  fetchBillingReport
+  fetchBillingReport,
+  fetchCancellationRequestsApi,
+  fetchOperatorStatsApi,
+  approveJobCancellationApi,
+  rejectJobCancellationApi,
+  reassignJobOperatorApi
 } from '../../api';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   CheckCircle2, XCircle, UserCheck, Wrench, FileSpreadsheet, DollarSign,
-  MessageSquare, Star, Printer, Calendar, ShieldCheck, Download, BarChart2
+  MessageSquare, Star, Printer, Calendar, ShieldCheck, Download, BarChart2, AlertTriangle, UserPlus, AlertCircle
 } from 'lucide-react';
+
 
 export default function CoopPortal({ onLogout }) {
   const [activeTab, setActiveTab] = useState('inventory');
@@ -42,14 +48,78 @@ export default function CoopPortal({ onLogout }) {
 
   // Data lists
   const [bookings, setBookings] = useState([]);
-  const [farmers, setFarmers] = useState([]);
   const [operators, setOperators] = useState([]);
+  const [farmers, setFarmers] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
-  const [billingReport, setBillingReport] = useState(null);
-  const [reportFromDate, setReportFromDate] = useState('');
-  const [reportToDate, setReportToDate] = useState('');
-  const [reportLoading, setReportLoading] = useState(false);
+
+  // Operator Cancellations & Reassignment State
+  const [cancellationRequests, setCancellationRequests] = useState([]);
+  const [operatorStats, setOperatorStats] = useState([]);
+  const [reassignModalJob, setReassignModalJob] = useState(null);
+  const [selectedReplacementOp, setSelectedReplacementOp] = useState('');
+  const [rejectModalJob, setRejectModalJob] = useState(null);
+  const [rejectStaffReason, setRejectStaffReason] = useState('');
+
+  const loadCancellationsAndStats = async () => {
+    const requests = await fetchCancellationRequestsApi();
+    setCancellationRequests(requests);
+    const statsData = await fetchOperatorStatsApi();
+    setOperatorStats(statsData);
+    const ops = await fetchCoopOperators();
+    setOperators(ops);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'cancellations') {
+      loadCancellationsAndStats();
+    }
+  }, [activeTab]);
+
+  const handleApproveCancellationClick = async (jobId) => {
+    const res = await approveJobCancellationApi(jobId);
+    if (res.success) {
+      toast.success('Cancellation approved! Manual operator reassignment is now required.');
+      loadCancellationsAndStats();
+    } else {
+      toast.error(res.message || 'Failed to approve cancellation.');
+    }
+  };
+
+  const handleRejectCancellationSubmit = async (e) => {
+    e.preventDefault();
+    if (!rejectStaffReason.trim()) {
+      toast.error('Rejection reason is required.');
+      return;
+    }
+    const res = await rejectJobCancellationApi(rejectModalJob._id || rejectModalJob.id, rejectStaffReason);
+    if (res.success) {
+      toast.success('Cancellation request rejected. Job remains assigned to original operator.');
+      setRejectModalJob(null);
+      setRejectStaffReason('');
+      loadCancellationsAndStats();
+    } else {
+      toast.error(res.message || 'Failed to reject cancellation.');
+    }
+  };
+
+  const handleReassignSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedReplacementOp) {
+      toast.error('Please select a replacement operator.');
+      return;
+    }
+    const res = await reassignJobOperatorApi(reassignModalJob._id || reassignModalJob.id, selectedReplacementOp);
+    if (res.success) {
+      toast.success('Job successfully reassigned to replacement operator!');
+      setReassignModalJob(null);
+      setSelectedReplacementOp('');
+      loadCancellationsAndStats();
+    } else {
+      toast.error(res.message || 'Failed to reassign job.');
+    }
+  };
+
 
   // Feedback filter state
   const [filterRating, setFilterRating] = useState('All');
@@ -83,22 +153,13 @@ export default function CoopPortal({ onLogout }) {
     }
     return Array.from({ length: 15 }, (_, index) => {
       const unitNum = index + 1;
-      const baseHours = eq.totalUsageHours || 12;
       const factor = Math.abs(Math.sin(hash + unitNum * 17));
-      const hours = Math.round((factor * 370) * 10) / 10;
-      let status = 'Available';
-      if (hours >= 360) {
-        status = 'Under Maintenance';
-      } else {
-        const randStatus = Math.cos(hash + unitNum * 23);
-        if (randStatus > 0.4) status = 'Rented';
-        else if (randStatus < -0.6) status = 'Reserved';
-      }
+      const hours = Math.round((factor * 120) * 10) / 10;
       return {
         unitNum,
-        serial: `${eq.regNumber || 'PB-10-AT-8821'}-${String(unitNum).padStart(2, '0')}`,
+        serial: `${eq.regNumber || 'TN-37-EQ-8821'}-${String(unitNum).padStart(2, '0')}`,
         hours,
-        status
+        status: 'Available'
       };
     });
   };
@@ -758,7 +819,160 @@ export default function CoopPortal({ onLogout }) {
         </div>
       )}
 
+      {activeTab === 'cancellations' && (
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <span className="section-tag" style={{ color: '#ef4444' }}>COOPERATIVE OVERLAY & AUDIT</span>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', margin: '0.2rem 0' }}>
+              ⚠️ Operator Cancellations &amp; Manual Reassignment
+            </h1>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem' }}>
+              Review operator job cancellation requests and manually allocate replacement operators.
+            </p>
+          </div>
+
+          {/* Pending Cancellation Requests Panel */}
+          <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '1.5rem', marginBottom: '2rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ef4444', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <AlertTriangle size={20} /> Pending Operator Cancellation Requests ({cancellationRequests.length})
+            </h3>
+
+            {cancellationRequests.length === 0 ? (
+              <p style={{ color: 'var(--color-muted)', fontStyle: 'italic', padding: '1rem 0' }}>No pending cancellation requests from operators.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {cancellationRequests.map((job) => (
+                  <div key={job._id || job.id} style={{ backgroundColor: 'var(--color-background)', borderRadius: '14px', border: '1px solid var(--color-border)', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ flexGrow: 1 }}>
+                      <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', marginBottom: '0.4rem' }}>
+                        <strong style={{ fontSize: '1rem', color: 'var(--color-text)' }}>Job #{job.jobId || job._id || job.id}</strong>
+                        <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '10px', backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', fontWeight: 700 }}>
+                          CANCELLATION REQUESTED
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem 1.5rem', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.6rem' }}>
+                        <div><strong>Operator:</strong> {job.operator?.name || 'Operator'} ({job.operator?.operatorId || 'OP'})</div>
+                        <div><strong>Farmer:</strong> {job.farmer?.name || 'Farmer'}</div>
+                        <div><strong>Equipment:</strong> {job.equipment?.name || 'Equipment'}</div>
+                      </div>
+
+                      <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.75rem', borderRadius: '10px', fontSize: '0.83rem' }}>
+                        <div style={{ color: '#f59e0b', fontWeight: 700 }}>Reason: {job.cancellationReason}</div>
+                        <div style={{ color: 'var(--color-text)', marginTop: '2px' }}>Explanation: {job.cancellationNote}</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginLeft: '1.5rem', flexShrink: 0 }}>
+                      <button
+                        onClick={() => handleApproveCancellationClick(job._id || job.id)}
+                        style={{ backgroundColor: 'rgba(21, 128, 61, 0.2)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                      >
+                        <CheckCircle2 size={16} /> Approve Cancellation
+                      </button>
+                      <button
+                        onClick={() => {
+                          setRejectModalJob(job);
+                          setRejectStaffReason('');
+                        }}
+                        style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '0.6rem 1.2rem', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                      >
+                        <XCircle size={16} /> Reject Cancellation
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Manual Reassignment Required Panel */}
+          <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '1.5rem', marginBottom: '2rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f59e0b', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <AlertCircle size={20} /> ⚠️ MANUAL REASSIGNMENT REQUIRED
+            </h3>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              When an operator cancellation request is approved by Cooperative Staff, the system requires manual staff selection for the replacement operator. Automatic rotation is bypassed for cancelled jobs.
+            </p>
+
+            {cancellationRequests.filter(j => j.status === 'MANUAL_REASSIGNMENT_REQUIRED' || (j.cancellationDecision === 'Approved' && !j.operator)).length === 0 ? (
+              <p style={{ color: 'var(--color-muted)', fontStyle: 'italic', padding: '0.5rem 0' }}>No unassigned jobs currently requiring manual operator reallocation.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {cancellationRequests.filter(j => j.status === 'MANUAL_REASSIGNMENT_REQUIRED' || (j.cancellationDecision === 'Approved' && !j.operator)).map((job) => (
+                  <div key={job._id || job.id} style={{ backgroundColor: 'rgba(245, 158, 11, 0.08)', borderRadius: '14px', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center', marginBottom: '0.4rem' }}>
+                        <strong style={{ fontSize: '1rem', color: 'var(--color-text)' }}>Job #{job.jobId || job._id || job.id}</strong>
+                        <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '10px', backgroundColor: '#f59e0b', color: '#000', fontWeight: 800 }}>
+                          REASSIGNMENT NEEDED
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--color-muted)' }}>
+                        <div><strong>Equipment:</strong> {job.equipment?.name || 'Equipment'} | <strong>Farmer:</strong> {job.farmer?.name || 'Farmer'}</div>
+                        <div><strong>Reason for Cancellation:</strong> {job.cancellationReason} ({job.cancellationNote})</div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setReassignModalJob(job);
+                        setSelectedReplacementOp('');
+                      }}
+                      style={{ backgroundColor: '#f59e0b', color: '#000', border: 'none', padding: '0.7rem 1.4rem', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', flexShrink: 0 }}
+                    >
+                      <UserPlus size={16} /> REASSIGN JOB
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Operator Performance & Cancellation Statistics */}
+
+          <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', border: '1px solid var(--color-border)', padding: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '1rem' }}>
+              📊 Operator Performance &amp; Cancellation History
+            </h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
+                  <th style={{ padding: '0.75rem 1rem' }}>Operator ID</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Operator Name</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Status</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Total Jobs</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Completed</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Cancellation Requests</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Approved</th>
+                  <th style={{ padding: '0.75rem 1rem' }}>Rejected</th>
+                </tr>
+              </thead>
+              <tbody>
+                {operatorStats.map((op) => (
+                  <tr key={op.operatorId} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700, color: 'var(--color-primary)' }}>{op.operatorId}</td>
+                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{op.name}</td>
+                    <td style={{ padding: '0.75rem 1rem' }}>
+                      <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'var(--color-success-bg)', color: 'var(--color-primary)', fontWeight: 700 }}>
+                        {op.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.75rem 1rem', fontWeight: 700 }}>{op.totalJobs}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 700 }}>{op.completed}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: '#f59e0b', fontWeight: 700 }}>{op.cancellationRequests}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)' }}>{op.approved}</td>
+                    <td style={{ padding: '0.75rem 1rem', color: '#ef4444' }}>{op.rejected}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'farmers' && (
+
         <div style={{ maxWidth: '1280px', margin: '0 auto', color: 'var(--color-muted)' }}>
           <span className="section-tag">COOPERATIVE DIRECTORY</span>
           <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
@@ -1475,6 +1689,127 @@ export default function CoopPortal({ onLogout }) {
         </div>
       )}
 
+      {/* Reassign Operator Modal (Cooperative Staff Manual Reassignment) */}
+      {reassignModalJob && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '560px', backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--color-border)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.8rem' }}>
+              <div>
+                <span className="section-tag" style={{ color: '#f59e0b', marginBottom: '0.2rem' }}>MANUAL STAFF ALLOCATION</span>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                  <UserPlus size={22} color="#f59e0b" /> Manual Operator Reassignment
+                </h2>
+              </div>
+              <button onClick={() => setReassignModalJob(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', cursor: 'pointer' }}>
+                <XCircle size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleReassignSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.08)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(245, 158, 11, 0.2)', fontSize: '0.85rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Job ID:</span>
+                  <strong>Job #{reassignModalJob.jobId || reassignModalJob._id || reassignModalJob.id}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Equipment:</span>
+                  <strong>{reassignModalJob.equipment?.name || 'Equipment'}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--color-muted)' }}>Farmer:</span>
+                  <strong>{reassignModalJob.farmer?.name || 'Farmer'}</strong>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, marginBottom: '0.6rem' }}>
+                  Select Replacement Operator *
+                </label>
+                <select
+                  required
+                  value={selectedReplacementOp}
+                  onChange={(e) => setSelectedReplacementOp(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', border: '1px solid var(--color-border)', fontSize: '0.9rem' }}
+                >
+                  <option value="">-- Select Available Eligible Operator --</option>
+                  {operators.map((op) => (
+                    <option key={op._id || op.id} value={op._id || op.id}>
+                      {op.name} ({op.operatorId || 'OP'}) &bull; Mobile: {op.mobile || 'N/A'} &bull; District: {op.district || 'Hub'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setReassignModalJob(null)}
+                  style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.7rem 1.4rem', borderRadius: '10px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ backgroundColor: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.7rem 1.6rem', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <CheckCircle2 size={16} /> Confirm Reassignment
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Cancellation Modal */}
+      {rejectModalJob && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '520px', backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--color-border)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.8rem' }}>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                <XCircle size={22} /> Reject Operator Cancellation
+              </h2>
+              <button onClick={() => setRejectModalJob(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', cursor: 'pointer' }}>
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleRejectCancellationSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', margin: 0 }}>
+                Provide the Cooperative Staff official reason for rejecting operator <strong>{rejectModalJob.operator?.name}</strong>'s cancellation request for Job #{rejectModalJob.jobId || rejectModalJob._id || rejectModalJob.id}.
+              </p>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>Rejection Reason for Operator *</label>
+                <textarea
+                  required
+                  placeholder="e.g. Operator must complete the scheduled assignment as no critical emergency was verified..."
+                  value={rejectStaffReason}
+                  onChange={(e) => setRejectStaffReason(e.target.value)}
+                  style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', minHeight: '90px' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setRejectModalJob(null)}
+                  style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text)', border: 'none', padding: '0.7rem 1.4rem', borderRadius: '10px', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{ backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '0.7rem 1.6rem', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <XCircle size={16} /> Confirm Rejection
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </CoopStaffLayout>
   );
 }
+

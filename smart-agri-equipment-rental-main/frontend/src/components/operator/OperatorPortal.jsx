@@ -1,8 +1,8 @@
 // src/components/operator/OperatorPortal.jsx
 import React, { useState, useEffect } from 'react';
-import { fetchOperatorJobs, startJobApi, completeJobApi, logoutUser, fetchOperatorsWithEquipment } from '../../api';
+import { fetchOperatorJobs, startJobApi, completeJobApi, logoutUser, fetchOperatorsWithEquipment, requestJobCancellationApi, reportJobIssueApi } from '../../api';
 import { 
-  Tractor, LogOut, CheckCircle2, AlertTriangle, Play, Calendar, User, Phone, MapPin, Fuel, Clock, Upload, Loader2, Users, Cpu, Star, Activity
+  Tractor, LogOut, CheckCircle2, AlertTriangle, Play, Calendar, User, Phone, MapPin, Fuel, Clock, Upload, Loader2, Users, Cpu, Star, Activity, XCircle, AlertCircle
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -27,6 +27,61 @@ export default function OperatorPortal({ user, onLogout }) {
   const [equipmentCondition, setEquipmentCondition] = useState('Good');
   const [damageInfo, setDamageInfo] = useState('');
   const [photosInput, setPhotosInput] = useState('');
+
+  // Cancellation & Issue Reporting State
+  const [cancellationModalJob, setCancellationModalJob] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState('Personal Emergency');
+  const [cancellationExplanation, setCancellationExplanation] = useState('');
+
+  const [issueModalJob, setIssueModalJob] = useState(null);
+  const [issueType, setIssueType] = useState('Engine Breakdown');
+  const [issueDescription, setIssueDescription] = useState('');
+  const [issuePhoto, setIssuePhoto] = useState('');
+
+  const handleRequestCancellationSubmit = async (e) => {
+    e.preventDefault();
+    if (!cancellationReason || !cancellationExplanation.trim()) {
+      toast.error('Reason and detailed explanation are mandatory.');
+      return;
+    }
+    setActionLoading(true);
+    const res = await requestJobCancellationApi(cancellationModalJob._id || cancellationModalJob.id, {
+      reason: cancellationReason,
+      explanation: cancellationExplanation
+    });
+    setActionLoading(false);
+    if (res.success) {
+      toast.success('Cancellation request submitted to Cooperative Staff!');
+      setCancellationModalJob(null);
+      setCancellationExplanation('');
+      loadJobs();
+    } else {
+      toast.error(res.message || 'Failed to submit cancellation request.');
+    }
+  };
+
+  const handleReportIssueSubmit = async (e) => {
+    e.preventDefault();
+    if (!issueType || !issueDescription.trim()) {
+      toast.error('Issue type and description are required.');
+      return;
+    }
+    setActionLoading(true);
+    const res = await reportJobIssueApi(issueModalJob._id || issueModalJob.id, {
+      issueType,
+      description: issueDescription,
+      photo: issuePhoto
+    });
+    setActionLoading(false);
+    if (res.success) {
+      toast.error('Equipment issue reported to Cooperative Staff!');
+      setIssueModalJob(null);
+      setIssueDescription('');
+      loadJobs();
+    } else {
+      toast.error(res.message || 'Failed to report equipment issue.');
+    }
+  };
 
   useEffect(() => {
     if (activeJob) {
@@ -108,7 +163,7 @@ export default function OperatorPortal({ user, onLogout }) {
 
   const stats = {
     today: jobs.filter(j => j.status === 'Assigned').length,
-    active: jobs.find(j => j.status === 'Started'),
+    active: jobs.filter(j => j.status === 'Started' || j.status === 'In Progress').length,
     completed: jobs.filter(j => j.status === 'Completed').length
   };
 
@@ -190,8 +245,8 @@ export default function OperatorPortal({ user, onLogout }) {
           </div>
           <div className="agri-card">
             <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Active Work Session</span>
-            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: stats.active ? 'var(--color-success)' : 'var(--color-muted)' }}>
-              {stats.active ? '1 In Progress' : 'No Active Job'}
+            <span style={{ fontSize: '1.2rem', fontWeight: 800, color: stats.active > 0 ? 'var(--color-success)' : 'var(--color-muted)' }}>
+              {stats.active > 0 ? `${stats.active} In Progress` : 'No Active Job'}
             </span>
           </div>
           <div className="agri-card">
@@ -389,7 +444,18 @@ export default function OperatorPortal({ user, onLogout }) {
               <p style={{ color: 'var(--color-muted)' }}>No work assignments assigned to you at the moment.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {jobs.map((job) => {
+                {[...jobs].sort((a, b) => {
+                  const getWeight = (status) => {
+                    if (status === 'Started') return 1;
+                    if (status === 'Assigned') return 2;
+                    if (status === 'CANCELLATION_REQUESTED') return 3;
+                    if (status === 'Completed') return 4;
+                    return 3;
+                  };
+                  const weightDiff = getWeight(a.status) - getWeight(b.status);
+                  if (weightDiff !== 0) return weightDiff;
+                  return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+                }).map((job) => {
 
               const isActive = job.status === 'Started';
               const isCompleted = job.status === 'Completed';
@@ -444,57 +510,125 @@ export default function OperatorPortal({ user, onLogout }) {
                     </div>
                   </div>
 
-                  <div>
-                    {job.status === 'Assigned' && (
-                      <button
-                        onClick={() => handleStartJob(job._id || job.id)}
-                        disabled={actionLoading}
-                        style={{
-                          backgroundColor: 'var(--color-primary)',
-                          color: 'var(--color-text)',
-                          border: 'none',
-                          padding: '0.65rem 1.5rem',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontWeight: 700,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.4rem'
-                        }}
-                      >
-                        <Play size={14} />
-                        <span>Start Work</span>
-                      </button>
-                    )}
-
-                    {isActive && (
-                      <button
-                        onClick={() => setActiveJob(job)}
-                        style={{
-                          backgroundcolor: 'var(--color-info)',
-                          color: 'var(--color-text)',
-                          border: 'none',
-                          padding: '0.65rem 1.5rem',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontWeight: 700,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.4rem'
-                        }}
-                      >
-                        <CheckCircle2 size={14} />
-                        <span>Complete Job</span>
-                      </button>
-                    )}
-
-                    {isCompleted && (
-                      <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600 }}>
-                        <CheckCircle2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
-                        <span>Report Filed</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+                    {job.cancellationRequested || job.status === 'CANCELLATION_REQUESTED' ? (
+                      <div style={{ backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '1px solid #f59e0b', borderRadius: '10px', padding: '0.6rem 1rem', textAlign: 'right' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
+                          <AlertCircle size={14} /> Cancellation Request: Awaiting Staff Review
+                        </div>
+                        <div style={{ fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '2px' }}>
+                          Reason: {job.cancellationReason}
+                        </div>
                       </div>
+                    ) : (
+                      <>
+                        {job.cancellationDecision === 'Rejected' && (
+                          <div style={{ fontSize: '0.72rem', color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '0.3rem 0.6rem', borderRadius: '6px', marginBottom: '0.3rem' }}>
+                            Cancellation Rejected by Staff: {job.cancellationDecisionReason || 'Job remains assigned.'}
+                          </div>
+                        )}
+                        {job.status === 'Assigned' && (
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                              onClick={() => handleStartJob(job._id || job.id)}
+                              disabled={actionLoading}
+                              style={{
+                                backgroundColor: 'var(--color-primary)',
+                                color: 'var(--color-text)',
+                                border: 'none',
+                                padding: '0.65rem 1.2rem',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontWeight: 700,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem'
+                              }}
+                            >
+                              <Play size={14} />
+                              <span>Start Work</span>
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setCancellationModalJob(job);
+                                setCancellationReason('Personal Emergency');
+                                setCancellationExplanation('');
+                              }}
+                              style={{
+                                backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                padding: '0.65rem 1.2rem',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontWeight: 700,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem'
+                              }}
+                            >
+                              <XCircle size={14} />
+                              <span>Request Cancellation</span>
+                            </button>
+                          </div>
+                        )}
+
+                        {isActive && (
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button
+                              onClick={() => setActiveJob(job)}
+                              style={{
+                                backgroundColor: '#0284c7',
+                                color: '#fff',
+                                border: 'none',
+                                padding: '0.65rem 1.2rem',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontWeight: 700,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem'
+                              }}
+                            >
+                              <CheckCircle2 size={14} />
+                              <span>Complete Job</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setIssueModalJob(job);
+                                setIssueType('Engine Breakdown');
+                                setIssueDescription('');
+                              }}
+                              style={{
+                                backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                                color: '#f59e0b',
+                                border: '1px solid rgba(245, 158, 11, 0.3)',
+                                padding: '0.65rem 1.2rem',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontWeight: 700,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem'
+                              }}
+                            >
+                              <AlertTriangle size={14} />
+                              <span>Report Issue</span>
+                            </button>
+                          </div>
+                        )}
+
+                        {isCompleted && (
+                          <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600 }}>
+                            <CheckCircle2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
+                            <span>Report Filed</span>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
+
                 </div>
               );
             })}
@@ -624,7 +758,146 @@ export default function OperatorPortal({ user, onLogout }) {
           </div>
         )}
 
+        {/* ================= CANCELLATION REQUEST MODAL ================= */}
+        {cancellationModalJob && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '20px', width: '100%', maxWidth: '550px', padding: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.8rem' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ef4444', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                  <XCircle size={22} /> REQUEST JOB CANCELLATION
+                </h3>
+                <button onClick={() => setCancellationModalJob(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+              </div>
+
+              <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>
+                Job ID: <strong>{cancellationModalJob.jobId || cancellationModalJob._id || cancellationModalJob.id}</strong> | Machine: <strong>{cancellationModalJob.equipment?.name || 'Equipment'}</strong>
+              </p>
+
+              <form onSubmit={handleRequestCancellationSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.6rem' }}>Select Reason *</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+                    {[
+                      'Equipment issue',
+                      'Personal emergency',
+                      'Schedule conflict',
+                      'Unable to reach location',
+                      'Emergency',
+                      'Other'
+                    ].map(reasonOption => (
+                      <label key={reasonOption} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', padding: '0.6rem 0.8rem', borderRadius: '10px', backgroundColor: cancellationReason === reasonOption ? 'rgba(239, 68, 68, 0.15)' : 'var(--color-border)', border: cancellationReason === reasonOption ? '1px solid #ef4444' : '1px solid transparent', cursor: 'pointer' }}>
+                        <input
+                          type="radio"
+                          name="cancellationReason"
+                          value={reasonOption}
+                          checked={cancellationReason === reasonOption}
+                          onChange={(e) => setCancellationReason(e.target.value)}
+                        />
+                        {reasonOption}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>Detailed Explanation *</label>
+                  <textarea
+                    required
+                    placeholder="Provide detailed explanation for your cancellation request..."
+                    value={cancellationExplanation}
+                    onChange={(e) => setCancellationExplanation(e.target.value)}
+                    style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', minHeight: '90px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCancellationModalJob(null)}
+                    style={{ padding: '0.7rem 1.4rem', borderRadius: '10px', border: '1px solid var(--color-border)', backgroundColor: 'transparent', color: 'var(--color-text)', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    style={{ padding: '0.7rem 1.6rem', borderRadius: '10px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : <XCircle size={16} />}
+                    Submit Request
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ================= REPORT EQUIPMENT ISSUE MODAL ================= */}
+        {issueModalJob && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: '20px', width: '100%', maxWidth: '550px', padding: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.2rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.8rem' }}>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                  <AlertTriangle size={22} /> REPORT EQUIPMENT BREAKDOWN / ISSUE
+                </h3>
+                <button onClick={() => setIssueModalJob(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+              </div>
+
+              <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>
+                Job ID: <strong>{issueModalJob.jobId || issueModalJob._id || issueModalJob.id}</strong> | Machine: <strong>{issueModalJob.equipment?.name || 'Equipment'}</strong>
+              </p>
+
+              <form onSubmit={handleReportIssueSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>Issue Type *</label>
+                  <select
+                    value={issueType}
+                    onChange={(e) => setIssueType(e.target.value)}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  >
+                    <option value="Engine Breakdown">Engine Breakdown / Mechanical Failure</option>
+                    <option value="Hydraulic Leak">Hydraulic Oil Leak</option>
+                    <option value="Tire / Attachment Damage">Tire Burst / Attachment Fault</option>
+                    <option value="Electrical Issue">Electrical System Malfunction</option>
+                    <option value="Other">Other Mechanical Fault</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>Description of Issue *</label>
+                  <textarea
+                    required
+                    placeholder="Describe the issue, symptoms, or location of failure..."
+                    value={issueDescription}
+                    onChange={(e) => setIssueDescription(e.target.value)}
+                    style={{ width: '100%', padding: '0.8rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', minHeight: '90px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIssueModalJob(null)}
+                    style={{ padding: '0.7rem 1.4rem', borderRadius: '10px', border: '1px solid var(--color-border)', backgroundColor: 'transparent', color: 'var(--color-text)', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    style={{ padding: '0.7rem 1.6rem', borderRadius: '10px', border: 'none', backgroundColor: '#f59e0b', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : <AlertTriangle size={16} />}
+                    Submit Issue Report
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );
 }
+

@@ -25,7 +25,19 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
   }, [isOpen, equipment]);
   if (!isOpen || !equipment) return null;
 
-  const units = equipment.units || [];
+  let units = equipment.units || [];
+  if (!units || units.length === 0) {
+    const total = equipment.totalUnits || equipment.totalQuantity || 20;
+    units = Array.from({ length: total }, (_, index) => {
+      const unitNum = index + 1;
+      return {
+        unitNum,
+        serial: `${equipment.regNumber || 'TN-37-EQ-8821'}-${String(unitNum).padStart(2, '0')}`,
+        hours: unitNum * 12,
+        status: 'Available'
+      };
+    });
+  }
 
   return (
     <div
@@ -146,14 +158,14 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700 }}>CURRENT CYCLE HOURS</div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--color-warning)', fontWeight: 700, marginTop: '2px' }}>{equipment.currentCycleHours || 0} / 360 Hrs</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700 }}>FLEET AVAILABILITY</div>
+                <div style={{ fontSize: '0.9rem', color: 'var(--color-primary)', fontWeight: 700, marginTop: '2px' }}>{units.filter(u => u.status === 'Available').length} / {units.length || 15} Units Available</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 15 Individual Units Fleet Display */}
+        {/* Individual Units Fleet Display */}
         <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginBottom: '1.5rem' }}>
           <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Activity size={18} color="var(--color-primary)" />
@@ -172,15 +184,10 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
             }}
           >
             {units.map((unit) => {
-              const THRESHOLD = 360;
-              const pct = Math.min((unit.hours / THRESHOLD) * 100, 100);
-              const isMaint = unit.status === 'Under Maintenance';
-              const isRented = unit.status === 'Rented';
-              const isReserved = unit.status === 'Reserved';
-              
-              const statusColor = isMaint ? '#ef4444' : isRented ? '#38bdf8' : isReserved ? '#f59e0b' : 'var(--color-primary)';
-              const bgStatus = isMaint ? 'var(--color-danger-bg)' : isRented ? 'var(--color-info-bg)' : isReserved ? 'var(--color-warning-bg)' : 'var(--color-success-bg)';
-              const barColor = unit.hours >= 360 ? '#ef4444' : unit.hours >= 300 ? '#f59e0b' : 'var(--color-primary)';
+              const isReserved = ['Reserved', 'Rented', 'In Use', 'Assigned', 'BOOKED'].includes(unit.status);
+              const displayStatus = isReserved ? 'Reserved' : 'Available';
+              const statusColor = isReserved ? '#f59e0b' : 'var(--color-primary)';
+              const bgStatus = isReserved ? 'rgba(245, 158, 11, 0.15)' : 'var(--color-success-bg)';
 
               return (
                 <div
@@ -195,8 +202,6 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
                     gap: '0.5rem',
                     transition: 'all 0.2s ease'
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--color-text)' }}>
@@ -213,7 +218,7 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
                         border: `1px solid ${statusColor}40`
                       }}
                     >
-                      {unit.status}
+                      {displayStatus}
                     </span>
                   </div>
 
@@ -221,14 +226,18 @@ export default function EquipmentDetailsModal({ equipment, isOpen, onClose }) {
                     SN: {unit.serial}
                   </div>
 
-                  {/* Work Hours Progress Bar */}
+                  <div style={{ fontSize: '0.73rem', color: 'var(--color-text)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                    <span>👤 Operator:</span>
+                    <span style={{ color: 'var(--color-primary)', fontWeight: 700 }}>
+                      {unit.assignedOperator?.name || (typeof unit.assignedOperator === 'object' ? unit.assignedOperator?.email : null) || `Operator #${unit.unitNum}`}
+                    </span>
+                  </div>
+
+                  {/* Work Hours */}
                   <div style={{ marginTop: '0.2rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', marginBottom: '2px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', marginBottom: '2px' }}>
                       <span style={{ color: 'var(--color-muted)' }}>Work Hours</span>
-                      <span style={{ color: barColor, fontWeight: 700 }}>{unit.hours} / {THRESHOLD}h</span>
-                    </div>
-                    <div style={{ height: '4px', backgroundColor: 'var(--color-border)', borderRadius: '99px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, backgroundColor: barColor, borderRadius: '99px' }} />
+                      <span style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{unit.hours || 0} hrs</span>
                     </div>
                   </div>
                 </div>

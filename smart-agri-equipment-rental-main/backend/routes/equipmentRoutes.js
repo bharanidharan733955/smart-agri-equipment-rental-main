@@ -148,81 +148,116 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/equipment (Manager and Admin)
-router.post('/', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+// POST /api/equipment (Manager, Admin, Staff, Officer)
+router.post('/', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 'Officer'), async (req, res) => {
   try {
-    const { name, regNumber, category, brand, model, purchaseDate, assignedOperator, rentalRate, imageUrl } = req.body;
-    if (!name || !regNumber || !category || !rentalRate) {
+    const {
+      name,
+      regNumber,
+      category,
+      brand,
+      manufacturer,
+      model,
+      purchaseDate,
+      assignedOperator,
+      rentalRate,
+      price,
+      imageUrl,
+      district,
+      taluk,
+      cooperativeHub,
+      location,
+      totalUnits
+    } = req.body;
+
+    if (!name || !category) {
       return res.status(400).json({ success: false, message: 'Missing required fields.' });
     }
 
-    const rate = parseFloat(rentalRate);
+    const rate = parseFloat(rentalRate || price || 1800);
     if (isNaN(rate) || rate < 1800 || rate > 3500) {
       return res.status(400).json({ success: false, message: 'Rental rate must be between ₹1800 and ₹3500 per day.' });
     }
 
-    const qrCode = `AGRIRENT-QR-${regNumber}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const targetDistrict = district || 'Coimbatore';
+    const targetTaluk = taluk || 'Pollachi';
+    const targetHub = cooperativeHub || `${targetTaluk} Cooperative Hub`;
+    const targetRegNumber = regNumber || `TN-${Math.floor(10 + Math.random() * 80)}-EQ-${Math.floor(1000 + Math.random() * 9000)}`;
+    const qrCode = `AGRIRENT-QR-${targetRegNumber}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const numUnits = parseInt(totalUnits) || 15;
+
+    // Build unit fleet serials for this taluk hub
+    const unitsList = Array.from({ length: numUnits }, (_, idx) => {
+      const unitNum = idx + 1;
+      return {
+        unitNum,
+        serial: `TN-EQ-${targetTaluk.substring(0, 3).toUpperCase()}-${String(unitNum).padStart(2, '0')}`,
+        hours: 0,
+        status: 'Available'
+      };
+    });
+
+    const eqData = {
+      name,
+      regNumber: targetRegNumber,
+      category,
+      brand: brand || manufacturer || name.split(' ')[0] || 'Mahindra',
+      model: model || 'Arjun Ultra',
+      purchaseDate: purchaseDate || new Date().toISOString(),
+      assignedOperator: assignedOperator || null,
+      rentalRate: rate,
+      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
+      qrCode,
+      status: 'Available',
+      district: targetDistrict,
+      taluk: targetTaluk,
+      cooperativeHub: targetHub,
+      location: location || `${targetTaluk} Hub, ${targetDistrict}`,
+      totalUnits: numUnits,
+      totalQuantity: numUnits,
+      availableQuantity: numUnits,
+      bookedQuantity: 0,
+      maintenanceQuantity: 0,
+      units: unitsList,
+      totalUsageHours: 0,
+      createdAt: new Date().toISOString()
+    };
 
     let newEq;
     if (isDbConnected()) {
-      newEq = await Equipment.create({
-        name,
-        regNumber,
-        category,
-        brand,
-        model,
-        purchaseDate,
-        assignedOperator: assignedOperator || null,
-        rentalRate: parseFloat(rentalRate),
-        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
-        qrCode,
-        status: 'Available',
-        cooperativeHub: req.user.cooperativeHub || 'Ludhiana Hub'
-      });
+      newEq = await Equipment.create(eqData);
     } else {
       const equipments = localDb.read('equipment');
       newEq = {
         _id: 'eq-' + Date.now(),
         id: 'eq-' + Date.now(),
-        name,
-        regNumber,
-        category,
-        brand,
-        model,
-        purchaseDate,
-        assignedOperator: assignedOperator || null,
-        rentalRate: parseFloat(rentalRate),
-        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80',
-        qrCode,
-        status: 'Available',
-        totalUsageHours: 0,
-        cooperativeHub: req.user.cooperativeHub || 'Ludhiana Hub',
-        createdAt: new Date().toISOString()
+        ...eqData
       };
       equipments.unshift(newEq);
       localDb.write('equipment', equipments);
     }
 
-    await logAudit(req, req.user, 'Add Equipment', '', newEq.name, `Added equipment ${newEq.name} (${newEq.regNumber})`);
+    await logAudit(req, req.user, 'Add Equipment', '', newEq.name, `Added equipment ${newEq.name} to ${targetTaluk}, ${targetDistrict}`);
 
-    return res.status(201).json({ success: true, message: 'Equipment added successfully.', data: newEq });
+    return res.status(201).json({ success: true, message: `Equipment added successfully to ${targetTaluk} Hub (${targetDistrict}).`, data: newEq });
   } catch (err) {
     console.error('Create equipment error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });
 
-// PUT /api/equipment/:id (Manager and Admin)
-router.put('/:id', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+// PUT /api/equipment/:id (Manager, Admin, Staff, Officer)
+router.put('/:id', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 'Officer'), async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    if (updateData.rentalRate !== undefined) {
-      const rate = parseFloat(updateData.rentalRate);
+    if (updateData.rentalRate !== undefined || updateData.price !== undefined) {
+      const rate = parseFloat(updateData.rentalRate || updateData.price);
       if (isNaN(rate) || rate < 1800 || rate > 3500) {
         return res.status(400).json({ success: false, message: 'Rental rate must be between ₹1800 and ₹3500 per day.' });
       }
+      updateData.rentalRate = rate;
     }
 
     let updated;
