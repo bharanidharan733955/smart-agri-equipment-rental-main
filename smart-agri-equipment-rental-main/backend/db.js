@@ -834,8 +834,11 @@ const userSchema = new mongoose.Schema({
   cooperativeHub: String,
   farmerId: String,
   isApproved: { type: Boolean, default: true },
+  isRejected: { type: Boolean, default: false },
+  verificationStatus: { type: String, default: 'PENDING_VERIFICATION' },
+  rejectionReason: String,
   createdAt: { type: Date, default: Date.now }
-});
+}, { strict: false });
 
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
 

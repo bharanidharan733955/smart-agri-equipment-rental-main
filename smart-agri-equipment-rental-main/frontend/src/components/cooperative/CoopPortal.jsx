@@ -1429,52 +1429,6 @@ export default function CoopPortal({ onLogout }) {
                   </div>
                 </div>
 
-                <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.25rem' }}>Equipment Maintenance Log Details</h3>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
-                          <th>Equipment Details</th>
-                          <th>Reg Number</th>
-                          <th>Service Date</th>
-                          <th>Type / Description</th>
-                          <th>Specialist</th>
-                          <th>Parts Cost</th>
-                          <th>Labour Cost</th>
-                          <th style={{ textAlign: 'right' }}>Total Service Cost</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {billingReport.maintenanceCosts.map((m, index) => (
-                          <tr key={index} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
-                            <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{m.equipmentName}</span>
-                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>ID: {m.equipmentId}</span>
-                            </td>
-                            <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{m.equipmentReg}</td>
-                            <td style={{ padding: '0.75rem 1rem' }}>{new Date(m.maintenanceDate).toLocaleDateString()}</td>
-                            <td style={{ padding: '0.75rem 1rem' }}>
-                              <span style={{ display: 'block', fontWeight: 600, color: 'var(--color-info)' }}>{m.maintenanceType}</span>
-                              <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{m.maintenanceDescription}</span>
-                            </td>
-                            <td style={{ padding: '0.75rem 1rem' }}>{m.specialist}</td>
-                            <td style={{ padding: '0.75rem 1rem' }}>₹{m.partsCost}</td>
-                            <td style={{ padding: '0.75rem 1rem' }}>₹{m.labourCost}</td>
-                            <td style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 800, color: '#f87171' }}>₹{m.totalCost}</td>
-                          </tr>
-                        ))}
-                        {billingReport.maintenanceCosts.length === 0 && (
-                          <tr>
-                            <td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
-                              No maintenance records registered in this period.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
               </div>
             </div>
           ) : (

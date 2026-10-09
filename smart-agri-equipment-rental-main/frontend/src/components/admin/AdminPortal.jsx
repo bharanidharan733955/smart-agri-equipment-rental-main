@@ -1112,7 +1112,7 @@ export default function AdminPortal({ user, onLogout }) {
               {activeTab === 'audits' && (
                 <div>
                   {/* Automated calculations widgets bar */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.25rem', marginBottom: '2rem' }}>
                     <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
                       <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Total Logs Tracked</span>
                       <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-info)' }}>{auditStats.total}</span>
@@ -1128,10 +1128,6 @@ export default function AdminPortal({ user, onLogout }) {
                     <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
                       <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Work Completed</span>
                       <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)' }}>{auditStats.workCompleted}</span>
-                    </div>
-                    <div style={{ backgroundColor: 'var(--color-surface)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)' }}>Unique IP Telemetry</span>
-                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-info)' }}>{uniqueIPs}</span>
                     </div>
                   </div>
 

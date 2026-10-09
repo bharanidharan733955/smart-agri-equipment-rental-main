@@ -1,6 +1,6 @@
 // src/components/Hero.jsx
 import React from 'react';
-import { Sprout, ArrowRight, ShieldCheck, FileText, Wrench } from 'lucide-react';
+import { Sprout, ArrowRight, ShieldCheck, FileText } from 'lucide-react';
 
 export default function Hero({ onSelectRole }) {
   return (
@@ -49,13 +49,6 @@ export default function Hero({ onSelectRole }) {
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>Transparent Billing</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Upfront invoicing</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-text)' }}>
-            <Wrench size={24} color="var(--color-primary)" />
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>Scheduled Maintenance</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>360-hour service cycles</div>
             </div>
           </div>
         </div>

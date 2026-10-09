@@ -227,11 +227,28 @@ router.get('/farmer-verifications', authenticateToken, authorizeRoles('Manager',
     const verifiedFarmers = list.map(f => {
       const farmerObj = JSON.parse(JSON.stringify(f));
       const govtRecord = findGovtRecord(farmerObj.farmerId, farmerObj.mobile);
+      
+      const isIdMatched = !!govtRecord && (govtRecord.govtFarmerId.toLowerCase() === (farmerObj.farmerId || '').trim().toLowerCase());
+      
+      const fNameNorm = (farmerObj.name || '').toLowerCase().trim();
+      const gNameNorm = (govtRecord?.officialName || '').toLowerCase().trim();
+      const isNameMatched = !!govtRecord && (
+        fNameNorm === gNameNorm ||
+        gNameNorm.includes(fNameNorm) ||
+        fNameNorm.includes(gNameNorm)
+      );
+
+      const computedStatus = (farmerObj.isRejected || farmerObj.verificationStatus === 'REJECTED') 
+        ? 'REJECTED' 
+        : (farmerObj.isApproved ? 'APPROVED' : 'PENDING_VERIFICATION');
+
       return {
         ...farmerObj,
         govtMatch: govtRecord,
-        isIdMatched: !!govtRecord && (govtRecord.govtFarmerId.toLowerCase() === (farmerObj.farmerId || '').trim().toLowerCase()),
-        verificationStatus: farmerObj.verificationStatus || (farmerObj.isApproved ? 'APPROVED' : (farmerObj.isRejected ? 'REJECTED' : 'PENDING_VERIFICATION'))
+        isIdMatched,
+        isNameMatched,
+        isFullyVerified: isIdMatched && isNameMatched,
+        verificationStatus: computedStatus
       };
     });
 
@@ -254,7 +271,7 @@ router.get('/farmer-verifications', authenticateToken, authorizeRoles('Manager',
 });
 
 // POST /api/cooperative/farmers/:id/approve (Approve pending farmer)
-router.post('/farmers/:id/approve', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+router.post('/farmers/:id/approve', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
   try {
     const { id } = req.params;
     let farmer;
@@ -287,7 +304,7 @@ router.post('/farmers/:id/approve', authenticateToken, authorizeRoles('Manager',
 });
 
 // POST /api/cooperative/farmers/:id/reject (Reject farmer registration)
-router.post('/farmers/:id/reject', authenticateToken, authorizeRoles('Manager', 'Admin'), async (req, res) => {
+router.post('/farmers/:id/reject', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 'Cooperative Staff'), async (req, res) => {
   try {
     const { id } = req.params;
     const { reason } = req.body;
@@ -949,11 +966,20 @@ router.get('/feedback', authenticateToken, authorizeRoles('Manager', 'Admin', 'O
 });
 
 // GET /api/cooperative/billing-report (Generates financial report for custom period)
-router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admin', 'Officer'), async (req, res) => {
+router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 'Cooperative Staff', 'Officer'), async (req, res) => {
   try {
     const { from, to, district, taluk } = req.query;
     const userDistrict = req.user?.district;
-    const targetDistrict = district || userDistrict || null;
+    const userRole = req.user?.role;
+
+    // District Staff must only see their own district's report/payroll.
+    // Government Officers and Admins can view all districts ('ALL') or filter by specific district.
+    let targetDistrict = district;
+    if (userRole !== 'Officer' && userRole !== 'Admin') {
+      targetDistrict = userDistrict || district || null;
+    } else if (district === 'ALL' || !district) {
+      targetDistrict = null;
+    }
     const targetTaluk = taluk && taluk !== 'ALL' ? taluk : null;
 
     if (!from || !to) {
@@ -1132,12 +1158,25 @@ router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admi
     let operators = [];
     let specialists = [];
     if (isDbConnected()) {
-      operators = await User.find({ role: 'Equipment Operator' }).select('name email mobile');
-      specialists = await User.find({ role: 'Equipmaintance' }).select('name email mobile');
+      operators = await User.find({ role: 'Equipment Operator' }).select('name email mobile district taluk');
+      specialists = await User.find({ role: 'Equipmaintance' }).select('name email mobile district taluk');
     } else {
       const allUsers = localDb.read('users') || [];
       operators = allUsers.filter(u => u.role === 'Equipment Operator');
       specialists = allUsers.filter(u => u.role === 'Equipmaintance');
+    }
+
+    // Filter operators and specialists by target District & Taluk
+    if (targetDistrict) {
+      const dNorm = targetDistrict.toLowerCase();
+      operators = operators.filter(u => u.district && u.district.toLowerCase() === dNorm);
+      specialists = specialists.filter(u => u.district && u.district.toLowerCase() === dNorm);
+    }
+
+    if (targetTaluk) {
+      const tNorm = targetTaluk.toLowerCase();
+      operators = operators.filter(u => u.taluk && u.taluk.toLowerCase() === tNorm);
+      specialists = specialists.filter(sp => sp.taluk && sp.taluk.toLowerCase() === tNorm);
     }
 
     const OPERATOR_MONTHLY = 25000;

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import CoopEquipmentView from '../cooperative/CoopEquipmentView';
 import EquipmentDetailsModal from '../cooperative/EquipmentDetailsModal';
-import { fetchCoopEquipment, fetchBillingReport, logoutUser } from '../../api';
+import { fetchCoopEquipment, fetchBillingReport, fetchAuditLogs, logoutUser } from '../../api';
 import { TN_DISTRICTS, getTaluksForDistrict } from '../../data/tnLocationData';
 import toast, { Toaster } from 'react-hot-toast';
 import {
@@ -13,11 +13,12 @@ import {
   Download,
   LogOut,
   Building2,
-  ShieldCheck
+  ShieldCheck,
+  Search
 } from 'lucide-react';
 
 export default function GovernmentPortal({ user, onLogout }) {
-  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'reports'
+  const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'reports' | 'audits'
 
   // Equipment & Inventory State
   const [equipmentList, setEquipmentList] = useState([]);
@@ -31,6 +32,13 @@ export default function GovernmentPortal({ user, onLogout }) {
   const [reportToDate, setReportToDate] = useState('');
   const [reportLoading, setReportLoading] = useState(false);
   const [billingReport, setBillingReport] = useState(null);
+
+  // Audit Logs State
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditSearch, setAuditSearch] = useState('');
+  const [auditRoleFilter, setAuditRoleFilter] = useState('All');
+  const [auditActionFilter, setAuditActionFilter] = useState('All');
 
   const availableTaluks = reportDistrict === 'ALL'
     ? []
@@ -51,6 +59,40 @@ export default function GovernmentPortal({ user, onLogout }) {
   useEffect(() => {
     loadEquipmentData();
   }, []);
+
+  const loadAuditLogsData = async () => {
+    setAuditLoading(true);
+    try {
+      const logs = await fetchAuditLogs();
+      setAuditLogs(logs || []);
+    } catch (err) {
+      console.error('Failed to load audit logs:', err);
+    }
+    setAuditLoading(false);
+  };
+
+  useEffect(() => {
+    if (activeTab === 'audits') {
+      loadAuditLogsData();
+    }
+  }, [activeTab]);
+
+  const filteredAudits = auditLogs.filter(log => {
+    const matchesSearch = (log.user || '').toLowerCase().includes(auditSearch.toLowerCase()) ||
+                          (log.description || '').toLowerCase().includes(auditSearch.toLowerCase()) ||
+                          (log.ipAddress || '').toLowerCase().includes(auditSearch.toLowerCase());
+    const matchesRole = auditRoleFilter === 'All' || log.role === auditRoleFilter;
+    const matchesAction = auditActionFilter === 'All' || log.action === auditActionFilter;
+    return matchesSearch && matchesRole && matchesAction;
+  });
+
+  const auditStats = {
+    total: filteredAudits.length,
+    loginCount: filteredAudits.filter(l => l.action === 'Login').length,
+    bookingCount: filteredAudits.filter(l => l.action === 'Booking Request' || l.action === 'Booking' || l.action === 'Booking Approval').length,
+    workCompleted: filteredAudits.filter(l => l.action === 'Work Completed' || l.action === 'Work Started').length
+  };
+  const uniqueIPs = new Set(filteredAudits.map(l => l.ipAddress).filter(Boolean)).size;
 
   const handleDistrictChange = (e) => {
     const d = e.target.value;
@@ -279,7 +321,8 @@ export default function GovernmentPortal({ user, onLogout }) {
 
   const navItems = [
     { id: 'inventory', label: 'Hub Inventory', icon: Tractor },
-    { id: 'reports', label: 'Billing & Reports', icon: FileText }
+    { id: 'reports', label: 'Billing & Reports', icon: FileText },
+    { id: 'audits', label: 'Audit Logs', icon: ShieldCheck }
   ];
 
   return (
@@ -409,6 +452,7 @@ export default function GovernmentPortal({ user, onLogout }) {
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
               {activeTab === 'inventory' && 'Statewide Machinery Inventory'}
               {activeTab === 'reports' && 'Cooperative Financial & Billing Reports'}
+              {activeTab === 'audits' && 'System-Wide Immutable Audit Trail Logs'}
             </h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
               State Government Officer & Audit Oversight Control
@@ -679,60 +723,123 @@ export default function GovernmentPortal({ user, onLogout }) {
                     </div>
                   </div>
 
-                  {/* Maintenance Log Table */}
-                  <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.25rem' }}>Equipment Maintenance Log Details</h3>
-                    <div style={{ overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
-                            <th>Equipment Details</th>
-                            <th>Reg Number</th>
-                            <th>Service Date</th>
-                            <th>Type / Description</th>
-                            <th>Specialist</th>
-                            <th>Parts Cost</th>
-                            <th>Labour Cost</th>
-                            <th style={{ textAlign: 'right' }}>Total Service Cost</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {billingReport.maintenanceCosts.map((m, index) => (
-                            <tr key={index} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
-                              <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{m.equipmentName}</span>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>ID: {m.equipmentId}</span>
-                              </td>
-                              <td style={{ padding: '0.75rem 1rem', fontWeight: 600 }}>{m.equipmentReg}</td>
-                              <td style={{ padding: '0.75rem 1rem' }}>{new Date(m.maintenanceDate).toLocaleDateString()}</td>
-                              <td style={{ padding: '0.75rem 1rem' }}>
-                                <span style={{ display: 'block', fontWeight: 600, color: 'var(--color-info)' }}>{m.maintenanceType}</span>
-                                <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{m.maintenanceDescription}</span>
-                              </td>
-                              <td style={{ padding: '0.75rem 1rem' }}>{m.specialist}</td>
-                              <td style={{ padding: '0.75rem 1rem' }}>₹{m.partsCost}</td>
-                              <td style={{ padding: '0.75rem 1rem' }}>₹{m.labourCost}</td>
-                              <td style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 800, color: '#f87171' }}>₹{m.totalCost}</td>
-                            </tr>
-                          ))}
-                          {billingReport.maintenanceCosts.length === 0 && (
-                            <tr>
-                              <td colSpan="8" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
-                                No maintenance records registered in this period.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-
                 </div>
               ) : (
                 <div style={{ backgroundColor: 'var(--color-surface)', padding: '4rem 2rem', borderRadius: '20px', border: '1px solid var(--color-border)', textAlign: 'center', color: 'var(--color-muted)' }}>
                   Please select a district scope and custom reporting period from the fields above and click "Generate Financial Report".
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'audits' && (
+            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+              <span className="section-tag">SECURITY & AUDIT OVERSIGHT</span>
+              <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '1.5rem' }}>
+                Statewide Audit Ledger & Activity Logs
+              </h1>
+
+              {/* Audit Summary Widgets */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Total Logs Tracked</span>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-info)', marginTop: '0.2rem', display: 'block' }}>{auditStats.total}</span>
+                </div>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Logins (Telemetry)</span>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)', marginTop: '0.2rem', display: 'block' }}>{auditStats.loginCount}</span>
+                </div>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Bookings / Approvals</span>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-warning)', marginTop: '0.2rem', display: 'block' }}>{auditStats.bookingCount}</span>
+                </div>
+                <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.25rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Work Executed</span>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-primary)', marginTop: '0.2rem', display: 'block' }}>{auditStats.workCompleted}</span>
+                </div>
+              </div>
+
+              {/* Filtering Toolbar */}
+              <div style={{ backgroundColor: 'var(--color-surface)', padding: '1.25rem', borderRadius: '16px', display: 'flex', gap: '1rem', marginBottom: '1.5rem', border: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
+                <div style={{ flexGrow: 1, position: 'relative', minWidth: '240px' }}>
+                  <Search size={18} color="#64748b" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                  <input
+                    type="text"
+                    placeholder="Search audit logs by user, action, IP or details..."
+                    value={auditSearch}
+                    onChange={(e) => setAuditSearch(e.target.value)}
+                    style={{ width: '100%', padding: '0.65rem 1rem 0.65rem 2.8rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.88rem' }}
+                  />
+                </div>
+                <select
+                  value={auditRoleFilter}
+                  onChange={(e) => setAuditRoleFilter(e.target.value)}
+                  style={{ padding: '0.65rem 1rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.88rem' }}
+                >
+                  <option value="All">All User Roles</option>
+                  <option value="Farmer">Farmer</option>
+                  <option value="Equipment Operator">Equipment Operator</option>
+                  <option value="Staff">Cooperative Staff</option>
+                  <option value="Officer">State Officer</option>
+                  <option value="Admin">Admin</option>
+                </select>
+                <select
+                  value={auditActionFilter}
+                  onChange={(e) => setAuditActionFilter(e.target.value)}
+                  style={{ padding: '0.65rem 1rem', borderRadius: '10px', backgroundColor: 'var(--color-border)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.88rem' }}
+                >
+                  <option value="All">All Actions</option>
+                  <option value="Login">Login</option>
+                  <option value="Booking Approved">Booking Approved</option>
+                  <option value="Booking Approval">Booking Approval</option>
+                  <option value="Booking Rejection">Booking Rejection</option>
+                  <option value="Work Started">Work Started</option>
+                  <option value="Work Completed">Work Completed</option>
+                  <option value="Add Equipment">Add Equipment</option>
+                  <option value="Update Equipment">Update Equipment</option>
+                  <option value="Delete Equipment">Delete Equipment</option>
+                </select>
+              </div>
+
+              {/* Audit Table */}
+              <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)', textAlign: 'left' }}>
+                        <th style={{ padding: '0.75rem 1rem' }}>User / Role</th>
+                        <th style={{ padding: '0.75rem 1rem' }}>Action</th>
+                        <th style={{ padding: '0.75rem 1rem' }}>IP Address</th>
+                        <th style={{ padding: '0.75rem 1rem' }}>Timestamp</th>
+                        <th style={{ padding: '0.75rem 1rem' }}>Telemetry Description / Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredAudits.map((log, idx) => (
+                        <tr key={log._id || idx} style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-muted)' }}>
+                          <td style={{ padding: '0.75rem 1rem' }}>
+                            <span style={{ fontWeight: 700, color: 'var(--color-text)', display: 'block' }}>{log.user || 'System'}</span>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{log.role || 'System'}</span>
+                          </td>
+                          <td style={{ padding: '0.75rem 1rem' }}>
+                            <span style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{log.action}</span>
+                          </td>
+                          <td style={{ padding: '0.75rem 1rem', fontFamily: 'monospace' }}>{log.ipAddress || '127.0.0.1'}</td>
+                          <td style={{ padding: '0.75rem 1rem' }}>{new Date(log.timestamp).toLocaleString()}</td>
+                          <td style={{ padding: '0.75rem 1rem', color: 'var(--color-text)' }}>{log.description}</td>
+                        </tr>
+                      ))}
+                      {filteredAudits.length === 0 && (
+                        <tr>
+                          <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-muted)' }}>
+                            {auditLoading ? 'Loading system audit logs...' : 'No audit log entries found matching criteria.'}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
         </div>

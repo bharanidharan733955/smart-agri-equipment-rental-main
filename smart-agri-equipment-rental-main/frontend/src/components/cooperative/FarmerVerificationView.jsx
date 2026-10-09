@@ -234,12 +234,19 @@ export default function FarmerVerificationView() {
 
                   {isMatched && govt ? (
                     <div>
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-border)', color: 'var(--color-primary)', fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.6rem', borderRadius: '20px', marginBottom: '0.6rem' }}>
-                        <CheckCircle size={14} />
-                        <span>VERIFIED ID MATCH</span>
-                      </div>
+                      {((farmer.name || '').toLowerCase().trim() === (govt.officialName || '').toLowerCase().trim() || farmer.isNameMatched) ? (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-border)', color: 'var(--color-primary)', fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.6rem', borderRadius: '20px', marginBottom: '0.6rem' }}>
+                          <CheckCircle size={14} />
+                          <span>VERIFIED ID & NAME MATCH</span>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', backgroundColor: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', color: '#d97706', fontSize: '0.75rem', fontWeight: 800, padding: '0.25rem 0.6rem', borderRadius: '20px', marginBottom: '0.6rem' }}>
+                          <AlertTriangle size={14} />
+                          <span>⚠️ NAME MISMATCH (Govt Name: {govt.officialName})</span>
+                        </div>
+                      )}
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.85rem' }}>
-                        <div><span style={{ color: 'var(--color-muted)' }}>Official Name: </span><strong>{govt.officialName}</strong></div>
+                        <div><span style={{ color: 'var(--color-muted)' }}>Official Name: </span><strong style={{ color: (farmer.name || '').toLowerCase().trim() === (govt.officialName || '').toLowerCase().trim() ? 'inherit' : '#d97706' }}>{govt.officialName}</strong></div>
                         <div><span style={{ color: 'var(--color-muted)' }}>Matched ID: </span><strong style={{ fontFamily: 'monospace' }}>{govt.govtFarmerId}</strong></div>
                         <div><span style={{ color: 'var(--color-muted)' }}>Land Holding: </span><strong>{govt.landHoldingAcres} Acres</strong></div>
                         <div><span style={{ color: 'var(--color-muted)' }}>Aadhaar: </span><span style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{govt.aadhaarStatus}</span></div>

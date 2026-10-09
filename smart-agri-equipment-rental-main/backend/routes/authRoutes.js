@@ -137,25 +137,49 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: 'Email and password are required.' });
-    }
+    const { email, password, mobile, farmerId } = req.body;
 
     let user;
     if (isDbConnected()) {
-      user = await User.findOne({ email });
+      if (email) {
+        user = await User.findOne({ email });
+      } else if (mobile && farmerId) {
+        user = await User.findOne({ mobile, farmerId });
+      }
     } else {
       const users = localDb.read('users');
-      user = users.find(u => u.email === email);
+      if (email) {
+        user = users.find(u => u.email === email);
+      } else if (mobile && farmerId) {
+        user = users.find(u => u.mobile === mobile && u.farmerId === farmerId);
+      }
     }
+
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      return res.status(401).json({ success: false, message: 'Invalid credentials.' });
     }
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
-      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+
+    if (password) {
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      }
+    }
+
+    // Check Farmer verification and rejection status
+    if (user.role === 'Farmer') {
+      if (user.isRejected || user.verificationStatus === 'REJECTED') {
+        return res.status(403).json({
+          success: false,
+          message: `Login Access Blocked: Your registration was rejected by District Cooperative Staff. Reason: ${user.rejectionReason || 'Farmer ID match failed against Government Registry.'}`
+        });
+      }
+      if (user.isApproved === false || user.verificationStatus === 'PENDING_VERIFICATION') {
+        return res.status(403).json({
+          success: false,
+          message: 'Login Access Blocked: Your registration is currently pending verification & approval by District Cooperative Staff.'
+        });
+      }
     }
 
 

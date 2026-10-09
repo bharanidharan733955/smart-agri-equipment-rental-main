@@ -58,19 +58,21 @@ export function findGovtRecord(farmerId, mobile) {
   const cleanId = (farmerId || '').trim().toLowerCase();
   const cleanMobile = (mobile || '').trim();
 
-  return GOVT_FARMER_REGISTRY.find(r => {
-    const rId = r.govtFarmerId.toLowerCase();
-    const rAlt = (r.altFarmerId || '').toLowerCase();
-    const rNum = rId.replace(/[^0-9]/g, '');
+  // First try matching by Farmer ID
+  if (cleanId) {
+    const recordById = GOVT_FARMER_REGISTRY.find(r => {
+      const rId = r.govtFarmerId.toLowerCase();
+      const rAlt = (r.altFarmerId || '').toLowerCase();
+      const rNum = rId.replace(/[^0-9]/g, '');
+      return rId === cleanId || rAlt === cleanId || cleanId.endsWith(rNum) || (cleanId.replace(/[^0-9]/g, '') !== '' && cleanId.replace(/[^0-9]/g, '') === rNum);
+    });
+    if (recordById) return recordById;
+  }
 
-    const matchesId = cleanId && (
-      rId === cleanId ||
-      rAlt === cleanId ||
-      cleanId.endsWith(rNum) ||
-      (cleanId.replace(/[^0-9]/g, '') !== '' && cleanId.replace(/[^0-9]/g, '') === rNum)
-    );
-    const matchesMobile = cleanMobile && r.mobile === cleanMobile;
+  // Fallback to matching by Mobile
+  if (cleanMobile) {
+    return GOVT_FARMER_REGISTRY.find(r => r.mobile === cleanMobile) || null;
+  }
 
-    return matchesId || matchesMobile;
-  }) || null;
+  return null;
 }

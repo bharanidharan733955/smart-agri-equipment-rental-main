@@ -13,8 +13,7 @@ import {
   Tractor,
   Building2,
   Clock,
-  MapPin,
-  Globe
+  MapPin
 } from 'lucide-react';
 import { TN_DISTRICTS, getTaluksForDistrict } from '../../data/tnLocationData';
 
@@ -172,7 +171,7 @@ export default function CoopEquipmentView({
               <div style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600, textTransform: 'uppercase' }}>Available Units</div>
               <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-primary)', marginTop: '0.2rem' }}>{totalUnitsSum}</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--color-primary)', marginTop: '4px', fontWeight: 600 }}>
-                ✓ Min 20 Available Units per Taluk
+                  Available total units
               </div>
             </div>
 
@@ -274,32 +273,6 @@ export default function CoopEquipmentView({
               ))}
             </select>
           </div>
-
-          {/* Show All Taluks Quick Button */}
-          {(selectedDistrict !== 'All' || selectedTaluk !== 'All') && (
-            <button
-              onClick={() => {
-                setSelectedDistrict('All');
-                setSelectedTaluk('All');
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.5rem 0.9rem',
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'rgba(21, 128, 61, 0.15)',
-                border: '1px solid rgba(21, 128, 61, 0.3)',
-                color: 'var(--color-primary)',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
-            >
-              <Globe size={14} />
-              <span>Show All Taluks</span>
-            </button>
-          )}
         </div>
       </div>
 
