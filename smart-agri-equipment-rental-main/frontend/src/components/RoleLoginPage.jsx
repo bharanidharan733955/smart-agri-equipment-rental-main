@@ -99,6 +99,9 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
   const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
+    if (roleId !== 'farmer') {
+      setIsRegistering(false);
+    }
     if (roleId === 'officer') {
       setFormData(prev => ({
         ...prev,
@@ -193,7 +196,7 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
               <Sprout size={20} color="#ffffff" strokeWidth={2.5} />
             </div>
             <div>
-              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>AGRI RENT GOV</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>AGRIX</div>
               <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '0.05em' }}>STATE COOPERATIVE</div>
             </div>
           </div>
@@ -401,24 +404,26 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
                 </button>
               </form>
 
-              {/* Toggle Login/Register Mode */}
-              <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
-                {isRegistering ? (
-                  <span>
-                    Already have an account?{' '}
-                    <button onClick={() => setIsRegistering(false)} style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-                      Sign In here
-                    </button>
-                  </span>
-                ) : (
-                  <span>
-                    Don't have an account?{' '}
-                    <button onClick={() => setIsRegistering(true)} style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-                      Register here
-                    </button>
-                  </span>
-                )}
-              </div>
+              {/* Toggle Login/Register Mode (Only for Farmer role) */}
+              {role.id === 'farmer' && (
+                <div style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+                  {isRegistering ? (
+                    <span>
+                      Already have an account?{' '}
+                      <button onClick={() => setIsRegistering(false)} style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                        Sign In here
+                      </button>
+                    </span>
+                  ) : (
+                    <span>
+                      Don't have an account?{' '}
+                      <button onClick={() => setIsRegistering(true)} style={{ color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                        Register here
+                      </button>
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Right Column: Privileges */}

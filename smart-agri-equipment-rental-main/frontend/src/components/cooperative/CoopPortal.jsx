@@ -1444,6 +1444,8 @@ export default function CoopPortal({ onLogout }) {
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
         onAddEquipment={handleAddEquipment}
+        userDistrict={staffDistrict}
+        lockDistrict={true}
       />
 
       {/* Edit Equipment Modal */}
@@ -1452,6 +1454,8 @@ export default function CoopPortal({ onLogout }) {
         isOpen={!!editingItem}
         onClose={() => setEditingItem(null)}
         onSaveEdit={handleSaveEdit}
+        userDistrict={staffDistrict}
+        lockDistrict={true}
       />
 
       {/* Equipment Details Modal */}

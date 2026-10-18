@@ -182,9 +182,51 @@ router.post('/', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff', 
       return res.status(400).json({ success: false, message: 'Rental rate must be between ₹1800 and ₹3500 per day.' });
     }
 
-    const targetDistrict = district || 'Coimbatore';
+    // Role-based District & Taluk Enforcement for Cooperative Staff
+    const isStaff = req.user && (req.user.role === 'Staff' || req.user.role === 'Cooperative Staff');
+    let targetDistrict = district || 'Coimbatore';
+
+    if (isStaff) {
+      let staffUser = null;
+      if (isDbConnected()) {
+        staffUser = await User.findById(req.user.id);
+      } else {
+        const users = localDb.read('users');
+        staffUser = users.find(u => String(u._id || u.id) === String(req.user.id));
+      }
+      const staffDistrict = staffUser?.district || req.user.district;
+
+      if (!staffDistrict) {
+        return res.status(403).json({
+          success: false,
+          message: 'Cooperative Staff account does not have an assigned district jurisdiction.'
+        });
+      }
+
+      // If staff specified a different district, block it with 403 Forbidden
+      if (district && district.trim().toLowerCase() !== staffDistrict.trim().toLowerCase()) {
+        return res.status(403).json({
+          success: false,
+          message: `Access Denied: As Cooperative Staff for ${staffDistrict}, you can only add equipment to taluks in ${staffDistrict} district.`
+        });
+      }
+
+      targetDistrict = staffDistrict;
+
+      // Validate that the requested taluk strictly belongs to staffDistrict
+      const validTaluks = getTaluksForDistrict(targetDistrict);
+      if (taluk && !validTaluks.some(t => t.toLowerCase() === taluk.trim().toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message: `Taluk '${taluk}' does not belong to your assigned district (${targetDistrict}). Allowed taluks: ${validTaluks.join(', ')}.`
+        });
+      }
+    }
+
     const validTaluks = getTaluksForDistrict(targetDistrict);
-    const targetTaluk = (taluk && validTaluks.includes(taluk)) ? taluk : (validTaluks[0] || targetDistrict);
+    const targetTaluk = (taluk && validTaluks.some(t => t.toLowerCase() === taluk.trim().toLowerCase()))
+      ? validTaluks.find(t => t.toLowerCase() === taluk.trim().toLowerCase())
+      : (validTaluks[0] || targetDistrict);
     const targetHub = cooperativeHub || `${targetTaluk} Cooperative Hub`;
     const targetRegNumber = regNumber || `TN-${Math.floor(10 + Math.random() * 80)}-EQ-${Math.floor(1000 + Math.random() * 9000)}`;
     const qrCode = `AGRIRENT-QR-${targetRegNumber}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -255,6 +297,43 @@ router.put('/:id', authenticateToken, authorizeRoles('Manager', 'Admin', 'Staff'
   try {
     const { id } = req.params;
     const updateData = req.body;
+
+    const isStaff = req.user && (req.user.role === 'Staff' || req.user.role === 'Cooperative Staff');
+    if (isStaff) {
+      let staffUser = null;
+      if (isDbConnected()) {
+        staffUser = await User.findById(req.user.id);
+      } else {
+        const users = localDb.read('users');
+        staffUser = users.find(u => String(u._id || u.id) === String(req.user.id));
+      }
+      const staffDistrict = staffUser?.district || req.user.district;
+
+      let existingEq = isDbConnected() ? await Equipment.findById(id) : localDb.read('equipment').find(e => String(e._id || e.id) === String(id));
+      if (existingEq && existingEq.district && staffDistrict && existingEq.district.toLowerCase() !== staffDistrict.toLowerCase()) {
+        return res.status(403).json({
+          success: false,
+          message: `Access denied: You can only edit equipment belonging to your district (${staffDistrict}).`
+        });
+      }
+
+      if (updateData.district && staffDistrict && updateData.district.toLowerCase() !== staffDistrict.toLowerCase()) {
+        return res.status(403).json({
+          success: false,
+          message: `Access denied: Cannot reassign equipment to another district (${updateData.district}). You are assigned to ${staffDistrict}.`
+        });
+      }
+
+      if (updateData.taluk && staffDistrict) {
+        const validTaluks = getTaluksForDistrict(staffDistrict);
+        if (!validTaluks.some(t => t.toLowerCase() === updateData.taluk.toLowerCase())) {
+          return res.status(400).json({
+            success: false,
+            message: `Taluk '${updateData.taluk}' is not valid for ${staffDistrict}.`
+          });
+        }
+      }
+    }
 
     if (updateData.rentalRate !== undefined || updateData.price !== undefined) {
       const rate = parseFloat(updateData.rentalRate || updateData.price);

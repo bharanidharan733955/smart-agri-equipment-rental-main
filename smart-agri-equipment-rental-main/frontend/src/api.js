@@ -3,7 +3,12 @@ import axios from 'axios';
 
 // Use a relative base so requests go through the Vite proxy (no CORS preflight in dev)
 // In production, point this to your deployed backend URL via an env variable.
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+let API_BASE = '/api';
+if (rawApiUrl && typeof rawApiUrl === 'string' && rawApiUrl.trim() !== '') {
+  const clean = rawApiUrl.trim().replace(/\/+$/, '');
+  API_BASE = clean.endsWith('/api') ? clean : `${clean}/api`;
+}
 
 // Create Axios Instance
 const api = axios.create({

@@ -191,9 +191,14 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
     const baseAmount = eq.rentalRate * duration;
     const requestedFuelType = req.body.fuelType || 'Diesel';
     const fuelPricePerLiter = requestedFuelType === 'Petrol' ? 102 : 95;
-    const estimatedFuelLiters = duration * 6.0; // Standard 6.0 Liters per day estimate
+    const estimatedFuelLiters = duration * 10.0; // 10 Liters per day estimate
     const estimatedFuelCost = Math.round(estimatedFuelLiters * fuelPricePerLiter);
-    const subtotal = baseAmount + estimatedFuelCost;
+
+    const travelDistanceKm = duration * 60; // 60 km travel per day
+    const travelRatePerKm = 15; // ₹15/km
+    const estimatedTravelCost = Math.round(travelDistanceKm * travelRatePerKm);
+
+    const subtotal = baseAmount + estimatedFuelCost + estimatedTravelCost;
     const tax = Math.round(subtotal * 0.18); // 18% GST
     const tentativeTotal = subtotal + tax;
 
@@ -203,6 +208,9 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
       fuelType: requestedFuelType,
       fuelPricePerLiter,
       estimatedFuelCost,
+      travelDistanceKm,
+      travelRatePerKm,
+      estimatedTravelCost,
       tax,
       tentativeTotal,
       isTentative: true

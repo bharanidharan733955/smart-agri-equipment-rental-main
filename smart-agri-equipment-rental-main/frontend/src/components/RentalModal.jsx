@@ -20,8 +20,19 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
   const dailyPrice = equipment?.rentalRate || equipment?.price || equipment?.pricePerDay || 800;
   const duration = parseInt(durationDays) || 1;
   const baseRent = dailyPrice * duration;
-  const tax = Math.round(baseRent * 0.18);
-  const tentativeTotal = baseRent + tax;
+
+  // Fuel (10 Liters/day @ ₹95/L) & Travel Allowance (60 km/day @ ₹15/km)
+  const fuelLiters = duration * 10;
+  const fuelPricePerLiter = 95;
+  const fuelCost = fuelLiters * fuelPricePerLiter;
+
+  const travelKm = duration * 60;
+  const travelRatePerKm = 15;
+  const travelCost = travelKm * travelRatePerKm;
+
+  const subtotal = baseRent + fuelCost + travelCost;
+  const tax = Math.round(subtotal * 0.18);
+  const tentativeTotal = subtotal + tax;
 
   // Guard must come AFTER all hooks (Rules of Hooks)
   if (!isOpen) return null;
@@ -221,8 +232,16 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: '0.82rem', color: 'var(--color-muted)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Equipment Rental ({duration} Days @ ₹{dailyPrice}):</span>
+                    <span>Equipment Base Rental ({duration} Days @ ₹{dailyPrice}):</span>
                     <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>₹{baseRent.toLocaleString()}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Diesel Fuel Allowance ({fuelLiters} Liters @ ₹{fuelPricePerLiter}/L):</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>₹{fuelCost.toLocaleString()}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span>Travel Allowance ({travelKm} km @ ₹{travelRatePerKm}/km):</span>
+                    <span style={{ fontWeight: 700, color: 'var(--color-text)' }}>₹{travelCost.toLocaleString()}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>CGST &amp; SGST (18%):</span>

@@ -1,10 +1,10 @@
 // src/components/RoleSelectionPage.jsx
 import React from 'react';
-import { 
-  Sprout, 
-  Users, 
-  Tractor, 
-  ArrowLeft, 
+import {
+  Sprout,
+  Users,
+  Tractor,
+  ArrowLeft,
   ArrowRight,
   ShieldCheck
 } from 'lucide-react';
@@ -47,7 +47,7 @@ export const ROLES = [
 export default function RoleSelectionPage({ onSelectRole, onBackToHome }) {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
-      
+
       {/* Top Header */}
       <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -57,7 +57,7 @@ export default function RoleSelectionPage({ onSelectRole, onBackToHome }) {
               <Sprout size={20} color="#ffffff" strokeWidth={2.5} />
             </div>
             <div>
-              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>AGRI RENT GOV</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>AGRIX</div>
               <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '0.05em' }}>STATE COOPERATIVE</div>
             </div>
           </div>
@@ -73,7 +73,7 @@ export default function RoleSelectionPage({ onSelectRole, onBackToHome }) {
       {/* Main Content */}
       <main style={{ flexGrow: 1, padding: '4rem 2rem 5rem 2rem' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          
+
           {/* Header Title */}
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>

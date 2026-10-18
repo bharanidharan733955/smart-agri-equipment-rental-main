@@ -1,12 +1,12 @@
 // src/components/farmer/FarmerLayout.jsx
 import React from 'react';
-import { 
-  Sprout, 
-  LayoutDashboard, 
-  Tractor, 
-  Calendar, 
-  MessageSquare, 
-  Bell, 
+import {
+  Sprout,
+  LayoutDashboard,
+  Tractor,
+  Calendar,
+  MessageSquare,
+  Bell,
   LogOut,
   ShieldCheck,
   Menu
@@ -38,7 +38,7 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>
-      
+
       {/* Sidebar */}
       <aside
         style={{
@@ -70,7 +70,7 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
             </div>
             <div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
-                AGRI RENT GOV
+                AGRIX
               </div>
               <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '0.05em', marginTop: '2px' }}>
                 FARMER PORTAL
@@ -161,7 +161,7 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
 
       {/* Main Container */}
       <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0, backgroundColor: 'var(--color-background)' }}>
-        
+
         {/* Top Navbar */}
         <header
           style={{

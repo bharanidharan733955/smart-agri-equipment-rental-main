@@ -52,7 +52,7 @@ export default function Header({ onSelectRole }) {
           </div>
           <div>
             <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1, fontFamily: 'var(--font-family)' }}>
-              AGRI RENT GOV
+              AGRIX
             </div>
             <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '0.05em', marginTop: '1px' }}>
               STATE COOPERATIVE

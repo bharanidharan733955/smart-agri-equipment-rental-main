@@ -79,8 +79,8 @@ export default function GovernmentPortal({ user, onLogout }) {
 
   const filteredAudits = auditLogs.filter(log => {
     const matchesSearch = (log.user || '').toLowerCase().includes(auditSearch.toLowerCase()) ||
-                          (log.description || '').toLowerCase().includes(auditSearch.toLowerCase()) ||
-                          (log.ipAddress || '').toLowerCase().includes(auditSearch.toLowerCase());
+      (log.description || '').toLowerCase().includes(auditSearch.toLowerCase()) ||
+      (log.ipAddress || '').toLowerCase().includes(auditSearch.toLowerCase());
     const matchesRole = auditRoleFilter === 'All' || log.role === auditRoleFilter;
     const matchesAction = auditActionFilter === 'All' || log.action === auditActionFilter;
     return matchesSearch && matchesRole && matchesAction;
@@ -360,7 +360,7 @@ export default function GovernmentPortal({ user, onLogout }) {
             </div>
             <div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
-                AGRI RENT GOV
+                AGRIX
               </div>
               <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-info)', letterSpacing: '0.05em', marginTop: '2px' }}>
                 GOVERNMENT OFFICER
@@ -433,7 +433,7 @@ export default function GovernmentPortal({ user, onLogout }) {
 
       {/* Main Content Area */}
       <main style={{ flexGrow: 1, height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-        
+
         {/* Top Header */}
         <header
           style={{
@@ -505,7 +505,7 @@ export default function GovernmentPortal({ user, onLogout }) {
               {/* Filter Form */}
               <div style={{ backgroundColor: 'var(--color-surface)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--color-border)', marginBottom: '2rem' }}>
                 <form onSubmit={handleGenerateReport} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', alignItems: 'flex-end' }}>
-                  
+
                   <div>
                     <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', fontWeight: 700 }}>Select District Scope</label>
                     <select
@@ -571,7 +571,7 @@ export default function GovernmentPortal({ user, onLogout }) {
               {/* Report Display */}
               {billingReport ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                  
+
                   {/* Action Bar */}
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                     <button

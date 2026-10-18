@@ -1,11 +1,11 @@
-import { 
-  Sprout, 
-  Tractor, 
-  PlusCircle, 
-  Calendar, 
-  Wrench, 
-  LogOut, 
-  ShieldCheck, 
+import {
+  Sprout,
+  Tractor,
+  PlusCircle,
+  Calendar,
+  Wrench,
+  LogOut,
+  ShieldCheck,
   UserCheck,
   Building2,
   Menu,
@@ -30,7 +30,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
 
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>
-      
+
       {/* Sidebar */}
       <aside
         style={{
@@ -62,7 +62,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
             </div>
             <div>
               <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
-                AGRI RENT GOV
+                AGRIX
               </div>
               <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--color-muted)', letterSpacing: '0.05em', marginTop: '2px' }}>
                 COOPERATIVE STAFF
@@ -190,7 +190,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
 
       {/* Main Content Area */}
       <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0, backgroundColor: 'var(--color-background)' }}>
-        
+
         {/* Top Header */}
         <header
           style={{

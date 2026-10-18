@@ -1,17 +1,35 @@
 // src/components/cooperative/AddEquipmentModal.jsx
-import React, { useState } from 'react';
-import { X, PlusCircle, MapPin, Building2, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, PlusCircle, MapPin, Building2, ShieldCheck, Lock } from 'lucide-react';
 import { TN_DISTRICTS, getTaluksForDistrict } from '../../data/tnLocationData';
 
-export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
+export default function AddEquipmentModal({
+  isOpen,
+  onClose,
+  onAddEquipment,
+  userDistrict,
+  lockDistrict
+}) {
   if (!isOpen) return null;
 
+  // Detect staff user role & district
+  const currentUser = JSON.parse(localStorage.getItem('agrirent_user') || '{}');
+  const isStaff = currentUser.role === 'Staff' || currentUser.role === 'Cooperative Staff';
+  const effectiveDistrict = userDistrict || (isStaff ? currentUser.district : null) || 'Coimbatore';
+  const shouldLockDistrict = lockDistrict !== undefined ? lockDistrict : isStaff;
+
+  const [district, setDistrict] = useState(effectiveDistrict);
+  const [taluk, setTaluk] = useState(() => {
+    const taluks = getTaluksForDistrict(effectiveDistrict);
+    return taluks[0] || 'Central';
+  });
+  const [location, setLocation] = useState(() => {
+    const taluks = getTaluksForDistrict(effectiveDistrict);
+    return `${taluks[0] || 'Central'} Cooperative Hub, ${effectiveDistrict}`;
+  });
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Tractor');
   const [price, setPrice] = useState(1800);
-  const [district, setDistrict] = useState('Coimbatore');
-  const [taluk, setTaluk] = useState('Pollachi');
-  const [location, setLocation] = useState('Pollachi Cooperative Hub, Coimbatore');
   const [regNumber, setRegNumber] = useState(`TN-37-EQ-${Math.floor(1000 + Math.random() * 9000)}`);
   const [totalUnits, setTotalUnits] = useState(15);
   const [condition, setCondition] = useState('good');
@@ -21,7 +39,20 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
   const [hp, setHp] = useState('50 HP');
   const [fuel, setFuel] = useState('Diesel');
 
+  useEffect(() => {
+    if (isOpen) {
+      const activeDist = userDistrict || (isStaff ? currentUser.district : null) || 'Coimbatore';
+      const taluks = getTaluksForDistrict(activeDist);
+      const firstTaluk = taluks[0] || 'Central';
+      setDistrict(activeDist);
+      setTaluk(firstTaluk);
+      setLocation(`${firstTaluk} Cooperative Hub, ${activeDist}`);
+      setRegNumber(`TN-${Math.floor(10 + Math.random() * 80)}-EQ-${Math.floor(1000 + Math.random() * 9000)}`);
+    }
+  }, [isOpen, userDistrict]);
+
   const handleDistrictChange = (e) => {
+    if (shouldLockDistrict) return;
     const selectedDist = e.target.value;
     setDistrict(selectedDist);
     const taluks = getTaluksForDistrict(selectedDist);
@@ -33,20 +64,25 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
   const handleTalukChange = (e) => {
     const selectedTaluk = e.target.value;
     setTaluk(selectedTaluk);
-    setLocation(`${selectedTaluk} Cooperative Hub, ${district}`);
+    const activeDist = shouldLockDistrict ? effectiveDistrict : district;
+    setLocation(`${selectedTaluk} Cooperative Hub, ${activeDist}`);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const activeDist = shouldLockDistrict ? effectiveDistrict : district;
+    const validTaluks = getTaluksForDistrict(activeDist);
+    const validTaluk = validTaluks.includes(taluk) ? taluk : (validTaluks[0] || activeDist);
+
     onAddEquipment({
       name,
       category,
       price: parseFloat(price),
       rentalRate: parseFloat(price),
-      district,
-      taluk,
-      cooperativeHub: `${taluk} Cooperative Hub`,
-      location: location || `${taluk} Hub, ${district}`,
+      district: activeDist,
+      taluk: validTaluk,
+      cooperativeHub: `${validTaluk} Cooperative Hub`,
+      location: location || `${validTaluk} Hub, ${activeDist}`,
       regNumber: regNumber || `TN-${Math.floor(10 + Math.random() * 80)}-EQ-${Math.floor(1000 + Math.random() * 9000)}`,
       totalUnits: parseInt(totalUnits) || 15,
       condition,
@@ -59,7 +95,8 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
     onClose();
   };
 
-  const availableTaluks = getTaluksForDistrict(district);
+  const activeDistrictForTaluks = shouldLockDistrict ? effectiveDistrict : district;
+  const availableTaluks = getTaluksForDistrict(activeDistrictForTaluks);
 
   return (
     <div
@@ -130,40 +167,89 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
             flexDirection: 'column',
             gap: '1rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4ade80', fontWeight: 700, fontSize: '0.9rem' }}>
-              <MapPin size={18} />
-              <span>Target District & Taluk Deployment</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#4ade80', fontWeight: 700, fontSize: '0.9rem' }}>
+                <MapPin size={18} />
+                <span>Target District & Taluk Deployment</span>
+              </div>
+              {shouldLockDistrict && (
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.35rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '20px',
+                  backgroundColor: 'rgba(34, 197, 94, 0.15)',
+                  color: '#4ade80',
+                  border: '1px solid rgba(34, 197, 94, 0.3)'
+                }}>
+                  <ShieldCheck size={14} />
+                  Staff Jurisdiction: {effectiveDistrict}
+                </span>
+              )}
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text)', marginBottom: '0.35rem', fontWeight: 600 }}>
-                  District *
+                  District {shouldLockDistrict ? '(Assigned Jurisdiction)' : '*'}
                 </label>
-                <select
-                  value={district}
-                  onChange={handleDistrictChange}
-                  style={{
-                    width: '100%',
-                    padding: '0.7rem 0.9rem',
-                    borderRadius: '10px',
-                    backgroundColor: 'var(--color-surface)',
-                    border: '1px solid var(--color-border)',
-                    color: 'var(--color-text)',
-                    fontSize: '0.9rem',
-                    outline: 'none',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {TN_DISTRICTS.map(d => (
-                    <option key={d} value={d} style={{ backgroundColor: 'var(--color-surface)' }}>{d}</option>
-                  ))}
-                </select>
+                {shouldLockDistrict ? (
+                  <div
+                    style={{
+                      width: '100%',
+                      padding: '0.7rem 0.9rem',
+                      borderRadius: '10px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                      border: '1px solid rgba(34, 197, 94, 0.35)',
+                      color: 'var(--color-text)',
+                      fontSize: '0.9rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <span style={{ fontWeight: 700, color: '#4ade80' }}>
+                      🏢 {effectiveDistrict}
+                    </span>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.72rem', color: 'var(--color-muted)' }}>
+                      <Lock size={12} /> Locked
+                    </span>
+                  </div>
+                ) : (
+                  <select
+                    value={district}
+                    onChange={handleDistrictChange}
+                    style={{
+                      width: '100%',
+                      padding: '0.7rem 0.9rem',
+                      borderRadius: '10px',
+                      backgroundColor: 'var(--color-surface)',
+                      border: '1px solid var(--color-border)',
+                      color: 'var(--color-text)',
+                      fontSize: '0.9rem',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {TN_DISTRICTS.map(d => (
+                      <option key={d} value={d} style={{ backgroundColor: 'var(--color-surface)' }}>{d}</option>
+                    ))}
+                  </select>
+                )}
+                {shouldLockDistrict && (
+                  <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '0.3rem' }}>
+                    Cooperative staff can only deploy machinery within their assigned district.
+                  </span>
+                )}
               </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--color-text)', marginBottom: '0.35rem', fontWeight: 600 }}>
-                  Taluk *
+                  Taluk ({activeDistrictForTaluks}) *
                 </label>
                 <select
                   value={taluk}
@@ -181,9 +267,12 @@ export default function AddEquipmentModal({ isOpen, onClose, onAddEquipment }) {
                   }}
                 >
                   {availableTaluks.map(t => (
-                    <option key={t} value={t} style={{ backgroundColor: 'var(--color-surface)' }}>{t}</option>
+                    <option key={t} value={t} style={{ backgroundColor: 'var(--color-surface)' }}>{t} Hub</option>
                   ))}
                 </select>
+                <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--color-muted)', marginTop: '0.3rem' }}>
+                  {availableTaluks.length} taluks available in {activeDistrictForTaluks}
+                </span>
               </div>
             </div>
           </div>
