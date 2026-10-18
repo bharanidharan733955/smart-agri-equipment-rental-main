@@ -16,6 +16,7 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.1",
-    "node-cron": "^4.6.0"
+    "node-cron": "^4.6.0",
+    "smart-agri-equipment-rental-root": "file:.."
   }
 }
