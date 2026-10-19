@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 
 export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmerUser, children }) {
+  const [mobileDrawerOpen, setMobileDrawerOpen] = React.useState(false);
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'equipment', label: 'Equipment', icon: Tractor },
@@ -37,12 +39,19 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
   const userInitials = farmerUser?.initials || 'SI';
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>
+    <div className="portal-container">
 
-      {/* Sidebar */}
+      {/* Backdrop for mobile drawer */}
+      <div
+        className={`portal-backdrop${mobileDrawerOpen ? ' open' : ''}`}
+        onClick={() => setMobileDrawerOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar Drawer */}
       <aside
+        className={`portal-sidebar${mobileDrawerOpen ? ' open' : ''}`}
         style={{
-          width: '260px',
           backgroundColor: 'var(--color-surface)',
           borderRight: '1px solid var(--color-border)',
           display: 'flex',
@@ -88,7 +97,10 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setMobileDrawerOpen(false);
+                }}
                 style={{
                   width: '100%',
                   padding: '0.75rem 1rem',
@@ -160,7 +172,7 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
       </aside>
 
       {/* Main Container */}
-      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0, backgroundColor: 'var(--color-background)' }}>
+      <div className="portal-content-wrapper">
 
         {/* Top Navbar */}
         <header
@@ -168,31 +180,37 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
             height: '64px',
             backgroundColor: 'var(--color-surface)',
             borderBottom: '1px solid var(--color-border)',
-            padding: '0 2rem',
+            padding: '0 clamp(1rem, 3vw, 2rem)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexShrink: 0
           }}
         >
-          {/* Left Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
-            <Menu size={18} color="var(--color-muted)" />
-            <span>AgriRentGov</span>
-            <span>/</span>
-            <span>Farmer</span>
-            <span>/</span>
-            <span style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>{getBreadcrumbTitle()}</span>
+          {/* Left Breadcrumb + Mobile Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+            <button
+              className="portal-mobile-toggle"
+              onClick={() => setMobileDrawerOpen(v => !v)}
+              aria-label="Toggle navigation drawer"
+            >
+              <Menu size={18} color="var(--color-secondary)" />
+            </button>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>AgriRentGov</span>
+              <span>/</span>
+              <span style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>{getBreadcrumbTitle()}</span>
+            </span>
           </div>
 
           {/* Right User Profile Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                padding: '0.25rem 0.75rem',
+                padding: '0.25rem 0.65rem',
                 borderRadius: 'var(--radius-pill)',
                 backgroundColor: 'var(--color-success-bg)',
                 color: 'var(--color-success)',
@@ -204,7 +222,7 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
               <span>Farmer</span>
             </div>
 
-            <div style={{ textAlign: 'right' }}>
+            <div className="portal-header-info-full" style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
                 {userName}
               </div>
@@ -235,7 +253,7 @@ export default function FarmerLayout({ activeTab, setActiveTab, onLogout, farmer
         </header>
 
         {/* View Content */}
-        <main style={{ flexGrow: 1, padding: '2rem', overflowY: 'auto' }}>
+        <main style={{ flexGrow: 1, padding: 'clamp(1rem, 3vw, 2rem)', overflowY: 'auto' }}>
           <div className="page-container" style={{ padding: 0 }}>
             {children}
           </div>

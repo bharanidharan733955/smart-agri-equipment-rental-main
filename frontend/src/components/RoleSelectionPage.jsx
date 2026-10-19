@@ -49,8 +49,8 @@ export default function RoleSelectionPage({ onSelectRole, onBackToHome }) {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
 
       {/* Top Header */}
-      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 2rem)' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           {/* Logo */}
           <div onClick={onBackToHome} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
             <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -71,12 +71,12 @@ export default function RoleSelectionPage({ onSelectRole, onBackToHome }) {
       </header>
 
       {/* Main Content */}
-      <main style={{ flexGrow: 1, padding: '4rem 2rem 5rem 2rem' }}>
+      <main style={{ flexGrow: 1, padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem)' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
 
           {/* Header Title */}
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: 700, color: 'var(--color-secondary)', marginBottom: '0.5rem', letterSpacing: '-0.01em' }}>
               Select Your Role
             </h1>
             <p style={{ fontSize: '1rem', color: 'var(--color-muted)', maxWidth: '600px', margin: '0 auto' }}>
@@ -85,7 +85,7 @@ export default function RoleSelectionPage({ onSelectRole, onBackToHome }) {
           </div>
 
           {/* Role Cards Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '1.5rem' }}>
             {ROLES.map((role) => {
               const IconComp = role.icon;
 

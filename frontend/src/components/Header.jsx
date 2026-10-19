@@ -100,6 +100,12 @@ export default function Header({ onSelectRole }) {
           </button>
         </div>
       </div>
+      {/* Mobile Nav Backdrop */}
+      <div
+        className={`header-backdrop${navOpen ? ' open' : ''}`}
+        onClick={() => setNavOpen(false)}
+        aria-hidden="true"
+      />
     </header>
   );
 }

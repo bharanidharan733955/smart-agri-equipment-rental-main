@@ -188,8 +188,8 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
       <Toaster position="top-right" />
 
       {/* Top Navigation Bar */}
-      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 4vw, 2rem)' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           {/* Logo */}
           <div onClick={onBackToHome} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
             <div style={{ width: '36px', height: '36px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -209,12 +209,12 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
       </header>
 
       {/* Main Login/Register Body */}
-      <main className="page-container" style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <main className="page-container" style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem)' }}>
         <div style={{ maxWidth: '1000px', width: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'center' }}>
+          <div className="responsive-split-grid">
 
             {/* Left Column: Form Container */}
-            <div className="agri-card" style={{ padding: '2.5rem' }}>
+            <div className="agri-card" style={{ padding: 'clamp(1.25rem, 4vw, 2.5rem)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                 <span className="status-badge" style={{ backgroundColor: 'var(--color-neutral-bg)', color: 'var(--color-muted)' }}>
                   {role.tag}

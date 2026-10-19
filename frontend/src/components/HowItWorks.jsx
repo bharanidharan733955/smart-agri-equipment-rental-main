@@ -31,15 +31,15 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section id="how-it-works" style={{ padding: '4rem 2.5rem 5rem 2.5rem' }}>
+    <section id="how-it-works" style={{ padding: 'clamp(2.5rem, 6vw, 5rem) clamp(1rem, 4vw, 2.5rem)' }}>
       <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
         
         {/* Section Header */}
-        <div style={{ marginBottom: '2.8rem' }}>
+        <div style={{ marginBottom: '2.5rem' }}>
           <span className="section-tag">HOW IT WORKS</span>
           <h2
             style={{
-              fontSize: '2.4rem',
+              fontSize: 'clamp(1.75rem, 4vw, 2.4rem)',
               fontWeight: 800,
               color: 'var(--color-text)',
               letterSpacing: '-0.02em',
@@ -51,13 +51,7 @@ export default function HowItWorks() {
         </div>
 
         {/* 4 Step Cards Grid */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '1.5rem'
-          }}
-        >
+        <div className="responsive-steps-grid">
           {steps.map((item) => {
             const IconComp = item.icon;
 

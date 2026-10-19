@@ -25,11 +25,11 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
       <span className="section-tag">FARMER OVERVIEW</span>
 
       {/* Main Greeting & Location Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
         <div>
           <h1
             style={{
-              fontSize: '2.5rem',
+              fontSize: 'clamp(1.6rem, 4vw, 2.5rem)',
               fontWeight: 800,
               color: 'var(--color-text)',
               marginBottom: '0.4rem',
@@ -49,7 +49,7 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
             backgroundColor: 'var(--color-surface)',
             border: '1px solid var(--color-border)',
             borderRadius: '16px',
-            padding: '1rem 1.4rem',
+            padding: '0.85rem 1.25rem',
             display: 'flex',
             alignItems: 'center',
             gap: '0.8rem'
@@ -70,10 +70,10 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
             <MapPin size={20} color="var(--color-primary)" />
           </div>
           <div>
-            <div style={{ fontSize: '0.78rem', color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Your Location
             </div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text)' }}>
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text)' }}>
               {district} • {taluk}
             </div>
           </div>
@@ -86,13 +86,13 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
           backgroundColor: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
           borderRadius: '20px',
-          padding: '2rem 2.5rem',
-          marginBottom: '2.5rem'
+          padding: 'clamp(1.25rem, 3vw, 2rem)',
+          marginBottom: '2rem'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
               Available Equipment
             </h2>
             <div style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: '2px' }}>
@@ -113,7 +113,7 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 240px), 1fr))',
               gap: '1.2rem'
             }}
           >
@@ -176,15 +176,8 @@ export default function FarmerDashboardView({ overviewData, equipmentList = [], 
         )}
       </div>
 
-      {/* 4 Stat Cards Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '1.5rem',
-          marginBottom: '2.5rem'
-        }}
-      >
+      {/* 4 Stat Cards Grid (Responsive) */}
+      <div className="responsive-stat-cards" style={{ marginBottom: '2rem' }}>
         {/* Card 1: Total Bookings */}
         <div
           style={{

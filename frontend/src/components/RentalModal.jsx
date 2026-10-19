@@ -90,24 +90,26 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        backgroundColor: 'var(--color-surface)',
-        backdropFilter: 'blur(12px)',
+        backgroundColor: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '1.5rem'
+        padding: 'clamp(0.5rem, 3vw, 1.5rem)'
       }}
     >
       <div
         style={{
           width: '100%',
           maxWidth: '620px',
+          maxHeight: '92vh',
+          overflowY: 'auto',
           backgroundColor: 'var(--color-surface)',
-          borderRadius: '20px',
-          padding: '2.2rem',
+          borderRadius: 'clamp(14px, 3vw, 20px)',
+          padding: 'clamp(1.25rem, 4vw, 2.2rem)',
           position: 'relative',
           border: '1px solid var(--color-border)',
-          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
+          boxShadow: '0 25px 60px rgba(0, 0, 0, 0.4)'
         }}
       >
         {/* Close button */}
@@ -160,7 +162,7 @@ export default function RentalModal({ equipment, isOpen, onClose }) {
               </div>
 
               {/* Date & Days */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.8rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--color-muted)', marginBottom: '0.3rem', fontWeight: 600 }}>
                     Start Date *

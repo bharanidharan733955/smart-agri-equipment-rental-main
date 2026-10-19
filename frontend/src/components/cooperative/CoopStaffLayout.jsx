@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Sprout,
   Tractor,
@@ -15,6 +16,8 @@ import {
 } from 'lucide-react';
 
 export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onOpenAddModal, children }) {
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
   const navItems = [
     { id: 'inventory', label: 'Hub Inventory', icon: Tractor },
     { id: 'add-equipment', label: 'Add Equipment', icon: PlusCircle, isAction: true },
@@ -27,14 +30,20 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
     { id: 'reports', label: 'Billing & Reports', icon: FileText }
   ];
 
-
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>
+    <div className="portal-container">
 
-      {/* Sidebar */}
+      {/* Backdrop for mobile drawer */}
+      <div
+        className={`portal-backdrop${mobileDrawerOpen ? ' open' : ''}`}
+        onClick={() => setMobileDrawerOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar Drawer */}
       <aside
+        className={`portal-sidebar${mobileDrawerOpen ? ' open' : ''}`}
         style={{
-          width: '270px',
           backgroundColor: 'var(--color-surface)',
           borderRight: '1px solid var(--color-border)',
           display: 'flex',
@@ -81,7 +90,10 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
               return (
                 <button
                   key={item.id}
-                  onClick={onOpenAddModal}
+                  onClick={() => {
+                    onOpenAddModal();
+                    setMobileDrawerOpen(false);
+                  }}
                   style={{
                     width: '100%',
                     padding: '0.75rem 1rem',
@@ -117,7 +129,10 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setMobileDrawerOpen(false);
+                }}
                 style={{
                   width: '100%',
                   padding: '0.75rem 1rem',
@@ -189,7 +204,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
       </aside>
 
       {/* Main Content Area */}
-      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', minWidth: 0, backgroundColor: 'var(--color-background)' }}>
+      <div className="portal-content-wrapper">
 
         {/* Top Header */}
         <header
@@ -197,31 +212,37 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
             height: '64px',
             backgroundColor: 'var(--color-surface)',
             borderBottom: '1px solid var(--color-border)',
-            padding: '0 2rem',
+            padding: '0 clamp(1rem, 3vw, 2rem)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexShrink: 0
           }}
         >
-          {/* Left Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
-            <Menu size={18} color="var(--color-muted)" />
-            <span>AgriRentGov</span>
-            <span>/</span>
-            <span>Cooperative Staff</span>
-            <span>/</span>
-            <span style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>Dashboard</span>
+          {/* Left Breadcrumb + Mobile Toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
+            <button
+              className="portal-mobile-toggle"
+              onClick={() => setMobileDrawerOpen(v => !v)}
+              aria-label="Toggle navigation drawer"
+            >
+              <Menu size={18} color="var(--color-secondary)" />
+            </button>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span>AgriRentGov</span>
+              <span>/</span>
+              <span style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>Cooperative Staff</span>
+            </span>
           </div>
 
           {/* Right User Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',
-                padding: '0.25rem 0.75rem',
+                padding: '0.25rem 0.65rem',
                 borderRadius: 'var(--radius-pill)',
                 backgroundColor: 'var(--color-info-bg)',
                 color: 'var(--color-info)',
@@ -233,11 +254,11 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
               <span>{JSON.parse(localStorage.getItem('agrirent_user') || '{}').district || 'Coimbatore'} Staff</span>
             </div>
 
-            <div style={{ textAlign: 'right' }}>
+            <div className="portal-header-info-full" style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-secondary)', lineHeight: 1.1 }}>
                 {(JSON.parse(localStorage.getItem('agrirent_user') || '{}').name || 'Cooperative Staff').toUpperCase()}
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '0.3rem', justifyContent: 'flex-end' }}>
                 <Building2 size={12} />
                 <span>{JSON.parse(localStorage.getItem('agrirent_user') || '{}').district || 'Coimbatore'} Hub</span>
               </div>
@@ -264,7 +285,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
         </header>
 
         {/* Content Body */}
-        <main style={{ flexGrow: 1, padding: '2rem', overflowY: 'auto' }}>
+        <main style={{ flexGrow: 1, padding: 'clamp(1rem, 3vw, 2rem)', overflowY: 'auto' }}>
           <div className="page-container" style={{ padding: 0 }}>
             {children}
           </div>

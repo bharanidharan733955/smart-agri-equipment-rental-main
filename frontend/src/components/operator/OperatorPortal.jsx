@@ -195,8 +195,8 @@ export default function OperatorPortal({ user, onLogout }) {
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
       <Toaster position="top-right" />
       {/* Header */}
-      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '1rem 2rem' }}>
-        <div style={{ maxWidth: '1350px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: 'clamp(0.75rem, 3vw, 1rem) clamp(1rem, 3vw, 2rem)' }}>
+        <div style={{ maxWidth: '1350px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
             <Tractor size={28} color="var(--color-primary)" />
             <div>
@@ -204,7 +204,7 @@ export default function OperatorPortal({ user, onLogout }) {
               <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--color-muted)' }}>COOPERATIVE FIELD STAFF</span>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <div style={{ textAlign: 'right' }}>
               <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-secondary)' }}>{user?.name}</span>
               <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-success)' }}>Operator Connected</span>
@@ -235,10 +235,10 @@ export default function OperatorPortal({ user, onLogout }) {
       </header>
 
       {/* Main Container */}
-      <main style={{ flexGrow: 1, padding: '2rem', maxWidth: '1350px', width: '100%', margin: '0 auto' }}>
+      <main style={{ flexGrow: 1, padding: 'clamp(1rem, 3vw, 2rem)', maxWidth: '1350px', width: '100%', margin: '0 auto' }}>
         
-        {/* Stats bar */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+        {/* Stats bar (Responsive) */}
+        <div className="responsive-stat-cards-3" style={{ marginBottom: '2rem' }}>
           <div className="agri-card">
             <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Assigned Jobs</span>
             <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-warning)' }}>{stats.today}</span>
@@ -291,7 +291,7 @@ export default function OperatorPortal({ user, onLogout }) {
               Job ID: {activeJob._id || activeJob.id} | Machine: {activeJob.equipment?.name || 'Machinery'} | Duration: {activeJob.booking?.durationDays || 1} Days
             </p>
 
-            <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1.25rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Fuel Type Used</label>
                 <select
@@ -466,15 +466,17 @@ export default function OperatorPortal({ user, onLogout }) {
                   style={{
                     backgroundColor: 'var(--color-surface)',
                     borderRadius: '16px',
-                    padding: '1.5rem',
+                    padding: 'clamp(1rem, 3vw, 1.5rem)',
                     border: isActive ? '1px solid var(--color-primary)' : '1px solid rgba(255, 255, 255, 0.06)',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'stretch',
+                    flexWrap: 'wrap',
+                    gap: '1rem'
                   }}
                 >
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                  <div style={{ flex: '1 1 300px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
                       <span style={{ fontSize: '1.1rem', fontWeight: 800 }}>{job.equipment?.name || 'Agri Equipment'}</span>
                       <span
                         style={{
@@ -490,7 +492,7 @@ export default function OperatorPortal({ user, onLogout }) {
                       </span>
                     </div>
                     
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem 2rem', fontSize: '0.85rem', color: 'var(--color-muted)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '0.6rem 1.5rem', fontSize: '0.85rem', color: 'var(--color-muted)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <User size={14} />
                         <span>Farmer: {job.farmer?.name || 'Registered Farmer'}</span>
@@ -656,7 +658,7 @@ export default function OperatorPortal({ user, onLogout }) {
             ) : operatorsTeam.length === 0 ? (
               <p style={{ color: 'var(--color-muted)', padding: '2rem 0' }}>No operators found in this taluk.</p>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 340px), 1fr))', gap: '1.25rem' }}>
                 {operatorsTeam.map((op) => (
                   <div
                     key={op._id}

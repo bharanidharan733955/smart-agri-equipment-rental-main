@@ -29,16 +29,16 @@ export default function FAQ() {
   };
 
   return (
-    <section id="faq" style={{ padding: '4rem 2.5rem 6rem 2.5rem' }}>
+    <section id="faq" style={{ padding: 'clamp(2.5rem, 5vw, 4rem) clamp(1rem, 4vw, 2.5rem) clamp(3rem, 6vw, 6rem) clamp(1rem, 4vw, 2.5rem)' }}>
       <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
         
         {/* Heading */}
         <h2
           style={{
-            fontSize: '2.4rem',
+            fontSize: 'clamp(1.75rem, 4vw, 2.4rem)',
             fontWeight: 800,
             color: 'var(--color-text)',
-            marginBottom: '2.5rem',
+            marginBottom: '2rem',
             letterSpacing: '-0.02em'
           }}
         >

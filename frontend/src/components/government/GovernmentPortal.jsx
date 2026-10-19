@@ -14,11 +14,13 @@ import {
   LogOut,
   Building2,
   ShieldCheck,
-  Search
+  Search,
+  Menu
 } from 'lucide-react';
 
 export default function GovernmentPortal({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'reports' | 'audits'
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   // Equipment & Inventory State
   const [equipmentList, setEquipmentList] = useState([]);
@@ -326,21 +328,19 @@ export default function GovernmentPortal({ user, onLogout }) {
   ];
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>
+    <div className="portal-container">
       <Toaster position="top-right" />
 
-      {/* Sidebar Navigation */}
+      {/* Backdrop for mobile drawer */}
+      <div
+        className={`portal-backdrop${mobileDrawerOpen ? ' open' : ''}`}
+        onClick={() => setMobileDrawerOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar Navigation Drawer */}
       <aside
-        style={{
-          width: '270px',
-          backgroundColor: 'var(--color-surface)',
-          borderRight: '1px solid var(--color-border)',
-          display: 'flex',
-          flexDirection: 'column',
-          flexShrink: 0,
-          height: '100%',
-          boxShadow: 'var(--shadow-sm)'
-        }}
+        className={`portal-sidebar${mobileDrawerOpen ? ' open' : ''}`}
       >
         {/* Brand */}
         <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--color-border)' }}>
@@ -378,7 +378,10 @@ export default function GovernmentPortal({ user, onLogout }) {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setMobileDrawerOpen(false);
+                }}
                 style={{
                   width: '100%',
                   padding: '0.75rem 1rem',
@@ -432,12 +435,12 @@ export default function GovernmentPortal({ user, onLogout }) {
       </aside>
 
       {/* Main Content Area */}
-      <main style={{ flexGrow: 1, height: '100%', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <main className="portal-content-wrapper" style={{ height: '100%', overflowY: 'auto' }}>
 
         {/* Top Header */}
         <header
           style={{
-            padding: '1.25rem 2rem',
+            padding: '1rem clamp(1rem, 3vw, 2rem)',
             backgroundColor: 'var(--color-surface)',
             borderBottom: '1px solid var(--color-border)',
             display: 'flex',
@@ -445,26 +448,37 @@ export default function GovernmentPortal({ user, onLogout }) {
             justifyContent: 'space-between',
             position: 'sticky',
             top: 0,
-            zIndex: 10
+            zIndex: 10,
+            flexWrap: 'wrap',
+            gap: '0.75rem'
           }}
         >
-          <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-secondary)' }}>
-              {activeTab === 'inventory' && 'Statewide Machinery Inventory'}
-              {activeTab === 'reports' && 'Cooperative Financial & Billing Reports'}
-              {activeTab === 'audits' && 'System-Wide Immutable Audit Trail Logs'}
-            </h2>
-            <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>
-              State Government Officer & Audit Oversight Control
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              className="portal-mobile-toggle"
+              onClick={() => setMobileDrawerOpen(v => !v)}
+              aria-label="Toggle navigation drawer"
+            >
+              <Menu size={18} color="var(--color-secondary)" />
+            </button>
+            <div>
+              <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-secondary)', margin: 0 }}>
+                {activeTab === 'inventory' && 'Statewide Machinery Inventory'}
+                {activeTab === 'reports' && 'Financial & Billing Reports'}
+                {activeTab === 'audits' && 'Audit Trail Logs'}
+              </h2>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: '2px' }}>
+                State Government Officer & Audit Oversight
+              </p>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div className="portal-header-info-full" style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)' }}>
                 {user?.name || 'State Government Auditor'}
               </div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-info)', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-info)', fontWeight: 600 }}>
                 State Auditor / Officer
               </div>
             </div>

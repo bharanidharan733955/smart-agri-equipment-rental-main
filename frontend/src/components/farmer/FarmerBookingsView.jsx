@@ -234,26 +234,28 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
       {/* Title */}
       <h1
         style={{
-          fontSize: '2.5rem',
+          fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
           fontWeight: 800,
           color: 'var(--color-text)',
-          marginBottom: '2rem',
+          marginBottom: '1.5rem',
           letterSpacing: '-0.02em'
         }}
       >
         My Bookings
       </h1>
 
-      {/* Filter Tabs Box */}
+      {/* Filter Tabs Box (Swipeable on mobile) */}
       <div
         style={{
           backgroundColor: 'var(--color-surface)',
           border: '1px solid var(--color-border)',
           borderRadius: '16px',
-          padding: '0.8rem 1rem',
+          padding: '0.6rem 0.8rem',
           display: 'flex',
-          gap: '0.6rem',
-          marginBottom: '2rem'
+          gap: '0.5rem',
+          marginBottom: '2rem',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         {filterTabs.map(tab => {
@@ -264,13 +266,14 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
               key={tab}
               onClick={() => setActiveFilter(tab)}
               style={{
-                padding: '0.55rem 1.3rem',
+                flexShrink: 0,
+                padding: '0.5rem 1.1rem',
                 borderRadius: 'var(--radius-pill)',
                 backgroundColor: isActive ? 'var(--color-success-bg)' : 'transparent',
                 border: isActive ? '1px solid rgba(21, 128, 61, 0.3)' : '1px solid transparent',
                 color: isActive ? 'var(--color-primary)' : '#94a3b8',
                 fontWeight: isActive ? 700 : 500,
-                fontSize: '0.88rem',
+                fontSize: '0.85rem',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease'
               }}
@@ -281,15 +284,17 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
         })}
       </div>
 
-      {/* Bookings Table Container */}
-      <div
-        style={{
-          backgroundColor: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: '20px',
-          overflow: 'hidden'
-        }}
-      >
+      {/* Bookings Table Container (Responsive) */}
+      <div className="table-responsive">
+        <div
+          style={{
+            backgroundColor: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            minWidth: '680px'
+          }}
+        >
         {/* Table Header */}
         <div
           style={{
@@ -447,12 +452,13 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
             No bookings yet.
           </div>
         )}
+        </div>
       </div>
 
       {/* Modern High-Fidelity Feedback Modal */}
       {feedbackBooking && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'var(--color-surface)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifycontent: 'center', padding: '1.5rem' }}>
-          <div style={{ margin: 'auto', width: '100%', maxWidth: '500px', backgroundColor: 'var(--color-surface)', borderRadius: '24px', padding: '2rem', border: '1px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', position: 'relative' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(0.5rem, 3vw, 1.5rem)' }}>
+          <div style={{ margin: 'auto', width: '100%', maxWidth: '500px', maxHeight: '92vh', overflowY: 'auto', backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: 'clamp(1.25rem, 4vw, 2rem)', border: '1px solid var(--color-border)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', position: 'relative' }}>
             <button onClick={() => setFeedbackBooking(null)} style={{ position: 'absolute', top: '1.25rem', right: '1.25rem', background: 'var(--color-border)', border: 'none', color: 'var(--color-text)', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <X size={16} />
             </button>

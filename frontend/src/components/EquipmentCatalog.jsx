@@ -21,14 +21,14 @@ export default function EquipmentCatalog({ onSelectEquipment, onOpenFullCatalog 
   const [activeCard, setActiveCard] = useState('eq-7'); // Sprayer is active in screenshot 2!
 
   return (
-    <section id="equipment" style={{ padding: '5rem 2.5rem 4rem 2.5rem' }}>
+    <section id="equipment" style={{ padding: 'clamp(2.5rem, 6vw, 5rem) clamp(1rem, 4vw, 2.5rem)' }}>
       <div style={{ maxWidth: '1350px', margin: '0 auto' }}>
         
         {/* Section Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem', marginBottom: '2.5rem' }}>
           <div>
             <span className="section-tag">EQUIPMENT CATALOG</span>
-            <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.4rem)', fontWeight: 800, color: 'var(--color-text)', letterSpacing: '-0.02em' }}>
               Everything your farm needs.
             </h2>
           </div>
@@ -42,14 +42,8 @@ export default function EquipmentCatalog({ onSelectEquipment, onOpenFullCatalog 
           </button>
         </div>
 
-        {/* 8 Equipment Cards Grid (4 columns x 2 rows) */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '1.5rem'
-          }}
-        >
+        {/* 8 Equipment Cards Grid (Responsive) */}
+        <div className="responsive-catalog-grid">
           {EQUIPMENT_LIST.map((item) => {
             const IconComp = item.icon;
             const isActive = activeCard === item.id;

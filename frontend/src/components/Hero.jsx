@@ -4,7 +4,7 @@ import { Sprout, ArrowRight, ShieldCheck, FileText } from 'lucide-react';
 
 export default function Hero({ onSelectRole }) {
   return (
-    <section style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: '6rem 2rem' }}>
+    <section style={{ backgroundColor: 'var(--color-surface)', borderBottom: '1px solid var(--color-border)', padding: 'clamp(3rem, 7vw, 6rem) clamp(1rem, 4vw, 2rem)' }}>
       <div className="page-container" style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto', padding: '0' }}>
         
         {/* Top Tag */}
@@ -14,13 +14,13 @@ export default function Hero({ onSelectRole }) {
         </div>
 
         {/* Headline */}
-        <h1 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.2, marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: 'clamp(1.85rem, 5vw, 3rem)', fontWeight: 800, color: 'var(--color-secondary)', lineHeight: 1.2, marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
           Agricultural Equipment <br />
           <span style={{ color: 'var(--color-primary)' }}>When Farmers Need It.</span>
         </h1>
 
         {/* Subtitle */}
-        <p style={{ fontSize: '1.125rem', color: 'var(--color-muted)', lineHeight: 1.6, marginBottom: '2.5rem' }}>
+        <p style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.125rem)', color: 'var(--color-muted)', lineHeight: 1.6, marginBottom: '2rem' }}>
           Access reliable agricultural machinery through your local cooperative. A transparent, professionally audited ecosystem designed to empower farmers and streamline fleet management.
         </p>
 
@@ -36,7 +36,7 @@ export default function Hero({ onSelectRole }) {
         </div>
 
         {/* Info Highlights */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', marginTop: '4rem', borderTop: '1px solid var(--color-border)', paddingTop: '2.5rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(1.5rem, 4vw, 3rem)', marginTop: 'clamp(2.5rem, 5vw, 4rem)', borderTop: '1px solid var(--color-border)', paddingTop: '2rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--color-text)' }}>
             <ShieldCheck size={24} color="var(--color-primary)" />
             <div style={{ textAlign: 'left' }}>

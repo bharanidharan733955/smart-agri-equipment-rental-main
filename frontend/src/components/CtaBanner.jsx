@@ -4,14 +4,14 @@ import { ArrowRight } from 'lucide-react';
 
 export default function CtaBanner({ onSelectRole }) {
   return (
-    <section style={{ padding: '2rem 2.5rem 5rem 2.5rem' }}>
+    <section style={{ padding: 'clamp(1.5rem, 4vw, 2rem) clamp(1rem, 4vw, 2.5rem) clamp(2.5rem, 6vw, 5rem)' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
         <div
           style={{
             backgroundColor: 'var(--color-surface)',
             border: '1px solid var(--color-border)',
-            borderRadius: '24px',
-            padding: '4.5rem 2rem',
+            borderRadius: 'clamp(16px, 4vw, 24px)',
+            padding: 'clamp(2rem, 5vw, 4.5rem) clamp(1.2rem, 4vw, 2rem)',
             textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
@@ -22,7 +22,7 @@ export default function CtaBanner({ onSelectRole }) {
           {/* Main Title */}
           <h2
             style={{
-              fontSize: '2.5rem',
+              fontSize: 'clamp(1.5rem, 4.5vw, 2.5rem)',
               fontWeight: 800,
               color: 'var(--color-text)',
               marginBottom: '1.2rem',
