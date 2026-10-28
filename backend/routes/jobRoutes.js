@@ -13,11 +13,13 @@ router.get('/', authenticateToken, async (req, res) => {
       if (req.user.role === 'Equipment Operator') {
         list = await Job.find({ operator: req.user.id })
           .sort({ createdAt: -1 })
+          .populate('booking')
           .populate('equipment')
           .populate('farmer', 'name email mobile');
       } else {
         list = await Job.find()
           .sort({ createdAt: -1 })
+          .populate('booking')
           .populate('equipment')
           .populate('farmer', 'name email mobile')
           .populate('operator', 'name email mobile');
@@ -26,9 +28,11 @@ router.get('/', authenticateToken, async (req, res) => {
       list = localDb.read('jobs');
       const equipment = localDb.read('equipment');
       const users = localDb.read('users');
+      const bookings = localDb.read('bookings') || [];
 
       list = list.map(j => ({
         ...j,
+        booking: bookings.find(b => b._id === j.booking || b.id === j.booking || String(b._id) === String(j.booking)),
         equipment: equipment.find(e => e._id === j.equipment || e.id === j.equipment),
         farmer: users.find(u => u._id === j.farmer) || { name: 'Farmer' },
         operator: users.find(u => u._id === j.operator) || { name: 'Equipment Operator' }
@@ -154,7 +158,11 @@ router.post('/:id/start', authenticateToken, authorizeRoles('Operator'), async (
 router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { fuelUsed, startTime, endTime, remarks, workCompleted, fieldLocation, equipmentCondition, damageInfo, photos } = req.body;
+    const { 
+      fuelUsed, startTime, endTime, remarks, workCompleted, fieldLocation, 
+      equipmentCondition, damageInfo, photos,
+      paymentCollectionMode, paymentMethod, paymentNotes 
+    } = req.body;
     let job;
     let eq;
 
@@ -246,6 +254,10 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
     let oldEquipmentStatus = eq ? eq.status : 'In Use';
     let newEquipmentStatus = 'Available';
 
+    const isCollectedOnSpot = paymentCollectionMode === 'COLLECTED_ON_SPOT';
+    const completionDate = new Date();
+    const dueDate = new Date(completionDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 1 week (7 days) grace period to pay
+
     // Update equipment usage hours
     if (eq) {
       const curCycle = typeof eq.currentCycleHours === 'number' && !isNaN(eq.currentCycleHours) ? eq.currentCycleHours : 0;
@@ -298,9 +310,6 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
         }
       }
 
-      const completionDate = new Date();
-      const dueDate = new Date(completionDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 1 week (7 days) grace period to pay
-
       // Update booking status, final bill, and payment due window
       if (booking) {
         booking.status = 'Returned';
@@ -308,7 +317,15 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
         booking.isFinalBilled = true;
         booking.totalAmount = finalTotal;
         booking.dueDate = dueDate;
-        booking.paymentStatus = 'Unpaid';
+        booking.paymentStatus = isCollectedOnSpot ? 'Paid' : 'Unpaid';
+        booking.paymentCollectionMode = isCollectedOnSpot ? 'Collected by Operator' : 'Pending Office Payment';
+        booking.collectedBy = isCollectedOnSpot ? (req.user.name || 'Equipment Operator') : null;
+        booking.collectedByRole = isCollectedOnSpot ? 'Equipment Operator' : null;
+        booking.collectedAt = isCollectedOnSpot ? completionDate : null;
+        booking.paidAt = isCollectedOnSpot ? completionDate : null;
+        booking.paidByStaff = isCollectedOnSpot ? `${req.user.name || 'Operator'} (Operator)` : null;
+        booking.paymentMethod = isCollectedOnSpot ? (paymentMethod || 'Cash') : null;
+        booking.paymentNotes = paymentNotes || '';
         await booking.save();
       }
 
@@ -326,20 +343,39 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
         inv.totalAmount = finalTotal;
         inv.finalAmount = finalTotal;
         inv.dueDate = dueDate;
-        inv.paymentStatus = 'Unpaid';
+        inv.paymentStatus = isCollectedOnSpot ? 'Paid' : 'Unpaid';
+        inv.paymentCollectionMode = isCollectedOnSpot ? 'Collected by Operator' : 'Pending Office Payment';
+        inv.collectedBy = isCollectedOnSpot ? (req.user.name || 'Equipment Operator') : null;
+        inv.collectedByRole = isCollectedOnSpot ? 'Equipment Operator' : null;
+        inv.collectedAt = isCollectedOnSpot ? completionDate : null;
+        inv.paidAt = isCollectedOnSpot ? completionDate : null;
+        inv.paidByStaff = isCollectedOnSpot ? `${req.user.name || 'Operator'} (Operator)` : null;
+        inv.paymentMethod = isCollectedOnSpot ? (paymentMethod || 'Cash') : null;
+        inv.paymentNotes = paymentNotes || '';
         await inv.save();
       }
 
       // Notify Farmer
       await Notification.create({
         user: job.farmer,
-        title: 'Work Completed & Final Bill Generated',
-        message: `Your equipment rental order has been completed. Final Bill: ₹${finalTotal}. Please pay at your Cooperative Hub within 7 days (by ${dueDate.toLocaleDateString()}).`
+        title: isCollectedOnSpot ? 'Work Completed & Payment Collected' : 'Work Completed & Final Bill Generated',
+        message: isCollectedOnSpot
+          ? `Your equipment rental order has been completed. Payment of ₹${finalTotal} was successfully collected on-field by Operator ${req.user.name || 'Operator'} via ${paymentMethod || 'Cash'}. Receipt confirmed.`
+          : `Your equipment rental order has been completed. Final Bill: ₹${finalTotal}. The farmer did not pay on spot. Please visit your Cooperative Hub within 7 days (by ${dueDate.toLocaleDateString()}) to pay the cooperative staff.`
       });
-    } else {
-      const completionDate = new Date();
-      const dueDate = new Date(completionDate.getTime() + 7 * 24 * 60 * 60 * 1000);
 
+      // Notify Cooperative Staff
+      const staffUsers = await User.find({ role: 'Staff' });
+      for (const st of staffUsers) {
+        await Notification.create({
+          user: st._id,
+          title: isCollectedOnSpot ? 'Spot Payment Collected by Operator' : 'Pending Office Payment (1-Week Window)',
+          message: isCollectedOnSpot
+            ? `Operator ${req.user.name || 'Operator'} completed job #${id} and collected ₹${finalTotal} (${paymentMethod || 'Cash'}) on field from farmer. Ready for hub deposit.`
+            : `Farmer for job #${id} (${booking?.farmer?.name || 'Farmer'}) will pay ₹${finalTotal} at the Cooperative Office within 1 week (due ${dueDate.toLocaleDateString()}).`
+        });
+      }
+    } else {
       const jobs = localDb.read('jobs');
       const jIdx = jobs.findIndex(j => j._id === id || j.id === id);
       jobs[jIdx] = {
@@ -407,7 +443,15 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
         bookings[bIdx].isFinalBilled = true;
         bookings[bIdx].totalAmount = finalTotal;
         bookings[bIdx].dueDate = dueDate.toISOString();
-        bookings[bIdx].paymentStatus = 'Unpaid';
+        bookings[bIdx].paymentStatus = isCollectedOnSpot ? 'Paid' : 'Unpaid';
+        bookings[bIdx].paymentCollectionMode = isCollectedOnSpot ? 'Collected by Operator' : 'Pending Office Payment';
+        bookings[bIdx].collectedBy = isCollectedOnSpot ? (req.user.name || 'Equipment Operator') : null;
+        bookings[bIdx].collectedByRole = isCollectedOnSpot ? 'Equipment Operator' : null;
+        bookings[bIdx].collectedAt = isCollectedOnSpot ? completionDate.toISOString() : null;
+        bookings[bIdx].paidAt = isCollectedOnSpot ? completionDate.toISOString() : null;
+        bookings[bIdx].paidByStaff = isCollectedOnSpot ? `${req.user.name || 'Operator'} (Operator)` : null;
+        bookings[bIdx].paymentMethod = isCollectedOnSpot ? (paymentMethod || 'Cash') : null;
+        bookings[bIdx].paymentNotes = paymentNotes || '';
         localDb.write('bookings', bookings);
       }
 
@@ -425,7 +469,15 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
         invoices[invIdx].totalAmount = finalTotal;
         invoices[invIdx].finalAmount = finalTotal;
         invoices[invIdx].dueDate = dueDate.toISOString();
-        invoices[invIdx].paymentStatus = 'Unpaid';
+        invoices[invIdx].paymentStatus = isCollectedOnSpot ? 'Paid' : 'Unpaid';
+        invoices[invIdx].paymentCollectionMode = isCollectedOnSpot ? 'Collected by Operator' : 'Pending Office Payment';
+        invoices[invIdx].collectedBy = isCollectedOnSpot ? (req.user.name || 'Equipment Operator') : null;
+        invoices[invIdx].collectedByRole = isCollectedOnSpot ? 'Equipment Operator' : null;
+        invoices[invIdx].collectedAt = isCollectedOnSpot ? completionDate.toISOString() : null;
+        invoices[invIdx].paidAt = isCollectedOnSpot ? completionDate.toISOString() : null;
+        invoices[invIdx].paidByStaff = isCollectedOnSpot ? `${req.user.name || 'Operator'} (Operator)` : null;
+        invoices[invIdx].paymentMethod = isCollectedOnSpot ? (paymentMethod || 'Cash') : null;
+        invoices[invIdx].paymentNotes = paymentNotes || '';
         localDb.write('invoices', invoices);
       }
 
@@ -434,25 +486,166 @@ router.post('/:id/complete', authenticateToken, authorizeRoles('Operator'), asyn
       notifications.push({
         _id: 'NTF-' + Date.now(),
         user: job.farmer,
-        title: 'Work Completed & Final Bill Generated',
-        message: `Your equipment rental order has been completed. Final Bill: ₹${finalTotal} (Fuel adjustment: ${fuelAdjustment >= 0 ? '+' : ''}₹${fuelAdjustment}). Report details are available.`,
+        title: isCollectedOnSpot ? 'Work Completed & Payment Collected' : 'Work Completed & Final Bill Generated',
+        message: isCollectedOnSpot
+          ? `Your equipment rental order has been completed. Payment of ₹${finalTotal} was successfully collected on-field by Operator ${req.user.name || 'Operator'} via ${paymentMethod || 'Cash'}. Receipt confirmed.`
+          : `Your equipment rental order has been completed. Final Bill: ₹${finalTotal} (Fuel adjustment: ${fuelAdjustment >= 0 ? '+' : ''}₹${fuelAdjustment}). The farmer did not pay on spot. Please visit your Cooperative Hub within 7 days (by ${dueDate.toLocaleDateString()}) to pay cooperative staff.`,
         read: false,
         timestamp: new Date().toISOString()
       });
+
+      // Notify Staff
+      const users = localDb.read('users') || [];
+      const staffList = users.filter(u => u.role === 'Staff');
+      for (const st of staffList) {
+        notifications.push({
+          _id: 'NTF-S-' + Date.now() + Math.random().toString(36).substr(2, 4),
+          user: st._id || st.id,
+          title: isCollectedOnSpot ? 'Spot Payment Collected by Operator' : 'Pending Office Payment (1-Week Window)',
+          message: isCollectedOnSpot
+            ? `Operator ${req.user.name || 'Operator'} collected ₹${finalTotal} (${paymentMethod || 'Cash'}) on field from farmer for job #${id}. Ready for hub deposit.`
+            : `Farmer for completed job #${id} will pay ₹${finalTotal} at the Cooperative Office within 1 week (due ${dueDate.toLocaleDateString()}).`,
+          read: false,
+          timestamp: new Date().toISOString()
+        });
+      }
       localDb.write('notifications', notifications);
     }
 
     // Audit logs
-    await logAudit(req, req.user, 'Operator submitted work completion report', 'Started', 'Completed', `Operator completed job ID ${id}. Working hours: ${hours}`);
+    await logAudit(req, req.user, 'Operator submitted work completion report', 'Started', 'Completed', `Operator completed job ID ${id}. Working hours: ${hours}. Payment: ${paymentCollectionMode || 'Pending Office Payment'}`);
     if (newEquipmentStatus === 'Maintenance Required') {
       await logAudit(req, null, 'Equipment reached 360 usage hours', String(hours), String(eq.currentCycleHours), `Equipment ${eq.name} reached 360 hours threshold.`);
       await logAudit(req, null, 'Equipment automatically marked Maintenance Required', oldEquipmentStatus, 'Maintenance Required', `Equipment ${eq.name} status updated automatically.`);
       await logAudit(req, null, 'Maintenance task created', '', 'Pending', `Automated maintenance task created for ${eq.name}`);
     }
 
-    return res.json({ success: true, message: 'Job completed successfully.', data: job });
+    return res.json({ 
+      success: true, 
+      message: isCollectedOnSpot 
+        ? `Job completed and payment of ₹${finalTotal} collected successfully on spot!` 
+        : `Job completed successfully! 7-day office payment window issued (due ${dueDate.toLocaleDateString()}).`, 
+      data: job 
+    });
   } catch (err) {
     console.error('Complete job error:', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+// POST /api/jobs/:id/collect-payment (Operator collects payment on spot for already-completed job)
+router.post('/:id/collect-payment', authenticateToken, authorizeRoles('Operator'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { paymentMethod, paymentNotes } = req.body;
+    let job;
+
+    if (isDbConnected()) {
+      job = await Job.findById(id).populate('booking');
+    } else {
+      const jobs = localDb.read('jobs');
+      job = jobs.find(j => j._id === id || j.id === id);
+    }
+
+    if (!job) {
+      return res.status(404).json({ success: false, message: 'Job not found.' });
+    }
+
+    const bookingId = job.booking?._id || job.booking;
+    const now = new Date();
+    const collectorName = req.user.name || 'Equipment Operator';
+    const method = paymentMethod || 'Cash';
+    let collectedAmount = 0;
+
+    if (isDbConnected()) {
+      const booking = await Booking.findById(bookingId);
+      if (booking) {
+        collectedAmount = booking.totalAmount || booking.finalBill?.totalAmount || 0;
+        booking.paymentStatus = 'Paid';
+        booking.paidAt = now;
+        booking.paidByStaff = `${collectorName} (Operator)`;
+        booking.paymentMethod = method;
+        booking.paymentCollectionMode = 'Collected by Operator';
+        booking.collectedBy = collectorName;
+        booking.collectedByRole = 'Equipment Operator';
+        booking.collectedAt = now;
+        booking.paymentNotes = paymentNotes || '';
+        await booking.save();
+      }
+
+      const inv = await Invoice.findOne({ booking: bookingId });
+      if (inv) {
+        if (!collectedAmount) collectedAmount = inv.totalAmount || 0;
+        inv.paymentStatus = 'Paid';
+        inv.paidAt = now;
+        inv.paidByStaff = `${collectorName} (Operator)`;
+        inv.paymentMethod = method;
+        inv.paymentCollectionMode = 'Collected by Operator';
+        inv.collectedBy = collectorName;
+        inv.collectedByRole = 'Equipment Operator';
+        inv.collectedAt = now;
+        inv.paymentNotes = paymentNotes || '';
+        await inv.save();
+      }
+
+      // Notify Farmer
+      await Notification.create({
+        user: job.farmer,
+        title: 'Payment Received by Operator',
+        message: `Payment of ₹${collectedAmount} was collected by Operator ${collectorName} via ${method}. Thank you!`
+      });
+
+      // Notify Staff
+      const staffUsers = await User.find({ role: 'Staff' });
+      for (const st of staffUsers) {
+        await Notification.create({
+          user: st._id,
+          title: 'Spot Payment Collected by Operator',
+          message: `Operator ${collectorName} collected ₹${collectedAmount} (${method}) for completed booking #${bookingId}. Ready for hub deposit.`
+        });
+      }
+    } else {
+      const bookings = localDb.read('bookings');
+      const bIdx = bookings.findIndex(b => b._id === bookingId || b.id === bookingId || b._id?.toString() === bookingId?.toString());
+      if (bIdx !== -1) {
+        collectedAmount = bookings[bIdx].totalAmount || bookings[bIdx].finalBill?.totalAmount || 0;
+        bookings[bIdx].paymentStatus = 'Paid';
+        bookings[bIdx].paidAt = now.toISOString();
+        bookings[bIdx].paidByStaff = `${collectorName} (Operator)`;
+        bookings[bIdx].paymentMethod = method;
+        bookings[bIdx].paymentCollectionMode = 'Collected by Operator';
+        bookings[bIdx].collectedBy = collectorName;
+        bookings[bIdx].collectedByRole = 'Equipment Operator';
+        bookings[bIdx].collectedAt = now.toISOString();
+        bookings[bIdx].paymentNotes = paymentNotes || '';
+        localDb.write('bookings', bookings);
+      }
+
+      const invoices = localDb.read('invoices');
+      const invIdx = invoices.findIndex(i => i.booking === bookingId || i.booking?.toString() === bookingId?.toString());
+      if (invIdx !== -1) {
+        if (!collectedAmount) collectedAmount = invoices[invIdx].totalAmount || 0;
+        invoices[invIdx].paymentStatus = 'Paid';
+        invoices[invIdx].paidAt = now.toISOString();
+        invoices[invIdx].paidByStaff = `${collectorName} (Operator)`;
+        invoices[invIdx].paymentMethod = method;
+        invoices[invIdx].paymentCollectionMode = 'Collected by Operator';
+        invoices[invIdx].collectedBy = collectorName;
+        invoices[invIdx].collectedByRole = 'Equipment Operator';
+        invoices[invIdx].collectedAt = now.toISOString();
+        invoices[invIdx].paymentNotes = paymentNotes || '';
+        localDb.write('invoices', invoices);
+      }
+    }
+
+    await logAudit(req, req.user, 'Spot Payment Collected', 'Unpaid', 'Paid', `Operator ${collectorName} collected payment of ₹${collectedAmount} via ${method}`);
+
+    return res.json({ 
+      success: true, 
+      message: `Payment of ₹${collectedAmount} collected successfully via ${method}! Cooperative staff has been notified for hub deposit.` 
+    });
+  } catch (err) {
+    console.error('Collect payment error:', err);
     return res.status(500).json({ success: false, message: 'Internal server error.' });
   }
 });

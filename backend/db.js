@@ -806,7 +806,7 @@ export async function seedDemoData() {
 export async function connectDB() {
   try {
     await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 2000
+      serverSelectionTimeoutMS: 10000
     });
     isConnected = true;
     console.log('🔌 Connected to MongoDB successfully.');
@@ -901,6 +901,11 @@ const bookingSchema = new mongoose.Schema({
   paidAt: Date,
   paidByStaff: String,
   paymentMethod: String,
+  paymentCollectionMode: { type: String, default: 'Pending Office Payment' },
+  collectedBy: String,
+  collectedByRole: String,
+  collectedAt: Date,
+  paymentNotes: String,
   status: { type: String, enum: ['Pending', 'Approved', 'Issued', 'Returned', 'Cancelled'], default: 'Pending' },
   penalty: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
@@ -922,6 +927,7 @@ const jobSchema = new mongoose.Schema({
   scheduledDate: Date,
   scheduledTime: String,
   expectedDuration: String,
+  durationDays: { type: Number, default: 1 },
 
   assignmentType: { type: String, enum: ['AUTOMATIC_ROTATION', 'MANUAL_REASSIGNMENT'], default: 'AUTOMATIC_ROTATION' },
   assignmentStatus: { type: String, default: 'ASSIGNED' },
@@ -1066,6 +1072,11 @@ const invoiceSchema = new mongoose.Schema({
   paidAt: Date,
   paidByStaff: String,
   paymentMethod: String,
+  paymentCollectionMode: { type: String, default: 'Pending Office Payment' },
+  collectedBy: String,
+  collectedByRole: String,
+  collectedAt: Date,
+  paymentNotes: String,
   createdAt: { type: Date, default: Date.now }
 });
 

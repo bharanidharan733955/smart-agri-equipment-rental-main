@@ -288,6 +288,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         equipment: equipmentId,
         unitNum: selectedUnitNum,
         operator: operatorId || null,
+        durationDays: duration,
         status: 'Assigned',
         assignmentType: 'AUTOMATIC_ROTATION'
       });
@@ -371,6 +372,7 @@ router.post('/', authenticateToken, authorizeRoles('Farmer'), async (req, res) =
         equipment: equipmentId,
         unitNum: selectedUnitNum,
         operator: operatorId || null,
+        durationDays: duration,
         status: 'Assigned',
         createdAt: new Date().toISOString()
       });
@@ -480,6 +482,7 @@ router.post('/:id/approve', authenticateToken, authorizeRoles('Admin'), async (r
         farmer: booking.farmer,
         equipment: eq._id,
         operator: eq.assignedOperator,
+        durationDays: booking.durationDays || 1,
         status: 'Assigned'
       });
 

@@ -777,13 +777,34 @@ export default function CoopPortal({ onLogout }) {
                       </td>
                       <td style={{ padding: '0.75rem 1rem' }}>
                         {bk.paymentStatus === 'Paid' ? (
-                          <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(21, 128, 61,0.15)', color: 'var(--color-primary)', fontWeight: 700 }}>
-                            ✓ Paid
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(21, 128, 61,0.15)', color: 'var(--color-primary)', fontWeight: 700 }}>
+                              ✓ {bk.paymentCollectionMode === 'COLLECTED_ON_SPOT' || bk.collectedByRole === 'Operator' ? 'Paid to Operator' : 'Paid at Office'}
+                            </span>
+                            {bk.collectedBy && (
+                              <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)' }}>
+                                {bk.collectedBy}
+                              </span>
+                            )}
+                          </div>
                         ) : bk.paymentStatus === 'Overdue' ? (
-                          <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(239, 68, 68,0.15)', color: '#f87171', fontWeight: 700 }}>
-                            ⚠️ Overdue (+₹{bk.lateFine || 0})
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(239, 68, 68,0.15)', color: '#f87171', fontWeight: 700 }}>
+                              ⚠️ Overdue (+₹{bk.lateFine || 0})
+                            </span>
+                            <span style={{ fontSize: '0.68rem', color: '#f87171' }}>
+                              Office visit required
+                            </span>
+                          </div>
+                        ) : bk.status === 'Returned' ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(245, 158, 11,0.15)', color: '#f59e0b', fontWeight: 700 }}>
+                              ⏳ Pending Office Payment
+                            </span>
+                            <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)' }}>
+                              1-Week Window
+                            </span>
+                          </div>
                         ) : (
                           <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(245, 158, 11,0.15)', color: '#f59e0b', fontWeight: 700 }}>
                             🕒 Unpaid
@@ -818,9 +839,9 @@ export default function CoopPortal({ onLogout }) {
                         {bk.paymentStatus !== 'Paid' && matchingInv && (
                           <button
                             onClick={() => setPaymentModalInv(matchingInv)}
-                            style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-text)', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
+                            style={{ backgroundColor: 'var(--color-primary)', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', cursor: 'pointer', fontWeight: 700 }}
                           >
-                            Collect Payment
+                            Collect at Office
                           </button>
                         )}
                       </td>
@@ -1050,38 +1071,58 @@ export default function CoopPortal({ onLogout }) {
                     <td style={{ padding: '0.75rem 1rem', color: 'var(--color-primary)', fontWeight: 800, fontSize: '1rem' }}>₹{inv.totalAmount}</td>
                     <td style={{ padding: '0.75rem 1rem' }}>
                       {inv.paymentStatus === 'Paid' ? (
-                        <span style={{
-                          fontSize: '0.72rem',
-                          padding: '0.2rem 0.6rem',
-                          borderRadius: '6px',
-                          backgroundColor: 'rgba(21, 128, 61,0.15)',
-                          color: 'var(--color-primary)',
-                          fontWeight: 700
-                        }}>
-                          ✓ Paid ({inv.paymentMethod || 'Cash'})
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          <span style={{
+                            fontSize: '0.72rem',
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '6px',
+                            backgroundColor: 'rgba(21, 128, 61,0.15)',
+                            color: 'var(--color-primary)',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}>
+                            ✓ {inv.paymentCollectionMode === 'COLLECTED_ON_SPOT' || inv.collectedByRole === 'Operator'
+                              ? 'Collected by Operator'
+                              : 'Paid at Office'} ({inv.paymentMethod || 'Cash'})
+                          </span>
+                          <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)' }}>
+                            Collector: {inv.collectedBy || inv.paidByStaff || 'Authorized Agent'}
+                          </span>
+                        </div>
                       ) : inv.paymentStatus === 'Overdue' ? (
-                        <span style={{
-                          fontSize: '0.72rem',
-                          padding: '0.2rem 0.6rem',
-                          borderRadius: '6px',
-                          backgroundColor: 'rgba(239, 68, 68,0.15)',
-                          color: '#f87171',
-                          fontWeight: 700
-                        }}>
-                          ⚠️ Overdue (+₹{inv.lateFine || 0})
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          <span style={{
+                            fontSize: '0.72rem',
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '6px',
+                            backgroundColor: 'rgba(239, 68, 68,0.15)',
+                            color: '#f87171',
+                            fontWeight: 700
+                          }}>
+                            ⚠️ Overdue (+₹{inv.lateFine || 0})
+                          </span>
+                          <span style={{ fontSize: '0.68rem', color: '#f87171' }}>
+                            Past 1-week grace limit
+                          </span>
+                        </div>
                       ) : (
-                        <span style={{
-                          fontSize: '0.72rem',
-                          padding: '0.2rem 0.6rem',
-                          borderRadius: '6px',
-                          backgroundColor: 'rgba(245, 158, 11,0.15)',
-                          color: '#f59e0b',
-                          fontWeight: 700
-                        }}>
-                          🕒 Unpaid (1 Wk Window)
-                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          <span style={{
+                            fontSize: '0.72rem',
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '6px',
+                            backgroundColor: 'rgba(245, 158, 11,0.15)',
+                            color: '#f59e0b',
+                            fontWeight: 700
+                          }}>
+                            ⏳ Pending Office Payment
+                          </span>
+                          <span style={{ fontSize: '0.68rem', color: 'var(--color-muted)' }}>
+                            1-Week Window {inv.dueDate ? `(Due: ${new Date(inv.dueDate).toLocaleDateString()})` : ''}
+                          </span>
+                        </div>
                       )}
                     </td>
                     <td style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>
@@ -1090,20 +1131,25 @@ export default function CoopPortal({ onLogout }) {
                           onClick={() => setPaymentModalInv(inv)}
                           style={{
                             backgroundColor: 'var(--color-primary)',
-                            color: 'var(--color-text)',
+                            color: '#fff',
                             border: 'none',
                             padding: '0.45rem 0.9rem',
                             borderRadius: '6px',
                             cursor: 'pointer',
                             fontWeight: 700,
-                            fontSize: '0.8rem'
+                            fontSize: '0.8rem',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
                           }}
                         >
-                          Record Payment
+                          Collect at Office
                         </button>
                       ) : (
-                        <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
-                          Collected by {inv.paidByStaff || 'Staff'}
+                        <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)', display: 'block' }}>
+                          {inv.paymentCollectionMode === 'COLLECTED_ON_SPOT' || inv.collectedByRole === 'Operator'
+                            ? `Field collected by ${inv.collectedBy || inv.paidByStaff || 'Operator'}`
+                            : `Office collected by ${inv.collectedBy || inv.paidByStaff || 'Staff'}`}
                         </span>
                       )}
                     </td>
@@ -1553,7 +1599,10 @@ export default function CoopPortal({ onLogout }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
               <div>
                 <span className="section-tag" style={{ marginBottom: '0.2rem' }}>HUB CASHIER COLLECTION</span>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--color-text)' }}>Record Manual Payment</h2>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-text)' }}>Collect Office Payment (1-Week Window)</h2>
+                <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.78rem', color: 'var(--color-muted)' }}>
+                  Farmer visiting cooperative office within 7 days to settle equipment rental bill
+                </p>
               </div>
               <button onClick={() => setPaymentModalInv(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', cursor: 'pointer' }}>
                 <XCircle size={22} />

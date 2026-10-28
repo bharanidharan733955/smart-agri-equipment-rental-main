@@ -1,8 +1,8 @@
 // src/components/operator/OperatorPortal.jsx
 import React, { useState, useEffect } from 'react';
-import { fetchOperatorJobs, startJobApi, completeJobApi, logoutUser, fetchOperatorsWithEquipment, requestJobCancellationApi, reportJobIssueApi } from '../../api';
+import { fetchOperatorJobs, startJobApi, completeJobApi, logoutUser, fetchOperatorsWithEquipment, requestJobCancellationApi, reportJobIssueApi, fetchBookings, collectJobPaymentApi } from '../../api';
 import { 
-  Tractor, LogOut, CheckCircle2, AlertTriangle, Play, Calendar, User, Phone, MapPin, Fuel, Clock, Upload, Loader2, Users, Cpu, Star, Activity, XCircle, AlertCircle
+  Tractor, LogOut, CheckCircle2, AlertTriangle, Play, Calendar, User, Phone, MapPin, Fuel, Clock, Upload, Loader2, Users, Cpu, Star, Activity, XCircle, AlertCircle, CreditCard, DollarSign
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -37,6 +37,16 @@ export default function OperatorPortal({ user, onLogout }) {
   const [issueType, setIssueType] = useState('Engine Breakdown');
   const [issueDescription, setIssueDescription] = useState('');
   const [issuePhoto, setIssuePhoto] = useState('');
+
+  // Payment Collection State for completion form
+  const [paymentCollectionMode, setPaymentCollectionMode] = useState('COLLECTED_ON_SPOT'); // 'COLLECTED_ON_SPOT' | 'PAY_LATER_OFFICE'
+  const [paymentMethod, setPaymentMethod] = useState('Cash'); // 'Cash' | 'UPI'
+  const [paymentNotes, setPaymentNotes] = useState('');
+
+  // Standalone payment collection modal for already completed unpaid jobs
+  const [collectPaymentModalJob, setCollectPaymentModalJob] = useState(null);
+  const [modalPaymentMethod, setModalPaymentMethod] = useState('Cash');
+  const [modalPaymentNotes, setModalPaymentNotes] = useState('');
 
   const handleRequestCancellationSubmit = async (e) => {
     e.preventDefault();
@@ -100,7 +110,28 @@ export default function OperatorPortal({ user, onLogout }) {
 
   const loadJobs = async () => {
     setLoading(true);
-    const data = await fetchOperatorJobs();
+    let data = await fetchOperatorJobs();
+    if (Array.isArray(data) && data.some(j => typeof j.booking === 'string' || !j.booking?.durationDays)) {
+      try {
+        const allBookings = await fetchBookings();
+        if (Array.isArray(allBookings) && allBookings.length > 0) {
+          data = data.map(j => {
+            const rawBookingId = typeof j.booking === 'object' ? (j.booking?._id || j.booking?.id) : j.booking;
+            const matched = allBookings.find(b => (b._id && b._id === rawBookingId) || (b.id && b.id === rawBookingId));
+            if (matched) {
+              return {
+                ...j,
+                booking: matched,
+                durationDays: matched.durationDays || j.durationDays
+              };
+            }
+            return j;
+          });
+        }
+      } catch (enrichErr) {
+        console.error('Jobs booking enrichment error:', enrichErr);
+      }
+    }
     setJobs(data);
     setLoading(false);
   };
@@ -143,11 +174,14 @@ export default function OperatorPortal({ user, onLogout }) {
       remarks,
       workCompleted,
       equipmentCondition,
-      damageInfo
+      damageInfo,
+      paymentCollectionMode,
+      paymentMethod: paymentCollectionMode === 'COLLECTED_ON_SPOT' ? paymentMethod : null,
+      paymentNotes: paymentCollectionMode === 'COLLECTED_ON_SPOT' ? paymentNotes : 'Farmer will pay at Cooperative Hub within 7 days.'
     });
     setActionLoading(false);
     if (res.success) {
-      toast.success('Job completed and report submitted successfully!');
+      toast.success(res.message || 'Job completed and report submitted successfully!');
       setActiveJob(null);
       setFuelUsed('');
       setFuelType('Diesel');
@@ -155,9 +189,32 @@ export default function OperatorPortal({ user, onLogout }) {
       setWorkCompleted('Fully Completed');
       setEquipmentCondition('Good');
       setDamageInfo('');
+      setPaymentCollectionMode('COLLECTED_ON_SPOT');
+      setPaymentMethod('Cash');
+      setPaymentNotes('');
       loadJobs();
     } else {
       toast.error(res.message || 'Failed to complete job.');
+    }
+  };
+
+  const handleCollectPaymentSubmit = async (e) => {
+    e.preventDefault();
+    if (!collectPaymentModalJob) return;
+    setActionLoading(true);
+    const res = await collectJobPaymentApi(collectPaymentModalJob._id || collectPaymentModalJob.id, {
+      paymentMethod: modalPaymentMethod,
+      paymentNotes: modalPaymentNotes
+    });
+    setActionLoading(false);
+    if (res.success) {
+      toast.success(res.message || 'Payment recorded successfully!');
+      setCollectPaymentModalJob(null);
+      setModalPaymentNotes('');
+      setModalPaymentMethod('Cash');
+      loadJobs();
+    } else {
+      toast.error(res.message || 'Failed to record spot payment.');
     }
   };
 
@@ -170,16 +227,16 @@ export default function OperatorPortal({ user, onLogout }) {
   // Helper for live final bill preview calculation in operator completion modal
   const getLiveFinalBillPreview = () => {
     if (!activeJob) return null;
-    const durationDays = activeJob.booking?.durationDays || 1;
-    const rate = activeJob.equipment?.rentalRate || activeJob.booking?.rentalRate || 1800;
-    const baseAmt = rate * durationDays;
+    const durationDays = activeJob.durationDays || activeJob.booking?.durationDays || 1;
+    const rate = activeJob.booking?.rentalRate || activeJob.equipment?.rentalRate || 1800;
+    const baseAmt = activeJob.booking?.tentativeBill?.baseAmount || (rate * durationDays);
     const pricePerL = fuelType === 'Petrol' ? 102 : 95;
     const actualL = parseFloat(fuelUsed) || 0;
     const actualFuelAmt = Math.round(actualL * pricePerL);
     
-    const estL = durationDays * 6.0;
-    const estFuelAmt = Math.round(estL * pricePerL);
-    const estTotal = activeJob.booking?.tentativeBill?.tentativeTotal || Math.round((baseAmt + estFuelAmt) * 1.18);
+    const estL = activeJob.booking?.tentativeBill?.estimatedFuelLiters || (durationDays * 6.0);
+    const estFuelAmt = activeJob.booking?.tentativeBill?.estimatedFuelCost || Math.round(estL * pricePerL);
+    const estTotal = activeJob.booking?.tentativeBill?.tentativeTotal || activeJob.booking?.totalAmount || Math.round((baseAmt + estFuelAmt) * 1.18);
     
     const subtotal = baseAmt + actualFuelAmt;
     const tax = Math.round(subtotal * 0.18);
@@ -288,7 +345,7 @@ export default function OperatorPortal({ user, onLogout }) {
           <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--color-primary)', marginBottom: '2rem' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.3rem', color: 'var(--color-primary)' }}>Submit Work Completion &amp; Fuel Log Report</h2>
             <p style={{ color: 'var(--color-muted)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
-              Job ID: {activeJob._id || activeJob.id} | Machine: {activeJob.equipment?.name || 'Machinery'} | Duration: {activeJob.booking?.durationDays || 1} Days
+              Job ID: {activeJob._id || activeJob.id} | Machine: {activeJob.equipment?.name || 'Machinery'} | Duration: {activeJob.durationDays || activeJob.booking?.durationDays || 1} Days
             </p>
 
             <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1.25rem' }}>
@@ -348,6 +405,102 @@ export default function OperatorPortal({ user, onLogout }) {
                   </div>
                 </div>
               )}
+
+              {/* Payment Settlement Selection with Farmer */}
+              <div style={{ gridColumn: 'span 2', backgroundColor: 'var(--color-neutral-bg)', border: '1px solid var(--color-border)', borderRadius: '14px', padding: '1.25rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--color-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <CreditCard size={18} color="var(--color-primary)" />
+                    Final Payment Settlement (Amount to Collect: ₹{livePreview?.finalTotal || '—'})
+                  </span>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--color-muted)' }}>
+                    Collect on field or grant 1-week cooperative office window
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '0.5rem' }}>
+                  {/* Option 1: Collect on spot */}
+                  <div 
+                    onClick={() => setPaymentCollectionMode('COLLECTED_ON_SPOT')}
+                    style={{
+                      border: paymentCollectionMode === 'COLLECTED_ON_SPOT' ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
+                      backgroundColor: paymentCollectionMode === 'COLLECTED_ON_SPOT' ? 'rgba(21, 128, 61, 0.08)' : 'transparent',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
+                      <input 
+                        type="radio" 
+                        id="optCollectSpot"
+                        name="payMode" 
+                        checked={paymentCollectionMode === 'COLLECTED_ON_SPOT'} 
+                        onChange={() => setPaymentCollectionMode('COLLECTED_ON_SPOT')} 
+                      />
+                      <label htmlFor="optCollectSpot" style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text)', cursor: 'pointer' }}>
+                        ✓ Collect Payment on Spot (Now)
+                      </label>
+                    </div>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--color-muted)', marginBottom: '0.75rem', lineHeight: 1.4 }}>
+                      Farmer has the money right now and pays directly to you on field. Cooperative staff will be notified of your cash collection for hub handover.
+                    </p>
+
+                    {paymentCollectionMode === 'COLLECTED_ON_SPOT' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                          <label style={{ fontSize: '0.78rem', fontWeight: 700, minWidth: '80px' }}>Payment Mode:</label>
+                          <select
+                            value={paymentMethod}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.82rem' }}
+                          >
+                            <option value="Cash">Cash (Physical Currency)</option>
+                            <option value="UPI">UPI / QR Code Transfer</option>
+                          </select>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Receipt / Reference Note (Optional, e.g. Cash Handed Over)"
+                          value={paymentNotes}
+                          onChange={(e) => setPaymentNotes(e.target.value)}
+                          style={{ width: '100%', padding: '0.45rem 0.75rem', borderRadius: '8px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)', fontSize: '0.8rem' }}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Option 2: Pay later at office */}
+                  <div 
+                    onClick={() => setPaymentCollectionMode('PAY_LATER_OFFICE')}
+                    style={{
+                      border: paymentCollectionMode === 'PAY_LATER_OFFICE' ? '2px solid #f59e0b' : '1px solid var(--color-border)',
+                      backgroundColor: paymentCollectionMode === 'PAY_LATER_OFFICE' ? 'rgba(245, 158, 11, 0.08)' : 'transparent',
+                      borderRadius: '12px',
+                      padding: '1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
+                      <input 
+                        type="radio" 
+                        id="optPayOffice"
+                        name="payMode" 
+                        checked={paymentCollectionMode === 'PAY_LATER_OFFICE'} 
+                        onChange={() => setPaymentCollectionMode('PAY_LATER_OFFICE')} 
+                      />
+                      <label htmlFor="optPayOffice" style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-text)', cursor: 'pointer' }}>
+                        ⏳ Farmer Will Pay at Office (1-Week Window)
+                      </label>
+                    </div>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--color-muted)', lineHeight: 1.4 }}>
+                      Farmer does not have the money on spot. A <strong>7-day grace period</strong> will be registered. Farmer must visit the Cooperative Office within 1 week to pay cooperative staff.
+                    </p>
+                  </div>
+                </div>
+              </div>
 
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.4rem', fontWeight: 700 }}>Work Status / Progress</label>
@@ -507,7 +660,7 @@ export default function OperatorPortal({ user, onLogout }) {
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <Calendar size={14} />
-                        <span>Booking Duration: {job.booking?.durationDays || 1} Days</span>
+                        <span>Booking Duration: {job.durationDays || job.booking?.durationDays || 1} Days</span>
                       </div>
                     </div>
                   </div>
@@ -622,9 +775,47 @@ export default function OperatorPortal({ user, onLogout }) {
                         )}
 
                         {isCompleted && (
-                          <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 600 }}>
-                            <CheckCircle2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
-                            <span>Report Filed</span>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.4rem' }}>
+                            <div style={{ textAlign: 'right', fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 700 }}>
+                              <CheckCircle2 size={16} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'text-bottom' }} />
+                              <span>Work Completed &amp; Machine Returned</span>
+                            </div>
+
+                            {/* Payment Status Badge & Action */}
+                            {job.booking?.paymentStatus === 'Paid' ? (
+                              <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '6px', backgroundColor: 'rgba(21, 128, 61,0.15)', color: 'var(--color-primary)', fontWeight: 700 }}>
+                                ✓ Paid on Spot ({job.booking?.paymentMethod || 'Cash'} - ₹{job.booking?.totalAmount || job.booking?.finalBill?.totalAmount || 'Settled'})
+                              </span>
+                            ) : (
+                              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.35rem' }}>
+                                <span style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem', borderRadius: '6px', backgroundColor: 'rgba(245, 158, 11,0.15)', color: '#f59e0b', fontWeight: 700 }}>
+                                  ⏳ Office Payment Pending (1-Wk Window)
+                                </span>
+                                <button
+                                  onClick={() => {
+                                    setCollectPaymentModalJob(job);
+                                    setModalPaymentMethod('Cash');
+                                    setModalPaymentNotes('');
+                                  }}
+                                  style={{
+                                    backgroundColor: 'var(--color-primary)',
+                                    color: '#fff',
+                                    border: 'none',
+                                    padding: '0.4rem 0.8rem',
+                                    borderRadius: '6px',
+                                    fontSize: '0.78rem',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.3rem'
+                                  }}
+                                >
+                                  <CreditCard size={13} />
+                                  <span>Collect Payment on Spot (₹{job.booking?.totalAmount || job.booking?.finalBill?.totalAmount || 'Final Bill'})</span>
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </>
@@ -895,6 +1086,75 @@ export default function OperatorPortal({ user, onLogout }) {
                   >
                     {actionLoading ? <Loader2 className="animate-spin" size={16} /> : <AlertTriangle size={16} />}
                     Submit Issue Report
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Standalone Spot Payment Collection Modal for Completed Jobs */}
+        {collectPaymentModalJob && (
+          <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+            <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '18px', padding: '2rem', maxWidth: '480px', width: '100%', border: '1px solid var(--color-primary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <CreditCard size={20} />
+                  Collect Payment from Farmer on Spot
+                </h3>
+                <button onClick={() => setCollectPaymentModalJob(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+              </div>
+
+              <div style={{ backgroundColor: 'rgba(21, 128, 61, 0.08)', border: '1px solid rgba(21, 128, 61, 0.25)', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>Farmer Name:</div>
+                <strong style={{ fontSize: '0.95rem', color: 'var(--color-text)', display: 'block', marginBottom: '0.5rem' }}>
+                  {collectPaymentModalJob.farmer?.name || 'Farmer'} ({collectPaymentModalJob.farmer?.mobile || 'No Phone'})
+                </strong>
+                <div style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>Final Amount Due:</div>
+                <strong style={{ fontSize: '1.4rem', color: 'var(--color-primary)', display: 'block' }}>
+                  ₹{collectPaymentModalJob.booking?.totalAmount || collectPaymentModalJob.booking?.finalBill?.totalAmount || 0}
+                </strong>
+              </div>
+
+              <form onSubmit={handleCollectPaymentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>Payment Method *</label>
+                  <select
+                    value={modalPaymentMethod}
+                    onChange={(e) => setModalPaymentMethod(e.target.value)}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  >
+                    <option value="Cash">Cash (Physical Currency Handed Over)</option>
+                    <option value="UPI">UPI / Digital QR Code Transfer</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.4rem' }}>Notes / Reference (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Received in cash on field"
+                    value={modalPaymentNotes}
+                    onChange={(e) => setModalPaymentNotes(e.target.value)}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text)' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setCollectPaymentModalJob(null)}
+                    style={{ padding: '0.7rem 1.4rem', borderRadius: '10px', border: '1px solid var(--color-border)', backgroundColor: 'transparent', color: 'var(--color-text)', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    style={{ padding: '0.7rem 1.6rem', borderRadius: '10px', border: 'none', backgroundColor: 'var(--color-primary)', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+                  >
+                    {actionLoading ? <Loader2 className="animate-spin" size={16} /> : <CheckCircle2 size={16} />}
+                    Confirm Spot Collection
                   </button>
                 </div>
               </form>

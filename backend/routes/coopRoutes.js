@@ -548,6 +548,10 @@ router.post('/invoices/:id/pay', authenticateToken, authorizeRoles('Manager', 'A
         invoice.paidAt = now;
         invoice.paidByStaff = req.user.name || 'Cooperative Staff';
         invoice.paymentMethod = paymentMethod || 'Cash';
+        invoice.paymentCollectionMode = 'Paid at Office';
+        invoice.collectedBy = req.user.name || 'Cooperative Staff';
+        invoice.collectedByRole = 'Staff';
+        invoice.paymentNotes = staffNotes || '';
         if (fine > 0) {
           invoice.lateFine = fine;
           invoice.totalAmount = (invoice.finalAmount || invoice.totalAmount) + fine;
@@ -561,6 +565,10 @@ router.post('/invoices/:id/pay', authenticateToken, authorizeRoles('Manager', 'A
             paidAt: now,
             paidByStaff: req.user.name || 'Cooperative Staff',
             paymentMethod: paymentMethod || 'Cash',
+            paymentCollectionMode: 'Paid at Office',
+            collectedBy: req.user.name || 'Cooperative Staff',
+            collectedByRole: 'Staff',
+            paymentNotes: staffNotes || '',
             lateFine: fine,
             totalAmount: invoice.totalAmount
           });
@@ -581,6 +589,10 @@ router.post('/invoices/:id/pay', authenticateToken, authorizeRoles('Manager', 'A
         invoices[idx].paidAt = now.toISOString();
         invoices[idx].paidByStaff = req.user.name || 'Cooperative Staff';
         invoices[idx].paymentMethod = paymentMethod || 'Cash';
+        invoices[idx].paymentCollectionMode = 'Paid at Office';
+        invoices[idx].collectedBy = req.user.name || 'Cooperative Staff';
+        invoices[idx].collectedByRole = 'Staff';
+        invoices[idx].paymentNotes = staffNotes || '';
         if (fine > 0) {
           invoices[idx].lateFine = fine;
           invoices[idx].totalAmount = (invoices[idx].finalAmount || invoices[idx].totalAmount) + fine;
@@ -597,6 +609,10 @@ router.post('/invoices/:id/pay', authenticateToken, authorizeRoles('Manager', 'A
             bookings[bIdx].paidAt = now.toISOString();
             bookings[bIdx].paidByStaff = req.user.name || 'Cooperative Staff';
             bookings[bIdx].paymentMethod = paymentMethod || 'Cash';
+            bookings[bIdx].paymentCollectionMode = 'Paid at Office';
+            bookings[bIdx].collectedBy = req.user.name || 'Cooperative Staff';
+            bookings[bIdx].collectedByRole = 'Staff';
+            bookings[bIdx].paymentNotes = staffNotes || '';
             bookings[bIdx].lateFine = fine;
             bookings[bIdx].totalAmount = invoice.totalAmount;
             localDb.write('bookings', bookings);

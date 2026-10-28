@@ -103,6 +103,8 @@ export async function fetchFarmerBookings() {
   }
 }
 
+export { fetchFarmerBookings as fetchBookings };
+
 export async function submitFarmerBooking(payload) {
   try {
     const res = await api.post('/rentals', payload);
@@ -412,6 +414,16 @@ export async function completeJobApi(id, payload) {
     return res.data;
   } catch (err) {
     console.error('Complete job error:', err);
+    return err.response?.data || { success: false, message: 'Server error' };
+  }
+}
+
+export async function collectJobPaymentApi(id, payload) {
+  try {
+    const res = await api.post(`/jobs/${id}/collect-payment`, payload);
+    return res.data;
+  } catch (err) {
+    console.error('Collect job payment error:', err);
     return err.response?.data || { success: false, message: 'Server error' };
   }
 }

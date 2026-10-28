@@ -202,6 +202,11 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                   <td class="amount">₹${final.totalAmount.toLocaleString()}</td>
                 </tr>
               </table>
+              <div style="margin-top: 15px; padding: 12px 16px; border-radius: 8px; font-size: 13px; ${booking.paymentStatus === 'Paid' ? 'background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;' : 'background-color: #fffbeb; border: 1px solid #fde68a; color: #92400e;'}">
+                ${booking.paymentStatus === 'Paid'
+                  ? `<strong>✓ Payment Received:</strong> Paid in full via ${booking.paymentMethod || 'Spot Payment'}. Collected by: ${booking.collectedBy || booking.paidByStaff || 'Operator/Hub Cashier'}.`
+                  : `<strong>⏳ Payment Pending (1-Week Window):</strong> You have a 7-day grace period to visit your Cooperative Hub (${booking.equipment?.cooperativeHub || 'Office'}) to settle the final amount of ₹${final.totalAmount.toLocaleString()} in cash, UPI, or card.`}
+              </div>
             ` : `
               <div style="margin-top: 20px; padding: 12px; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 12px; color: #92400e;">
                 ℹ️ <strong>Work In Progress:</strong> This is a Tentative Bill estimate. The final bill will be calculated after work completion based on the operator's actual fuel consumption report. Minimal variance guaranteed.
@@ -360,11 +365,24 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
                         borderRadius: 'var(--radius-pill)',
                         backgroundColor: b.status === 'Returned' ? 'var(--color-success-bg)' : 'var(--color-info-bg)',
                         color: b.status === 'Returned' ? 'var(--color-primary)' : '#38bdf8',
-                        border: b.status === 'Returned' ? '1px solid rgba(21, 128, 61, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)'
+                        border: b.status === 'Returned' ? '1px solid rgba(21, 128, 61, 0.3)' : '1px solid rgba(56, 189, 248, 0.3)',
+                        display: 'inline-block',
+                        marginBottom: '4px'
                       }}
                     >
                       {b.status}
                     </span>
+                    {b.paymentStatus === 'Paid' ? (
+                      <div style={{ fontSize: '0.72rem', color: 'var(--color-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span>✓</span>
+                        <span>{b.paymentCollectionMode === 'COLLECTED_ON_SPOT' || b.collectedByRole === 'Operator' ? 'Paid to Operator' : 'Paid at Office'}</span>
+                      </div>
+                    ) : b.status === 'Returned' ? (
+                      <div style={{ fontSize: '0.7rem', color: '#f59e0b', fontWeight: 700, display: 'flex', flexDirection: 'column' }}>
+                        <span>⏳ Pay at Hub Office</span>
+                        <span style={{ fontSize: '0.65rem', color: 'var(--color-muted)', fontWeight: 500 }}>7-Day Grace Period</span>
+                      </div>
+                    ) : null}
                   </div>
                   <div>
                     {b.status === 'Pending' && (

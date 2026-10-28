@@ -406,5 +406,17 @@
     "ipAddress": "::1",
     "device": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36 Edg/154.0.0.0",
     "description": "Updated equipment Ariyalur Mahindra Tractor 575 DI"
+  },
+  {
+    "id": "AUD-1793176454459t247u",
+    "user": "Avinashi Operator 1",
+    "role": "Equipment Operator",
+    "action": "Login",
+    "oldValue": "",
+    "newValue": "",
+    "timestamp": "2026-10-28T08:34:14.459Z",
+    "ipAddress": "::1",
+    "device": "node",
+    "description": "User logged in successfully"
   }
 ]
