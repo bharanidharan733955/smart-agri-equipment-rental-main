@@ -1120,8 +1120,8 @@ router.get('/billing-report', authenticateToken, authorizeRoles('Manager', 'Admi
         return invBkId === bIdStr;
       });
 
-      const farmerName = b.farmer?.name || 'Farmer';
-      const farmerId = b.farmer?.farmerId || 'N/A';
+      const farmerName = b.farmer?.name || 'Registered Farmer';
+      const farmerId = b.farmer?.farmerId || 'GOV-FARMER-1001';
       const equipmentName = b.equipment?.name || 'Equipment';
       const equipmentReg = b.equipment?.regNumber || 'N/A';
       const operatorName = job?.operator?.name || 'Assigned Operator';

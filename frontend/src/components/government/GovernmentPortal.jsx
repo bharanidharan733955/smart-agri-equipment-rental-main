@@ -150,164 +150,494 @@ export default function GovernmentPortal({ user, onLogout }) {
     const { summary, bookings, operatorCosts, maintenanceCosts } = billingReport;
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
-      <html>
+      <!DOCTYPE html>
+      <html lang="en">
         <head>
-          <title>AgriRentGov State Government Auditor - Financial Report</title>
+          <meta charset="UTF-8">
+          <title>AGRIX - State Government Financial &amp; Operations Audit Report</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
           <style>
-            body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; background-color: #ffffff; }
-            h1 { color: #0f172a; text-align: center; font-size: 26px; margin-bottom: 5px; }
-            .hub-title { text-align: center; font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 0.05em; }
-            .report-meta { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; margin-bottom: 30px; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; }
-            .section-title { font-size: 18px; color: #0f172a; border-left: 4px solid var(--color-primary); padding-left: 10px; margin-top: 35px; margin-bottom: 15px; font-weight: bold; text-transform: uppercase; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            th { background-color: #f8fafc; color: #475569; font-weight: bold; text-align: left; padding: 12px 10px; border-bottom: 2px solid #e2e8f0; border-top: 1px solid #e2e8f0; font-size: 11px; text-transform: uppercase; }
-            td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 12px; color: #334155; }
-            .amount { font-weight: bold; text-align: right; }
-            th.amount { text-align: right; }
-            .summary-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
-            .summary-card { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; text-align: center; }
-            .summary-label { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
-            .summary-value { font-size: 20px; font-weight: 800; color: #0f172a; }
-            .summary-value.positive { color: var(--color-primary); }
-            .summary-value.negative { color: #ef4444; }
-            .btn-print { background-color: var(--color-primary); color: white; border: none; padding: 12px 24px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: block; margin: 0 auto 30px auto; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+              font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+              color: #0f172a;
+              background-color: #f8fafc;
+              padding: 30px 20px;
+              line-height: 1.5;
+              -webkit-font-smoothing: antialiased;
+            }
+            .page-container {
+              max-width: 1140px;
+              margin: 0 auto;
+              background: #ffffff;
+              border-radius: 20px;
+              border: 1px solid #e2e8f0;
+              box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+              padding: 44px;
+            }
+            .header-bar {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              border-bottom: 2px solid #f1f5f9;
+              padding-bottom: 24px;
+              margin-bottom: 24px;
+              gap: 20px;
+            }
+            .brand-badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+              color: #ffffff;
+              padding: 6px 14px;
+              border-radius: 999px;
+              font-size: 13px;
+              font-weight: 800;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              box-shadow: 0 4px 10px rgba(21, 128, 61, 0.25);
+            }
+            .brand-badge span.dot {
+              width: 7px;
+              height: 7px;
+              background-color: #bbf7d0;
+              border-radius: 50%;
+            }
+            .report-title {
+              font-size: 26px;
+              font-weight: 800;
+              color: #0f172a;
+              margin: 12px 0 6px 0;
+              letter-spacing: -0.02em;
+            }
+            .hub-subtitle {
+              font-size: 13px;
+              color: #64748b;
+              font-weight: 500;
+            }
+            .hub-subtitle strong {
+              color: #0f172a;
+            }
+            .hub-subtitle span.scope-tag {
+              display: inline-block;
+              background: #f1f5f9;
+              padding: 2px 8px;
+              border-radius: 6px;
+              color: #475569;
+              font-weight: 600;
+              font-size: 12px;
+              margin-left: 4px;
+            }
+            .btn-print {
+              background: #0f172a;
+              color: #ffffff;
+              border: none;
+              padding: 10px 22px;
+              font-size: 13px;
+              font-weight: 700;
+              border-radius: 10px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            }
+            .btn-print:hover {
+              background: #1e293b;
+              transform: translateY(-1px);
+            }
+            .meta-grid {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 12px;
+              background: #f8fafc;
+              padding: 16px 20px;
+              border-radius: 14px;
+              border: 1px solid #e2e8f0;
+              margin-bottom: 28px;
+            }
+            .meta-item .meta-label {
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              color: #94a3b8;
+              margin-bottom: 4px;
+            }
+            .meta-item .meta-val {
+              font-size: 13px;
+              font-weight: 700;
+              color: #1e293b;
+            }
+            .section-header {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin: 32px 0 16px 0;
+            }
+            .section-indicator {
+              width: 5px;
+              height: 20px;
+              background: #15803d;
+              border-radius: 4px;
+            }
+            .section-title {
+              font-size: 15px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.06em;
+              color: #0f172a;
+            }
+            .summary-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 14px;
+              margin-bottom: 10px;
+            }
+            .summary-card {
+              background: #ffffff;
+              border: 1px solid #e2e8f0;
+              border-radius: 14px;
+              padding: 18px 20px;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              transition: all 0.2s ease;
+            }
+            .summary-card.highlight-green {
+              background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+              border-color: #bbf7d0;
+            }
+            .summary-card.highlight-red {
+              background: linear-gradient(180deg, #ffffff 0%, #fef2f2 100%);
+              border-color: #fecaca;
+            }
+            .summary-card.highlight-amber {
+              background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%);
+              border-color: #fde68a;
+            }
+            .summary-label {
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.06em;
+              color: #64748b;
+              margin-bottom: 8px;
+            }
+            .summary-val {
+              font-size: 22px;
+              font-weight: 800;
+              color: #0f172a;
+              letter-spacing: -0.02em;
+              font-variant-numeric: tabular-nums;
+            }
+            .summary-val.val-green {
+              color: #15803d;
+            }
+            .summary-val.val-red {
+              color: #dc2626;
+            }
+            .table-card {
+              border: 1px solid #e2e8f0;
+              border-radius: 14px;
+              overflow: hidden;
+              margin-bottom: 24px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              text-align: left;
+            }
+            th {
+              background: #f8fafc;
+              padding: 12px 14px;
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              color: #475569;
+              border-bottom: 1px solid #e2e8f0;
+            }
+            td {
+              padding: 12px 14px;
+              font-size: 12.5px;
+              color: #334155;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            tr:last-child td {
+              border-bottom: none;
+            }
+            tr:hover td {
+              background-color: #f8fafc;
+            }
+            .amount {
+              text-align: right;
+              font-weight: 700;
+              font-variant-numeric: tabular-nums;
+            }
+            th.amount {
+              text-align: right;
+            }
+            .badge {
+              display: inline-block;
+              padding: 2px 8px;
+              border-radius: 6px;
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+            }
+            .badge-success { background: #dcfce7; color: #15803d; }
+            .badge-warning { background: #fef3c7; color: #d97706; }
+            .badge-danger { background: #fee2e2; color: #dc2626; }
+            .badge-info { background: #e0f2fe; color: #0284c7; }
+            .footer-signature {
+              margin-top: 40px;
+              border-top: 1px solid #e2e8f0;
+              padding-top: 24px;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+            }
+            .audit-seal {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              color: #15803d;
+              font-weight: 700;
+              font-size: 13px;
+            }
+            .seal-box {
+              width: 38px;
+              height: 38px;
+              border-radius: 8px;
+              background: #dcfce7;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border: 1.5px solid #86efac;
+            }
+            .signature-box {
+              text-align: right;
+            }
+            .sign-line {
+              width: 180px;
+              border-bottom: 1.5px dashed #94a3b8;
+              margin-bottom: 6px;
+              display: inline-block;
+            }
+            .sign-title {
+              font-size: 11px;
+              color: #64748b;
+              font-weight: 600;
+              text-transform: uppercase;
+            }
             @media print {
-              .btn-print { display: none; }
-              body { padding: 0; }
+              body { background-color: #ffffff; padding: 0; }
+              .page-container { border: none; box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; }
+              .btn-print { display: none !important; }
             }
           </style>
         </head>
         <body>
-          <button class="btn-print" onclick="window.print()">Print / Save PDF Report</button>
-          <h1>🌾 AgriRentGov Official State Government Audit Report</h1>
-          <div class="hub-title">Scope: ${reportDistrict === 'ALL' ? 'Statewide Total Overview' : reportDistrict + ' District Overview'} (${reportTaluk === 'ALL' ? 'All Taluks' : reportTaluk + ' Taluk'})</div>
-          
-          <div class="report-meta">
-            <div>
-              <strong>Report Period:</strong> ${billingReport.period.from} to ${billingReport.period.to}<br>
-              <strong>Auditor Account:</strong> ${user?.name || 'State Government Auditor'} (${user?.email})
+          <div class="page-container">
+            <div class="header-bar">
+              <div>
+                <div class="brand-badge">
+                  <span class="dot"></span>
+                  <span>AGRIX &bull; STATE GOVERNMENT AUDIT LEDGER</span>
+                </div>
+                <h1 class="report-title">AGRIX Financial &amp; Operations Report</h1>
+                <div class="hub-subtitle">
+                  State Audit Scope: <strong>${reportDistrict === 'ALL' ? 'Statewide Total Overview' : reportDistrict + ' District Overview'}</strong> 
+                  <span class="scope-tag">${reportTaluk === 'ALL' ? 'All Taluks' : reportTaluk + ' Taluk'}</span>
+                </div>
+              </div>
+              <div>
+                <button class="btn-print" onclick="window.print()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                  <span>Print / Save PDF</span>
+                </button>
+              </div>
             </div>
-            <div style="text-align: right;">
-              <strong>Generated Date:</strong> ${new Date().toLocaleDateString()}<br>
-              <strong>Platform Audit Status:</strong> Verified State Cooperative Ledger
-            </div>
-          </div>
 
-          <div class="section-title">Executive Financial Summary</div>
-          <div class="summary-container">
-            <div class="summary-card">
-              <div class="summary-label">Total Rental Revenue</div>
-              <div class="summary-value positive">₹${summary.totalRentalRevenue.toLocaleString()}</div>
+            <div class="meta-grid">
+              <div class="meta-item">
+                <div class="meta-label">Audit Period</div>
+                <div class="meta-val">${billingReport.period.from} &rarr; ${billingReport.period.to}</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Ledger Status</div>
+                <div class="meta-val" style="color: #15803d;">✓ State Verified &amp; Certified</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Generation Date</div>
+                <div class="meta-val">${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">Auditor Account</div>
+                <div class="meta-val">${user?.name || 'State Government Auditor'}</div>
+              </div>
             </div>
-            <div class="summary-card">
-              <div class="summary-label">Total Operator Payroll</div>
-              <div class="summary-value negative">₹${summary.totalOperatorCost.toLocaleString()}</div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-label">Total Maintenance Expense</div>
-              <div class="summary-value negative">₹${summary.totalMaintenanceCost.toLocaleString()}</div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-label">Net Cooperative Revenue</div>
-              <div class="summary-value positive">₹${summary.netRevenue.toLocaleString()}</div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-label">Amount Collected</div>
-              <div class="summary-value positive">₹${summary.totalAmountCollected.toLocaleString()}</div>
-            </div>
-            <div class="summary-card">
-              <div class="summary-label">Pending Collectibles</div>
-              <div class="summary-value negative">₹${summary.pendingAmount.toLocaleString()}</div>
-            </div>
-          </div>
 
-          <div class="section-title">Booking & Billing Detailed Log</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Booking ID</th>
-                <th>Farmer Details</th>
-                <th>Equipment Details</th>
-                <th>Operator</th>
-                <th>Work Date</th>
-                <th>Invoice Ref</th>
-                <th>Status</th>
-                <th class="amount">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${bookings.map(b => `
-                <tr>
-                  <td style="font-family: monospace;">${b.bookingId?.substr(-6)}</td>
-                  <td><strong>${b.farmerName}</strong><br><small>ID: ${b.farmerId}</small></td>
-                  <td>${b.equipmentName}<br><small>Reg: ${b.equipmentReg}</small></td>
-                  <td>${b.operatorName}</td>
-                  <td>${new Date(b.workDate).toLocaleDateString()}</td>
-                  <td>${b.invoiceNumber}</td>
-                  <td><strong style="color: ${b.paymentStatus === 'Paid' ? 'var(--color-primary)' : '#ef4444'}">${b.paymentStatus}</strong></td>
-                  <td class="amount">₹${b.totalAmount.toLocaleString()}</td>
-                </tr>
-              `).join('')}
-              ${bookings.length === 0 ? '<tr><td colSpan="8" style="text-align:center; padding: 20px;">No booking records found for this period.</td></tr>' : ''}
-            </tbody>
-          </table>
+            <div class="section-header">
+              <div class="section-indicator"></div>
+              <h2 class="section-title">Executive Financial Summary</h2>
+            </div>
+            
+            <div class="summary-grid">
+              <div class="summary-card highlight-green">
+                <div class="summary-label">Total Rental Revenue</div>
+                <div class="summary-val val-green">₹${summary.totalRentalRevenue.toLocaleString()}</div>
+              </div>
+              <div class="summary-card highlight-red">
+                <div class="summary-label">Salaried Staff Payroll</div>
+                <div class="summary-val val-red">₹${summary.totalOperatorCost.toLocaleString()}</div>
+              </div>
+              <div class="summary-card highlight-amber">
+                <div class="summary-label">Maintenance Expenses</div>
+                <div class="summary-val" style="color: #b45309;">₹${summary.totalMaintenanceCost.toLocaleString()}</div>
+              </div>
+              <div class="summary-card ${summary.netRevenue >= 0 ? 'highlight-green' : 'highlight-red'}">
+                <div class="summary-label">Net Cooperative Balance</div>
+                <div class="summary-val ${summary.netRevenue >= 0 ? 'val-green' : 'val-red'}">
+                  ₹${summary.netRevenue.toLocaleString()}
+                </div>
+              </div>
+              <div class="summary-card highlight-green">
+                <div class="summary-label">Amount Collected</div>
+                <div class="summary-val val-green">₹${summary.totalAmountCollected.toLocaleString()}</div>
+              </div>
+              <div class="summary-card ${summary.pendingAmount > 0 ? 'highlight-amber' : ''}">
+                <div class="summary-label">Pending Collectibles</div>
+                <div class="summary-val" style="color: ${summary.pendingAmount > 0 ? '#b45309' : '#15803d'};">
+                  ₹${summary.pendingAmount.toLocaleString()}
+                </div>
+              </div>
+            </div>
 
-          <div class="section-title">Salaried Operator Payroll Breakdown</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Staff Name</th>
-                <th>Role</th>
-                <th>Monthly Base Salary</th>
-                <th>Active Period Days</th>
-                <th class="amount">Payroll Expense</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${operatorCosts.map(oc => `
-                <tr>
-                  <td><strong>${oc.operatorName}</strong></td>
-                  <td>Equipment Operator</td>
-                  <td>₹${oc.monthlySalary.toLocaleString()}</td>
-                  <td>${billingReport.period.days} days</td>
-                  <td class="amount">₹${oc.totalCost.toLocaleString()}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+            <div class="section-header">
+              <div class="section-indicator"></div>
+              <h2 class="section-title">Booking &amp; Billing Detailed Ledger</h2>
+            </div>
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Booking ID</th>
+                    <th>Farmer Name</th>
+                    <th>Farmer ID</th>
+                    <th>Equipment Details</th>
+                    <th>Operator</th>
+                    <th>Work Date</th>
+                    <th>Invoice Ref</th>
+                    <th>Status</th>
+                    <th class="amount">Total Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${bookings.map(b => {
+                    const isPaid = b.paymentStatus === 'Paid';
+                    return `
+                      <tr>
+                        <td><code style="font-size: 11px; color: #0284c7; font-weight: 600;">${b.bookingId?.substr(-8)}</code></td>
+                        <td><strong>${b.farmerName}</strong></td>
+                        <td><span style="font-size: 11px; color: #64748b;">${b.farmerId || 'N/A'}</span></td>
+                        <td>${b.equipmentName}<br><small style="color: #64748b;">${b.equipmentReg || ''}</small></td>
+                        <td>${b.operatorName || 'Assigned Staff'}</td>
+                        <td>${new Date(b.workDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                        <td><span style="font-family: monospace; font-size: 11px;">${b.invoiceNumber || 'INV-N/A'}</span></td>
+                        <td><span class="badge ${isPaid ? 'badge-success' : 'badge-warning'}">${b.paymentStatus}</span></td>
+                        <td class="amount">₹${b.totalAmount.toLocaleString()}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                  ${bookings.length === 0 ? '<tr><td colspan="9" style="text-align: center; color: #94a3b8; padding: 24px;">No booking records found for this period.</td></tr>' : ''}
+                </tbody>
+              </table>
+            </div>
 
-          <div class="section-title">Equipment Maintenance Expenses</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Equipment Name</th>
-                <th>Registration</th>
-                <th>Service Date</th>
-                <th>Service Type</th>
-                <th>Parts Cost</th>
-                <th>Labour Cost</th>
-                <th class="amount">Total Expense</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${maintenanceCosts.map(m => `
-                <tr>
-                  <td><strong>${m.equipmentName}</strong></td>
-                  <td>${m.equipmentReg}</td>
-                  <td>${new Date(m.maintenanceDate).toLocaleDateString()}</td>
-                  <td>${m.maintenanceType} - ${m.maintenanceDescription}</td>
-                  <td>₹${m.partsCost}</td>
-                  <td>₹${m.labourCost}</td>
-                  <td class="amount">₹${m.totalCost.toLocaleString()}</td>
-                </tr>
-              `).join('')}
-              ${maintenanceCosts.length === 0 ? '<tr><td colSpan="7" style="text-align:center; padding: 20px;">No maintenance expenses registered in this period.</td></tr>' : ''}
-            </tbody>
-          </table>
+            <div class="section-header">
+              <div class="section-indicator"></div>
+              <h2 class="section-title">Salaried Operator Payroll Breakdown</h2>
+            </div>
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Staff Name</th>
+                    <th>Operational Role</th>
+                    <th>Monthly Base Salary</th>
+                    <th>Active Period Days</th>
+                    <th class="amount">Period Payroll Expense</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${operatorCosts.map(oc => `
+                    <tr>
+                      <td><strong>${oc.operatorName}</strong></td>
+                      <td><span class="badge badge-info">Equipment Operator</span></td>
+                      <td>₹${oc.monthlySalary.toLocaleString()}/mo</td>
+                      <td>${billingReport.period.days} days</td>
+                      <td class="amount">₹${oc.totalCost.toLocaleString()}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
 
-          <div style="margin-top: 50px; border-top: 1px solid #cbd5e1; padding-top: 15px; font-size: 11px; color: #94a3b8; display: flex; justify-content: space-between;">
-            <div>Official Audit Record &bull; State Government Cooperative Oversight</div>
-            <div>AgriRentGov Portal Verification</div>
+            <div class="section-header">
+              <div class="section-indicator"></div>
+              <h2 class="section-title">Equipment Maintenance &amp; Repair Expenses</h2>
+            </div>
+            <div class="table-card">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Equipment Name</th>
+                    <th>Registration</th>
+                    <th>Service Date</th>
+                    <th>Service Type</th>
+                    <th>Parts Cost</th>
+                    <th>Labour Cost</th>
+                    <th class="amount">Total Expense</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${maintenanceCosts.map(m => `
+                    <tr>
+                      <td><strong>${m.equipmentName}</strong></td>
+                      <td>${m.equipmentReg}</td>
+                      <td>${new Date(m.maintenanceDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                      <td>${m.maintenanceType} - ${m.maintenanceDescription}</td>
+                      <td>₹${m.partsCost}</td>
+                      <td>₹${m.labourCost}</td>
+                      <td class="amount">₹${m.totalCost.toLocaleString()}</td>
+                    </tr>
+                  `).join('')}
+                  ${maintenanceCosts.length === 0 ? '<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 24px;">No maintenance expenses registered in this period.</td></tr>' : ''}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="footer-signature">
+              <div class="audit-seal">
+                <div class="seal-box">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <div>
+                  <div>AGRIX Official State Audit Record</div>
+                  <div style="font-size: 11px; font-weight: normal; color: #64748b;">Department of Agriculture &amp; Farmers Welfare, Govt of Tamil Nadu</div>
+                </div>
+              </div>
+              <div class="signature-box">
+                <div class="sign-line"></div>
+                <div class="sign-title">Authorized State Auditor Signature</div>
+              </div>
+            </div>
           </div>
         </body>
       </html>

@@ -185,7 +185,7 @@ router.post('/login', async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user._id, name: user.name, email: user.email, role: user.role, district: user.district, taluk: user.taluk, cooperativeHub: user.cooperativeHub },
+      { id: user._id, name: user.name, email: user.email, role: user.role, district: user.district, taluk: user.taluk, cooperativeHub: user.cooperativeHub, farmerId: user.farmerId, mobile: user.mobile },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -204,7 +204,8 @@ router.post('/login', async (req, res) => {
         mobile: user.mobile,
         district: user.district,
         taluk: user.taluk,
-        cooperativeHub: user.cooperativeHub
+        cooperativeHub: user.cooperativeHub,
+        farmerId: user.farmerId
       }
     });
   } catch (err) {

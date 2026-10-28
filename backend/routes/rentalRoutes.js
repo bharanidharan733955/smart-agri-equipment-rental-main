@@ -12,9 +12,13 @@ router.get('/', authenticateToken, async (req, res) => {
     let list = [];
     if (isDbConnected()) {
       if (req.user.role === 'Farmer') {
-        list = await Booking.find({ farmer: req.user.id }).populate('equipment');
+        list = await Booking.find({ farmer: req.user.id })
+          .populate('equipment')
+          .populate('farmer', 'name email mobile farmerId district taluk address');
       } else {
-        list = await Booking.find().populate('equipment').populate('farmer', 'name email mobile');
+        list = await Booking.find()
+          .populate('equipment')
+          .populate('farmer', 'name email mobile farmerId district taluk address');
       }
     } else {
       list = localDb.read('bookings');
@@ -25,11 +29,11 @@ router.get('/', authenticateToken, async (req, res) => {
       list = list.map(b => ({
         ...b,
         equipment: equipment.find(e => e._id === b.equipment || e.id === b.equipment),
-        farmer: users.find(u => u._id === b.farmer) || { name: 'Farmer' }
+        farmer: users.find(u => u._id === b.farmer || u.id === b.farmer) || { name: 'Farmer', farmerId: 'GOV-FARMER-1001' }
       }));
 
       if (req.user.role === 'Farmer') {
-        list = list.filter(b => b.farmer._id === req.user.id || b.farmerId === req.user.id || b.farmer === req.user.id);
+        list = list.filter(b => b.farmer?._id === req.user.id || b.farmerId === req.user.id || b.farmer === req.user.id);
       }
     }
 
@@ -57,6 +61,10 @@ router.get('/', authenticateToken, async (req, res) => {
       }
       return {
         ...bObj,
+        farmerName: bObj.farmer?.name || bObj.farmerName || (req.user?.role === 'Farmer' ? req.user?.name : 'Registered Farmer'),
+        farmerId: bObj.farmer?.farmerId || bObj.farmerId || (req.user?.role === 'Farmer' ? (req.user?.farmerId || 'GOV-FARMER-1001') : 'N/A'),
+        farmerMobile: bObj.farmer?.mobile || bObj.farmerMobile || (req.user?.role === 'Farmer' ? req.user?.mobile : 'N/A'),
+        farmerDistrict: bObj.farmer?.district || bObj.farmerDistrict || (req.user?.role === 'Farmer' ? req.user?.district : 'Tamil Nadu'),
         jobDetails: job || null
       };
     });

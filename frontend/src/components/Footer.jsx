@@ -7,7 +7,7 @@ export default function Footer({ onOpenContact }) {
       <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', fontSize: '0.875rem', color: 'var(--color-muted)' }}>
         {/* Left Copyright Text */}
         <div style={{ lineHeight: 1.4 }}>
-          &copy; {new Date().getFullYear()} AgriRentGov &bull; State Government Cooperative Platform
+          &copy; {new Date().getFullYear()} AGRIX &bull; State Government Cooperative Platform
         </div>
 
         {/* Right Links */}

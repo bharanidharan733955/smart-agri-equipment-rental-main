@@ -324,7 +324,7 @@ export default function AdminPortal({ user, onLogout }) {
     reportWindow.document.write(`
       <html>
         <head>
-          <title>AgriRentGov State Cooperative - Billing Report</title>
+          <title>AGRIX State Cooperative - Billing Report</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
             body { font-family: 'Outfit', sans-serif; padding: 2.5rem; color: #1e293b; background-color: #ffffff; line-height: 1.5; }
@@ -354,7 +354,7 @@ export default function AdminPortal({ user, onLogout }) {
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
             <div>
               <h2>State Cooperative Administration</h2>
-              <h1>🌾 AgriRentGov Official Billing Report</h1>
+              <h1>🌾 AGRIX Official Billing Report</h1>
             </div>
             <button class="btn-print" onclick="window.print()">Print or Save PDF</button>
           </div>

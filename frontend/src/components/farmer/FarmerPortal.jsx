@@ -98,6 +98,7 @@ export default function FarmerPortal({ onLogout, user }) {
         <FarmerBookingsView
           bookingsList={bookingsList}
           onCancelBooking={handleCancelBooking}
+          user={user}
         />
       )}
 

@@ -88,7 +88,7 @@ export default function AuthModal({ isOpen, mode, onClose }) {
               >
                 <Sprout size={20} color="#ffffff" strokeWidth={2.5} />
               </div>
-              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>AgriRentGov</span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text)' }}>AGRIX</span>
             </div>
 
             <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.4rem' }}>

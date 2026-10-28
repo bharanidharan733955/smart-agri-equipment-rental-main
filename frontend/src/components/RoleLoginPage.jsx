@@ -23,7 +23,7 @@ export const ROLE_DETAILS = {
   farmer: {
     id: 'farmer',
     name: 'Farmer',
-    tag: 'AGRIRENTGOV • FARMER SERVICES',
+    tag: 'AGRIX • FARMER SERVICES',
     badge: 'Public Access',
     icon: Sprout,
     title: 'Farmer Cooperative Portal',
@@ -454,7 +454,7 @@ export default function RoleLoginPage({ roleId, onBackToRoles, onBackToHome, onL
       </main>
 
       <footer style={{ borderTop: '1px solid var(--color-border)', padding: '1.5rem 2rem', fontSize: '0.875rem', color: 'var(--color-muted)', textAlign: 'center', backgroundColor: 'var(--color-surface)' }}>
-        &copy; {new Date().getFullYear()} AgriRentGov &bull; State Government Cooperative Platform
+        &copy; {new Date().getFullYear()} AGRIX &bull; State Government Cooperative Platform
       </footer>
     </div>
   );

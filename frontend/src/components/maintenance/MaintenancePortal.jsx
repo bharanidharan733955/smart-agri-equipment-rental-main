@@ -223,7 +223,7 @@ export default function MaintenancePortal({ user, onLogout, embedded = false }) 
     reportWindow.document.write(`
       <html>
         <head>
-          <title>AgriRentGov - Maintenance Operations & Operator Status Report</title>
+          <title>AGRIX - Maintenance Operations & Operator Status Report</title>
           <style>
             body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; }
             h1 { color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; margin-bottom: 20px; font-size: 24px; }
@@ -243,7 +243,7 @@ export default function MaintenancePortal({ user, onLogout, embedded = false }) 
         </head>
         <body>
           <button class="btn-print" onclick="window.print()">Print / Save PDF Report</button>
-          <h1>🌾 AgriRentGov Maintenance Operations Report</h1>
+          <h1>🌾 AGRIX Maintenance Operations Report</h1>
           <div class="header-info">
             <div>
               <strong>Cooperative Station:</strong> ${user.cooperativeHub || 'Chennai Central Hub #1'}<br>
@@ -683,7 +683,18 @@ export default function MaintenancePortal({ user, onLogout, embedded = false }) 
             </div>
           </div>
         )}
-      </main>
-    </div>
-  );
-}
+      </>
+    );
+
+    if (embedded) {
+      return renderContent();
+    }
+
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)', color: 'var(--color-text)' }}>
+        <main style={{ maxWidth: '1280px', margin: '0 auto', padding: '2rem 1.5rem' }}>
+          {renderContent()}
+        </main>
+      </div>
+    );
+  }

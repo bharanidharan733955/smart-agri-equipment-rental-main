@@ -141,7 +141,7 @@ export default function RoleSelectionPage({ onSelectRole, onBackToHome }) {
 
       {/* Footer Bar */}
       <footer style={{ borderTop: '1px solid var(--color-border)', padding: '1.5rem 2rem', fontSize: '0.875rem', color: 'var(--color-muted)', textAlign: 'center', backgroundColor: 'var(--color-surface)' }}>
-        &copy; {new Date().getFullYear()} AgriRentGov &bull; State Government Cooperative Platform &bull; Professional Access Portal
+        &copy; {new Date().getFullYear()} AGRIX &bull; State Government Cooperative Platform &bull; Professional Access Portal
       </footer>
 
     </div>

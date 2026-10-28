@@ -229,7 +229,7 @@ export default function CoopStaffLayout({ activeTab, setActiveTab, onLogout, onO
               <Menu size={18} color="var(--color-secondary)" />
             </button>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-              <span>AgriRentGov</span>
+              <span>AGRIX</span>
               <span>/</span>
               <span style={{ color: 'var(--color-secondary)', fontWeight: 600 }}>Cooperative Staff</span>
             </span>

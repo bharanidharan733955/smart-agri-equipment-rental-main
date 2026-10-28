@@ -7,12 +7,12 @@ export default function FAQ() {
 
   const faqData = [
     {
-      question: 'Who can use AgriRentGov?',
+      question: 'Who can use AGRIX?',
       answer: 'All registered farmers in the state with a valid ID and verified land/crop details can register and rent equipment at cooperative rates.'
     },
     {
       question: 'How are the rental rates decided?',
-      answer: 'Rates on AgriRentGov are state cooperative rates (up to 40-60% off market rental rates) funded through state agricultural cooperative welfare programs.'
+      answer: 'Rates on AGRIX are state cooperative rates (up to 40-60% off market rental rates) funded through state agricultural cooperative welfare programs.'
     },
     {
       question: 'How does the audit log work?',

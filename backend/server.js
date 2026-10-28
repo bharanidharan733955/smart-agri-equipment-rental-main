@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ONLINE',
-    platform: 'AgriRentGov State Cooperative Backend API',
+    platform: 'AGRIX State Cooperative Backend API',
     timestamp: new Date().toISOString()
   });
 });
@@ -77,7 +77,7 @@ if (fs.existsSync(frontendDist)) {
 // Start Server
 app.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(`🌾 AgriRentGov Backend Server Running on Port ${PORT}`);
+  console.log(`🌾 AGRIX Backend Server Running on Port ${PORT}`);
   console.log(`📡 Base URL: http://localhost:${PORT}`);
   console.log(`=======================================================`);
 });

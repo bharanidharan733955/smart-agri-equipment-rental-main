@@ -4,7 +4,7 @@ import { Star, FileText, MessageSquare, Printer, X } from 'lucide-react';
 import { submitFarmerFeedback } from '../../api';
 import toast from 'react-hot-toast';
 
-export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
+export default function FarmerBookingsView({ bookingsList, onCancelBooking, user }) {
   const [activeFilter, setActiveFilter] = useState('All');
   const [feedbackBooking, setFeedbackBooking] = useState(null);
   const [overallRating, setOverallRating] = useState(5);
@@ -63,158 +63,610 @@ export default function FarmerBookingsView({ bookingsList, onCancelBooking }) {
 
     const invoiceNum = booking.invoiceNumber || `INV-${booking._id?.toString()?.substr(-6)?.toUpperCase() || 'TEMP'}`;
 
+    // Resolve Farmer details with comprehensive fallbacks
+    const farmerObj = (typeof booking.farmer === 'object' && booking.farmer !== null) ? booking.farmer : null;
+    const sessionUser = user || JSON.parse(localStorage.getItem('agrirent_user') || '{}');
+
+    const farmerName = booking.farmerName || farmerObj?.name || sessionUser.name || 'Registered Farmer';
+    const farmerId = booking.farmerId || farmerObj?.farmerId || sessionUser.farmerId || 'GOV-FARMER-1001';
+    const farmerMobile = booking.farmerMobile || farmerObj?.mobile || sessionUser.mobile || '9876543210';
+    const farmerLocation = booking.farmerDistrict || farmerObj?.district || sessionUser.district || booking.location || 'Tamil Nadu';
+
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
-      <html>
+      <!DOCTYPE html>
+      <html lang="en">
         <head>
-          <title>AgriRentGov - Invoice ${invoiceNum}</title>
+          <meta charset="UTF-8">
+          <title>AGRIX Customer Tax Invoice - ${invoiceNum}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
           <style>
-            body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; padding: 40px; line-height: 1.5; background-color: #ffffff; }
-            .invoice-box { max-width: 820px; margin: auto; padding: 30px; border: 1px solid #cbd5e1; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
-            h1 { color: #15803d; font-size: 26px; margin: 0 0 5px 0; }
-            .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
-            .badge-tentative { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
-            .badge-final { background-color: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-            .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; margin-top: 15px; }
-            .meta-table td { padding: 5px 0; font-size: 13px; color: #64748b; }
-            .section-title { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 25px; margin-bottom: 12px; letter-spacing: 0.05em; }
-            .data-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-            .data-table th { background-color: #f8fafc; color: #475569; font-weight: bold; text-align: left; padding: 9px 12px; font-size: 12px; border-bottom: 2px solid #e2e8f0; }
-            .data-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #334155; }
-            .amount { text-align: right; font-weight: bold; }
-            th.amount { text-align: right; }
-            .report-card { background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 15px; margin-top: 15px; font-size: 13px; color: #0369a1; }
-            .totals-table { width: 340px; margin-left: auto; margin-top: 20px; border-collapse: collapse; }
-            .totals-table td { padding: 6px 8px; font-size: 13px; color: #64748b; }
-            .totals-table tr.grand-total td { font-size: 16px; font-weight: 800; color: #15803d; border-top: 2px solid #0f172a; padding-top: 10px; }
-            .btn-print { background-color: #15803d; color: white; border: none; padding: 10px 22px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; display: block; margin: 0 auto 20px auto; }
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body {
+              font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+              color: #0f172a;
+              background-color: #f8fafc;
+              padding: 36px 20px;
+              line-height: 1.5;
+              -webkit-font-smoothing: antialiased;
+            }
+            .invoice-wrapper {
+              max-width: 860px;
+              margin: 0 auto;
+              background: #ffffff;
+              border-radius: 20px;
+              border: 1px solid #e2e8f0;
+              box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+              padding: 40px;
+            }
+            .btn-print {
+              background: #0f172a;
+              color: #ffffff;
+              border: none;
+              padding: 10px 24px;
+              font-size: 13px;
+              font-weight: 700;
+              border-radius: 10px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              display: inline-flex;
+              align-items: center;
+              gap: 8px;
+              box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+              margin: 0 auto 24px auto;
+            }
+            .btn-print:hover {
+              background: #1e293b;
+              transform: translateY(-1px);
+            }
+            .btn-container {
+              text-align: center;
+            }
+            .header-bar {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              border-bottom: 2px solid #f1f5f9;
+              padding-bottom: 24px;
+              margin-bottom: 24px;
+              gap: 20px;
+            }
+            .brand-badge {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+              color: #ffffff;
+              padding: 6px 14px;
+              border-radius: 999px;
+              font-size: 12px;
+              font-weight: 800;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              box-shadow: 0 4px 10px rgba(21, 128, 61, 0.25);
+            }
+            .brand-badge span.dot {
+              width: 7px;
+              height: 7px;
+              background-color: #bbf7d0;
+              border-radius: 50%;
+            }
+            .invoice-title {
+              font-size: 26px;
+              font-weight: 800;
+              color: #0f172a;
+              margin: 10px 0 4px 0;
+              letter-spacing: -0.02em;
+            }
+            .invoice-subtitle {
+              font-size: 13px;
+              color: #64748b;
+              font-weight: 500;
+            }
+            .badge-status {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              padding: 6px 14px;
+              border-radius: 999px;
+              font-size: 12px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            }
+            .badge-final {
+              background: #ecfdf5;
+              color: #047857;
+              border: 1px solid #a7f3d0;
+            }
+            .badge-tentative {
+              background: #fffbeb;
+              color: #b45309;
+              border: 1px solid #fde68a;
+            }
+            .invoice-meta-box {
+              text-align: right;
+            }
+            .invoice-num-text {
+              font-family: monospace;
+              font-size: 14px;
+              font-weight: 700;
+              color: #0f172a;
+              margin-top: 8px;
+            }
+            .meta-cards-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 28px;
+            }
+            .info-card {
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 14px;
+              padding: 18px 20px;
+            }
+            .info-card-label {
+              font-size: 11px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.06em;
+              color: #64748b;
+              margin-bottom: 8px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .info-card-name {
+              font-size: 16px;
+              font-weight: 700;
+              color: #0f172a;
+              margin-bottom: 4px;
+            }
+            .info-card-detail {
+              font-size: 12.5px;
+              color: #475569;
+              line-height: 1.5;
+            }
+            .farmer-id-pill {
+              display: inline-block;
+              background: #dbeafe;
+              color: #1e40af;
+              font-size: 11px;
+              font-weight: 700;
+              padding: 2px 8px;
+              border-radius: 6px;
+              margin-top: 4px;
+            }
+            .section-heading {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin: 28px 0 14px 0;
+            }
+            .section-bar {
+              width: 4px;
+              height: 18px;
+              background: #15803d;
+              border-radius: 2px;
+            }
+            .section-title-text {
+              font-size: 14px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.06em;
+              color: #0f172a;
+            }
+            .items-table {
+              width: 100%;
+              border-collapse: separate;
+              border-spacing: 0;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              overflow: hidden;
+              margin-bottom: 20px;
+            }
+            .items-table th {
+              background: #f8fafc;
+              color: #475569;
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              padding: 12px 16px;
+              text-align: left;
+              border-bottom: 1px solid #e2e8f0;
+            }
+            .items-table td {
+              padding: 12px 16px;
+              font-size: 13px;
+              color: #334155;
+              border-bottom: 1px solid #f1f5f9;
+            }
+            .items-table tr:last-child td {
+              border-bottom: none;
+            }
+            .items-table td.amount, .items-table th.amount {
+              text-align: right;
+              font-variant-numeric: tabular-nums;
+            }
+            .items-table td.bold {
+              font-weight: 700;
+              color: #0f172a;
+            }
+            .work-report-card {
+              background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+              border: 1px solid #bbf7d0;
+              border-radius: 14px;
+              padding: 20px;
+              margin-bottom: 24px;
+            }
+            .report-card-title {
+              font-size: 13px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+              color: #166534;
+              margin-bottom: 14px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .work-report-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 12px;
+              margin-bottom: 14px;
+            }
+            .work-metric {
+              background: #ffffff;
+              border: 1px solid #dcfce7;
+              border-radius: 10px;
+              padding: 12px;
+            }
+            .work-metric-label {
+              font-size: 11px;
+              font-weight: 600;
+              color: #64748b;
+              text-transform: uppercase;
+              margin-bottom: 4px;
+            }
+            .work-metric-val {
+              font-size: 16px;
+              font-weight: 800;
+              color: #0f172a;
+            }
+            .variance-tag {
+              display: inline-block;
+              font-size: 11px;
+              font-weight: 700;
+              padding: 2px 8px;
+              border-radius: 6px;
+              margin-top: 4px;
+            }
+            .remarks-box {
+              background: #ffffff;
+              border: 1px solid #e2e8f0;
+              border-radius: 10px;
+              padding: 10px 14px;
+              font-size: 12.5px;
+              color: #475569;
+            }
+            .totals-container {
+              display: flex;
+              justify-content: flex-end;
+              margin-top: 10px;
+              margin-bottom: 24px;
+            }
+            .totals-box {
+              width: 380px;
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 14px;
+              padding: 18px 22px;
+            }
+            .totals-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 6px 0;
+              font-size: 13px;
+              color: #64748b;
+            }
+            .totals-row span:last-child {
+              font-weight: 600;
+              color: #1e293b;
+              font-variant-numeric: tabular-nums;
+            }
+            .totals-divider {
+              height: 1px;
+              background: #e2e8f0;
+              margin: 8px 0;
+            }
+            .grand-total-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding-top: 8px;
+              font-size: 16px;
+              font-weight: 800;
+              color: #0f172a;
+            }
+            .grand-total-val {
+              font-size: 22px;
+              font-weight: 800;
+              color: #15803d;
+              font-variant-numeric: tabular-nums;
+            }
+            .payment-card {
+              border-radius: 14px;
+              padding: 18px 22px;
+              margin-bottom: 28px;
+            }
+            .payment-paid {
+              background: #f0fdf4;
+              border: 1.5px solid #86efac;
+              color: #166534;
+            }
+            .payment-pending {
+              background: #fffbeb;
+              border: 1.5px solid #fde68a;
+              color: #92400e;
+            }
+            .payment-header {
+              font-size: 14px;
+              font-weight: 800;
+              letter-spacing: 0.04em;
+              text-transform: uppercase;
+              margin-bottom: 6px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            }
+            .payment-desc {
+              font-size: 13px;
+              line-height: 1.5;
+            }
+            .footer-strip {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              border-top: 1px solid #f1f5f9;
+              padding-top: 20px;
+              margin-top: 30px;
+              font-size: 11.5px;
+              color: #94a3b8;
+            }
+            .audit-seal-text {
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              color: #15803d;
+              font-weight: 700;
+            }
             @media print {
-              .btn-print { display: none; }
-              body { padding: 0; }
-              .invoice-box { border: none; box-shadow: none; padding: 0; }
+              body { background-color: #ffffff; padding: 0; }
+              .invoice-wrapper { border: none; box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; }
+              .btn-container { display: none !important; }
             }
           </style>
         </head>
         <body>
-          <button class="btn-print" onclick="window.print()">Print / Download Official Invoice PDF</button>
-          <div class="invoice-box">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+          <div class="btn-container">
+            <button class="btn-print" onclick="window.print()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              <span>Print / Download Official Invoice PDF</span>
+            </button>
+          </div>
+
+          <div class="invoice-wrapper">
+            <!-- Header Bar -->
+            <div class="header-bar">
               <div>
-                <h1>🌾 AgriRentGov Official Invoice</h1>
-                <div style="font-size: 12px; color: #64748b;">State Cooperative Equipment Rental &amp; Fuel Verification Ledger</div>
+                <div class="brand-badge">
+                  <span class="dot"></span>
+                  <span>AGRIX &bull; STATE COOPERATIVE NETWORK</span>
+                </div>
+                <h1 class="invoice-title">Customer Tax Invoice</h1>
+                <div class="invoice-subtitle">Department of Agriculture &amp; Farmers Welfare &bull; Machinery Lease Division</div>
               </div>
-              <div style="text-align: right;">
-                <span class="badge ${isFinal ? 'badge-final' : 'badge-tentative'}">
-                  ${isFinal ? '✓ Final Settled Invoice' : '⏳ Tentative Bill Estimate'}
+              <div class="invoice-meta-box">
+                <span class="badge-status ${isFinal ? 'badge-final' : 'badge-tentative'}">
+                  ${isFinal ? '✓ Final Settled Invoice' : '⏳ Tentative Booking Estimate'}
                 </span>
-                <div style="font-size: 12px; color: #475569; margin-top: 8px;">
-                  <strong>Invoice No:</strong> ${invoiceNum}<br>
-                  <strong>Date:</strong> ${new Date(booking.createdAt).toLocaleDateString()}
+                <div class="invoice-num-text">INV: ${invoiceNum}</div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                  Issued: <strong>${new Date(booking.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>
                 </div>
               </div>
             </div>
-            
-            <table class="meta-table">
-              <tr>
-                <td>
-                  <strong>Billed To (Farmer):</strong><br>
-                  ${booking.farmerName || booking.farmer?.name || 'Registered Farmer'}<br>
-                  Farmer ID: ${booking.farmerId || booking.farmer?.farmerId || 'N/A'}<br>
-                  Mobile: ${booking.farmer?.mobile || 'N/A'}<br>
-                  District: ${booking.farmer?.district || booking.location || 'Tamil Nadu'}
-                </td>
-                <td style="text-align: right; vertical-align: top;">
-                  <strong>Cooperative Provider:</strong><br>
-                  ${booking.equipment?.cooperativeHub || 'State Cooperative Hub'}<br>
-                  Department of Agriculture &amp; Farmers Welfare
-                </td>
-              </tr>
-            </table>
 
-            <div class="section-title">1. Tentative Bill Breakdown (Initial Reservation)</div>
-            <table class="data-table">
+            <!-- Meta Cards Grid -->
+            <div class="meta-cards-grid">
+              <div class="info-card">
+                <div class="info-card-label">
+                  <span>👤 Billed To (Farmer)</span>
+                </div>
+                <div class="info-card-name">${farmerName}</div>
+                <div class="info-card-detail">
+                  <span class="farmer-id-pill">ID: ${farmerId}</span><br>
+                  <strong>Mobile:</strong> ${farmerMobile}<br>
+                  <strong>Location:</strong> ${farmerLocation}
+                </div>
+              </div>
+
+              <div class="info-card">
+                <div class="info-card-label">
+                  <span>🏢 Cooperative Hub Provider</span>
+                </div>
+                <div class="info-card-name">${booking.equipment?.cooperativeHub || 'State Cooperative Hub'}</div>
+                <div class="info-card-detail">
+                  State Cooperative Agricultural Mechanization Society<br>
+                  <strong>GSTIN:</strong> 33AGRIXCOOP01Z5 &bull; <strong>State Code:</strong> 33<br>
+                  <strong>Support:</strong> support@agrix.gov.in
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 1: Line Items -->
+            <div class="section-heading">
+              <div class="section-bar"></div>
+              <div class="section-title-text">1. Equipment Lease &amp; Fuel Allocation Schedule</div>
+            </div>
+
+            <table class="items-table">
               <thead>
                 <tr>
-                  <th>Line Item</th>
-                  <th>Details</th>
-                  <th class="amount">Rate</th>
-                  <th class="amount">Subtotal</th>
+                  <th>Description</th>
+                  <th>Duration / Units</th>
+                  <th class="amount">Unit Rate</th>
+                  <th class="amount">Subtotal (INR)</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Base Equipment Rental</td>
-                  <td>${booking.equipmentName || booking.equipment?.name || 'Agri Machinery'} (${booking.durationDays || booking.days} Days)</td>
-                  <td class="amount">₹${booking.rentalRate || booking.equipment?.rentalRate}/day</td>
-                  <td class="amount">₹${tentative.baseAmount.toLocaleString()}</td>
+                  <td class="bold">
+                    ${booking.equipmentName || booking.equipment?.name || 'Agri Machinery'}<br>
+                    <small style="color: #64748b; font-weight: normal;">Reg: ${booking.equipment?.registrationNumber || 'State Standard'}</small>
+                  </td>
+                  <td>${booking.durationDays || booking.days} Rental Day(s)</td>
+                  <td class="amount">₹${(booking.rentalRate || booking.equipment?.rentalRate || 0).toLocaleString()}/day</td>
+                  <td class="amount bold">₹${tentative.baseAmount.toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <td>Estimated Fuel Allocation</td>
-                  <td>${tentative.estimatedFuelLiters.toFixed(1)} Liters ${tentative.fuelType || 'Diesel'} (Baseline Est: 6L/day)</td>
+                  <td class="bold">
+                    Estimated Baseline Fuel Allocation<br>
+                    <small style="color: #64748b; font-weight: normal;">${tentative.fuelType || 'Diesel'} benchmark (6 Liters / rental day)</small>
+                  </td>
+                  <td>${tentative.estimatedFuelLiters.toFixed(1)} Liters</td>
                   <td class="amount">₹${tentative.fuelPricePerLiter || 95}/L</td>
-                  <td class="amount">₹${tentative.estimatedFuelCost.toLocaleString()}</td>
+                  <td class="amount bold">₹${tentative.estimatedFuelCost.toLocaleString()}</td>
                 </tr>
                 <tr>
-                  <td>CGST &amp; SGST (18%)</td>
-                  <td>Tax on (Base Rental + Est. Fuel)</td>
+                  <td class="bold">
+                    Goods &amp; Services Tax (CGST 9% + SGST 9%)<br>
+                    <small style="color: #64748b; font-weight: normal;">Standard GST on subsidized agri machinery lease</small>
+                  </td>
+                  <td>18.00%</td>
                   <td class="amount">18%</td>
-                  <td class="amount">₹${tentative.tax.toLocaleString()}</td>
+                  <td class="amount bold">₹${tentative.tax.toLocaleString()}</td>
                 </tr>
-                <tr style="background-color: #f8fafc; font-weight: bold;">
-                  <td colspan="3" style="text-align: right; color: #475569;">Tentative Bill Amount:</td>
-                  <td class="amount" style="color: #d97706;">₹${tentative.tentativeTotal.toLocaleString()}</td>
+                <tr style="background: #f8fafc;">
+                  <td colspan="3" class="bold" style="text-align: right; color: #475569;">Tentative Reservation Amount:</td>
+                  <td class="amount bold" style="color: #d97706; font-size: 14px;">₹${tentative.tentativeTotal.toLocaleString()}</td>
                 </tr>
               </tbody>
             </table>
 
+            <!-- Section 2: Operator Field Log (if final) -->
             ${isFinal && final ? `
-              <div class="section-title">2. Operator Field Work &amp; Fuel Log Report</div>
-              <div class="report-card">
-                <div style="font-weight: bold; margin-bottom: 5px;">Field Operator Completion Report</div>
-                <div>• Actual Fuel Consumed: <strong>${final.actualFuelLiters} Liters (${final.fuelType})</strong> @ ₹${final.fuelPricePerLiter}/Liter</div>
-                <div>• Verified Fuel Cost: <strong>₹${final.actualFuelCost.toLocaleString()}</strong> (Estimated: ₹${tentative.estimatedFuelCost.toLocaleString()})</div>
-                <div>• Fuel Adjustment Variance: <strong style="color: ${final.fuelAdjustment >= 0 ? '#d97706' : '#15803d'}">${final.fuelAdjustment >= 0 ? '+' : ''}₹${final.fuelAdjustment}</strong></div>
-                <div>• Work Remarks: ${booking.jobDetails?.remarks || 'Work completed in full according to field specifications.'}</div>
+              <div class="section-heading">
+                <div class="section-bar"></div>
+                <div class="section-title-text">2. Operator Field Work &amp; Fuel Consumption Audit</div>
               </div>
 
-              <div class="section-title">3. Final Settled Invoice Calculation</div>
-              <table class="totals-table">
-                <tr>
-                  <td>Base Equipment Rental:</td>
-                  <td class="amount">₹${final.baseAmount.toLocaleString()}</td>
-                </tr>
-                <tr>
-                  <td>Verified Fuel Consumption (${final.actualFuelLiters}L):</td>
-                  <td class="amount">₹${final.actualFuelCost.toLocaleString()}</td>
-                </tr>
-                <tr>
-                  <td>Fuel Adjustment vs Tentative:</td>
-                  <td class="amount" style="color: ${final.fuelAdjustment >= 0 ? '#d97706' : '#15803d'}">
-                    ${final.fuelAdjustment >= 0 ? '+' : ''}₹${final.fuelAdjustment.toLocaleString()}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Final CGST &amp; SGST (18%):</td>
-                  <td class="amount">₹${final.tax.toLocaleString()}</td>
-                </tr>
-                <tr class="grand-total">
-                  <td>Final Settled Amount:</td>
-                  <td class="amount">₹${final.totalAmount.toLocaleString()}</td>
-                </tr>
-              </table>
-              <div style="margin-top: 15px; padding: 12px 16px; border-radius: 8px; font-size: 13px; ${booking.paymentStatus === 'Paid' ? 'background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;' : 'background-color: #fffbeb; border: 1px solid #fde68a; color: #92400e;'}">
-                ${booking.paymentStatus === 'Paid'
-                  ? `<strong>✓ Payment Received:</strong> Paid in full via ${booking.paymentMethod || 'Spot Payment'}. Collected by: ${booking.collectedBy || booking.paidByStaff || 'Operator/Hub Cashier'}.`
-                  : `<strong>⏳ Payment Pending (1-Week Window):</strong> You have a 7-day grace period to visit your Cooperative Hub (${booking.equipment?.cooperativeHub || 'Office'}) to settle the final amount of ₹${final.totalAmount.toLocaleString()} in cash, UPI, or card.`}
+              <div class="work-report-card">
+                <div class="report-card-title">
+                  <span>✓ Verified Field Operator Job Completion</span>
+                </div>
+                <div class="work-report-grid">
+                  <div class="work-metric">
+                    <div class="work-metric-label">Actual Fuel Consumed</div>
+                    <div class="work-metric-val">${final.actualFuelLiters} Liters</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${final.fuelType} @ ₹${final.fuelPricePerLiter}/L</div>
+                  </div>
+                  <div class="work-metric">
+                    <div class="work-metric-label">Verified Fuel Cost</div>
+                    <div class="work-metric-val">₹${final.actualFuelCost.toLocaleString()}</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Estimated: ₹${tentative.estimatedFuelCost.toLocaleString()}</div>
+                  </div>
+                  <div class="work-metric">
+                    <div class="work-metric-label">Fuel Cost Variance</div>
+                    <div class="work-metric-val" style="color: ${final.fuelAdjustment >= 0 ? '#b45309' : '#15803d'};">
+                      ${final.fuelAdjustment >= 0 ? '+' : ''}₹${final.fuelAdjustment.toLocaleString()}
+                    </div>
+                    <span class="variance-tag" style="${final.fuelAdjustment >= 0 ? 'background: #fef3c7; color: #b45309;' : 'background: #dcfce7; color: #15803d;'}">
+                      ${final.fuelAdjustment >= 0 ? 'Usage Adjustment' : 'Savings Credited'}
+                    </span>
+                  </div>
+                </div>
+                <div class="remarks-box">
+                  <strong>Operator Field Remarks:</strong> ${booking.jobDetails?.remarks || 'Work completed satisfactorily under standard cooperative operating norms.'}
+                </div>
+              </div>
+
+              <!-- Section 3: Final Totals -->
+              <div class="section-heading">
+                <div class="section-bar"></div>
+                <div class="section-title-text">3. Final Settled Payable Breakdown</div>
+              </div>
+
+              <div class="totals-container">
+                <div class="totals-box">
+                  <div class="totals-row">
+                    <span>Base Equipment Rental:</span>
+                    <span>₹${final.baseAmount.toLocaleString()}</span>
+                  </div>
+                  <div class="totals-row">
+                    <span>Verified Fuel Consumption (${final.actualFuelLiters}L):</span>
+                    <span>₹${final.actualFuelCost.toLocaleString()}</span>
+                  </div>
+                  <div class="totals-row">
+                    <span>Fuel Adjustment vs Tentative:</span>
+                    <span style="color: ${final.fuelAdjustment >= 0 ? '#b45309' : '#15803d'}; font-weight: 700;">
+                      ${final.fuelAdjustment >= 0 ? '+' : ''}₹${final.fuelAdjustment.toLocaleString()}
+                    </span>
+                  </div>
+                  <div class="totals-row">
+                    <span>Applicable GST (CGST 9% + SGST 9%):</span>
+                    <span>₹${final.tax.toLocaleString()}</span>
+                  </div>
+                  <div class="totals-divider"></div>
+                  <div class="grand-total-row">
+                    <span>Final Settled Amount:</span>
+                    <span class="grand-total-val">₹${final.totalAmount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payment Settlement Banner -->
+              <div class="payment-card ${booking.paymentStatus === 'Paid' ? 'payment-paid' : 'payment-pending'}">
+                <div class="payment-header">
+                  ${booking.paymentStatus === 'Paid'
+                    ? '<span>✓ Payment Received In Full</span>'
+                    : '<span>⏳ Payment Pending — 7-Day Hub Settlement Window</span>'}
+                </div>
+                <div class="payment-desc">
+                  ${booking.paymentStatus === 'Paid'
+                    ? `Payment of <strong>₹${final.totalAmount.toLocaleString()}</strong> has been settled via <strong>${booking.paymentMethod || 'Spot Payment / UPI'}</strong>. Collected by: <strong>${booking.collectedBy || booking.paidByStaff || 'Assigned Operator / Hub Cashier'}</strong>. Transaction reference: <code style="background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px;">TXN-${booking._id?.toString()?.substr(-8)?.toUpperCase()}</code>.`
+                    : `Field work is completed. You have a <strong>7-day grace window</strong> to visit your Cooperative Hub (<strong>${booking.equipment?.cooperativeHub || 'Office'}</strong>) to settle the final amount of <strong>₹${final.totalAmount.toLocaleString()}</strong> in Cash, UPI, or Card. Hub Cashier desk is open Monday to Saturday, 9:00 AM – 5:00 PM.`}
+                </div>
               </div>
             ` : `
-              <div style="margin-top: 20px; padding: 12px; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; font-size: 12px; color: #92400e;">
-                ℹ️ <strong>Work In Progress:</strong> This is a Tentative Bill estimate. The final bill will be calculated after work completion based on the operator's actual fuel consumption report. Minimal variance guaranteed.
+              <!-- Work in Progress / Tentative Notice -->
+              <div class="payment-card payment-pending" style="margin-top: 24px;">
+                <div class="payment-header">
+                  <span>ℹ️ Tentative Booking Estimate</span>
+                </div>
+                <div class="payment-desc">
+                  This tentative bill confirms your machinery reservation. The final invoice will be reconciled upon job completion by the equipment operator based on verified fuel meter logs. Subsidized state cooperative rates guaranteed.
+                </div>
               </div>
             `}
 
-            <div style="margin-top: 40px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-              AgriRentGov State Agriculture Cooperative Portal • Digital Encrypted Record • State Rent Audit Certified
+            <!-- Footer Strip -->
+            <div class="footer-strip">
+              <div>
+                <span class="audit-seal-text">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  AGRIX Digital Certified Invoice
+                </span>
+                &bull; Tamil Nadu Cooperative Agricultural Mechanization Society
+              </div>
+              <div style="font-family: monospace;">
+                DIGITAL-REF: AGX-${booking._id?.toString()?.substr(-10)?.toUpperCase()}
+              </div>
             </div>
           </div>
         </body>
