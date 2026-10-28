@@ -13,15 +13,21 @@ router.get('/', authenticateToken, async (req, res) => {
       if (req.user.role === 'Equipment Operator') {
         list = await Job.find({ operator: req.user.id })
           .sort({ createdAt: -1 })
-          .populate('booking')
+          .populate({
+            path: 'booking',
+            populate: { path: 'farmer', select: 'name email mobile address district taluk village' }
+          })
           .populate('equipment')
-          .populate('farmer', 'name email mobile');
+          .populate('farmer', 'name email mobile address district taluk village');
       } else {
         list = await Job.find()
           .sort({ createdAt: -1 })
-          .populate('booking')
+          .populate({
+            path: 'booking',
+            populate: { path: 'farmer', select: 'name email mobile address district taluk village' }
+          })
           .populate('equipment')
-          .populate('farmer', 'name email mobile')
+          .populate('farmer', 'name email mobile address district taluk village')
           .populate('operator', 'name email mobile');
       }
     } else {
@@ -34,8 +40,8 @@ router.get('/', authenticateToken, async (req, res) => {
         ...j,
         booking: bookings.find(b => b._id === j.booking || b.id === j.booking || String(b._id) === String(j.booking)),
         equipment: equipment.find(e => e._id === j.equipment || e.id === j.equipment),
-        farmer: users.find(u => u._id === j.farmer) || { name: 'Farmer' },
-        operator: users.find(u => u._id === j.operator) || { name: 'Equipment Operator' }
+        farmer: users.find(u => u._id === j.farmer || u.id === j.farmer || String(u._id || u.id) === String(j.farmer)) || { name: 'Farmer' },
+        operator: users.find(u => u._id === j.operator || u.id === j.operator || String(u._id || u.id) === String(j.operator)) || { name: 'Equipment Operator' }
       }));
 
       if (req.user.role === 'Equipment Operator') {
@@ -663,7 +669,7 @@ router.get('/cancellation-requests', authenticateToken, authorizeRoles('Admin', 
         cancellationDecision: { $nin: ['Approved', 'Rejected', 'APPROVED', 'REJECTED'] }
       })
       .populate('equipment')
-      .populate('farmer', 'name email mobile')
+      .populate('farmer', 'name email mobile address district taluk village')
       .populate('operator', 'name email mobile operatorId');
     } else {
       const jobs = localDb.read('jobs') || [];

@@ -6,6 +6,23 @@ import {
 } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
+const formatFarmerAddress = (farmer, fallbackBooking) => {
+  const f = farmer || fallbackBooking?.farmer;
+  if (!f) return 'Location coordinated on call';
+  const parts = [];
+  if (f.address && String(f.address).trim()) parts.push(String(f.address).trim());
+  if (f.village && String(f.village).trim() && (!f.address || !String(f.address).toLowerCase().includes(String(f.village).toLowerCase()))) {
+    parts.push(String(f.village).trim());
+  }
+  if (f.taluk && String(f.taluk).trim() && (!f.address || !String(f.address).toLowerCase().includes(String(f.taluk).toLowerCase()))) {
+    parts.push(`${String(f.taluk).trim()} Taluk`);
+  }
+  if (f.district && String(f.district).trim() && (!f.address || !String(f.address).toLowerCase().includes(String(f.district).toLowerCase()))) {
+    parts.push(String(f.district).trim());
+  }
+  return parts.length > 0 ? parts.join(', ') : 'Location coordinated on call';
+};
+
 export default function OperatorPortal({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState('jobs');
   const [jobs, setJobs] = useState([]);
@@ -111,7 +128,7 @@ export default function OperatorPortal({ user, onLogout }) {
   const loadJobs = async () => {
     setLoading(true);
     let data = await fetchOperatorJobs();
-    if (Array.isArray(data) && data.some(j => typeof j.booking === 'string' || !j.booking?.durationDays)) {
+    if (Array.isArray(data)) {
       try {
         const allBookings = await fetchBookings();
         if (Array.isArray(allBookings) && allBookings.length > 0) {
@@ -119,9 +136,18 @@ export default function OperatorPortal({ user, onLogout }) {
             const rawBookingId = typeof j.booking === 'object' ? (j.booking?._id || j.booking?.id) : j.booking;
             const matched = allBookings.find(b => (b._id && b._id === rawBookingId) || (b.id && b.id === rawBookingId));
             if (matched) {
+              const enrichedFarmer = {
+                ...(typeof matched.farmer === 'object' ? matched.farmer : {}),
+                ...(typeof j.farmer === 'object' ? j.farmer : {}),
+                address: j.farmer?.address || matched.farmer?.address,
+                village: j.farmer?.village || matched.farmer?.village,
+                taluk: j.farmer?.taluk || matched.farmer?.taluk,
+                district: j.farmer?.district || matched.farmer?.district
+              };
               return {
                 ...j,
                 booking: matched,
+                farmer: enrichedFarmer,
                 durationDays: matched.durationDays || j.durationDays
               };
             }
@@ -344,9 +370,28 @@ export default function OperatorPortal({ user, onLogout }) {
           /* Active job complete report form */
           <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '20px', padding: '2rem', border: '1px solid var(--color-primary)', marginBottom: '2rem' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.3rem', color: 'var(--color-primary)' }}>Submit Work Completion &amp; Fuel Log Report</h2>
-            <p style={{ color: 'var(--color-muted)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
+            <p style={{ color: 'var(--color-muted)', fontSize: '0.88rem', marginBottom: '0.6rem' }}>
               Job ID: {activeJob._id || activeJob.id} | Machine: {activeJob.equipment?.name || 'Machinery'} | Duration: {activeJob.durationDays || activeJob.booking?.durationDays || 1} Days
             </p>
+            <div style={{
+              marginBottom: '1.5rem',
+              padding: '0.65rem 1rem',
+              backgroundColor: 'rgba(56, 189, 248, 0.08)',
+              borderRadius: '10px',
+              border: '1px solid rgba(56, 189, 248, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              fontSize: '0.85rem',
+              flexWrap: 'wrap'
+            }}>
+              <span><strong>Farmer:</strong> {activeJob.farmer?.name || 'Farmer'} ({activeJob.farmer?.mobile || 'N/A'})</span>
+              <span style={{ color: 'var(--color-muted)' }}>&bull;</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <MapPin size={13} style={{ color: '#38bdf8' }} />
+                <span><strong>Address:</strong> {formatFarmerAddress(activeJob.farmer, activeJob.booking)}</span>
+              </span>
+            </div>
 
             <form onSubmit={handleCompleteJob} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1.25rem' }}>
               <div>
@@ -663,6 +708,25 @@ export default function OperatorPortal({ user, onLogout }) {
                         <span>Booking Duration: {job.durationDays || job.booking?.durationDays || 1} Days</span>
                       </div>
                     </div>
+
+                    {/* Booked Farmer Field / Farm Address */}
+                    <div style={{
+                      marginTop: '0.75rem',
+                      padding: '0.55rem 0.85rem',
+                      backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(56, 189, 248, 0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      fontSize: '0.84rem'
+                    }}>
+                      <MapPin size={14} style={{ color: '#38bdf8', flexShrink: 0 }} />
+                      <span style={{ color: 'var(--color-muted)' }}>Farmer Address:</span>
+                      <strong style={{ color: 'var(--color-text)' }}>
+                        {formatFarmerAddress(job.farmer, job.booking)}
+                      </strong>
+                    </div>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
@@ -966,8 +1030,12 @@ export default function OperatorPortal({ user, onLogout }) {
                 <button onClick={() => setCancellationModalJob(null)} style={{ background: 'none', border: 'none', color: 'var(--color-muted)', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
               </div>
 
-              <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginBottom: '1rem' }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>
                 Job ID: <strong>{cancellationModalJob.jobId || cancellationModalJob._id || cancellationModalJob.id}</strong> | Machine: <strong>{cancellationModalJob.equipment?.name || 'Equipment'}</strong>
+              </p>
+              <p style={{ fontSize: '0.82rem', color: 'var(--color-text)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <MapPin size={13} style={{ color: '#ef4444', flexShrink: 0 }} />
+                <span>Farmer: <strong>{cancellationModalJob.farmer?.name || 'Farmer'}</strong> &bull; {formatFarmerAddress(cancellationModalJob.farmer, cancellationModalJob.booking)}</span>
               </p>
 
               <form onSubmit={handleRequestCancellationSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
@@ -1107,8 +1175,12 @@ export default function OperatorPortal({ user, onLogout }) {
 
               <div style={{ backgroundColor: 'rgba(21, 128, 61, 0.08)', border: '1px solid rgba(21, 128, 61, 0.25)', borderRadius: '12px', padding: '1rem', marginBottom: '1.25rem' }}>
                 <div style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>Farmer Name:</div>
-                <strong style={{ fontSize: '0.95rem', color: 'var(--color-text)', display: 'block', marginBottom: '0.5rem' }}>
+                <strong style={{ fontSize: '0.95rem', color: 'var(--color-text)', display: 'block', marginBottom: '0.35rem' }}>
                   {collectPaymentModalJob.farmer?.name || 'Farmer'} ({collectPaymentModalJob.farmer?.mobile || 'No Phone'})
+                </strong>
+                <div style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>Farmer Farm/Address:</div>
+                <strong style={{ fontSize: '0.88rem', color: 'var(--color-text)', display: 'block', marginBottom: '0.5rem' }}>
+                  {formatFarmerAddress(collectPaymentModalJob.farmer, collectPaymentModalJob.booking)}
                 </strong>
                 <div style={{ fontSize: '0.82rem', color: 'var(--color-muted)' }}>Final Amount Due:</div>
                 <strong style={{ fontSize: '1.4rem', color: 'var(--color-primary)', display: 'block' }}>
